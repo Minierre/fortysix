@@ -2,10 +2,16 @@
 
 Use keystrokes to benefit you
 
-Current ideas:
+Current idea: A library for distibuted computing in the front-end
+
+- Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
+- Start with a server and a client-side script
+- Call a function on the back-end
+- A chrome extension makes sense
+
+Ideas:
 
 - UI builder that auto-generates a UI
-- A library for distibuted computing in the front-end
 - An API that generates images from CSS
 - An API that generates fractal patterns for backgrounds
 - A dial widget
