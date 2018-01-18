@@ -2,12 +2,13 @@
 
 Use keystrokes to benefit you
 
-Current idea: A library for distibuted computing in the front-end
+Current idea: A generalized library for distibuted computing in the front-end
 
-- Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
-- Start with a server and a client-side script
-- Call a function on the back-end
-- A chrome extension makes sense
+- [ ] Find people doing this already. How are they doing it?
+- [ ] Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
+- [ ] Start with a server and a client-side script
+- [ ] Call a function on the back-end
+- [ ] A chrome extension makes sense
 
 Ideas:
 
