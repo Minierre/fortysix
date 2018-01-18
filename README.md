@@ -7,6 +7,7 @@ Current idea: A generalized library for distibuted computing in the front-end. R
 - [ ] Find people doing this already. How are they doing it?
    - https://github.com/Mostafa-Samir/klyng/blob/master/README.md
    - http://folding.stanford.edu
+   - https://en.m.wikipedia.org/wiki/Peer-to-peer_web_hosting
 - [ ] consider if mvp could just use node instead of web for remote processes
 - [ ] Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
 - [ ] Start with a server and a client-side script
@@ -15,7 +16,7 @@ Current idea: A generalized library for distibuted computing in the front-end. R
 - [ ] for demo benchmark gops to compare to ec2 pricing
   - http://www.st.ewi.tudelft.nl/~iosup/ec2perf-sci-comp09cloudcomp.pdf
 
-Ideas:
+Back-up Ideas:
 
 - UI builder that auto-generates a UI
 - An API that generates images from CSS
