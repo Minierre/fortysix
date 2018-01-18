@@ -10,6 +10,7 @@ Current idea: A generalized library for distibuted computing in the front-end. R
 - [ ] Start with a server and a client-side script
 - [ ] Call a function on the back-end
 - [ ] A chrome extension makes sense
+- [ ] for demo benchmark gops to compare to ec2 pricing
 
 Ideas:
 
