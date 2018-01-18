@@ -2,7 +2,7 @@
 
 Use keystrokes to benefit you
 
-Current idea: A generalized library for distibuted computing in the front-end
+Current idea: A generalized library for distibuted computing in the front-end. Remember, you dont have to build the job runner . You just make the tools available for general purpose.
 
 - [ ] Find people doing this already. How are they doing it?
    - https://github.com/Mostafa-Samir/klyng/blob/master/README.md
