@@ -8,6 +8,7 @@ Current idea: SaaS for distibuted computing that enpowers researchers and app de
    - https://github.com/Mostafa-Samir/klyng/blob/master/README.md
    - http://folding.stanford.edu
    - https://en.m.wikipedia.org/wiki/Peer-to-peer_web_hosting
+   - https://golem.network/
 - [ ] consider if mvp could just use node instead of web for remote processes
 - [ ] Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
 - [ ] Start with a server and a client-side script
