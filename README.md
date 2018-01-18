@@ -6,6 +6,8 @@ Current idea: A generalized library for distibuted computing in the front-end. R
 
 - [ ] Find people doing this already. How are they doing it?
    - https://github.com/Mostafa-Samir/klyng/blob/master/README.md
+   - http://folding.stanford.edu
+- [ ] consider if mvp could just use node processes
 - [ ] Call a function on the back-end that triggers functions to run on the front-end for clients connected with websockets
 - [ ] Start with a server and a client-side script
 - [ ] Call a function on the back-end
