@@ -2,7 +2,7 @@
 
 Use keystrokes to benefit you
 
-Current idea: A generalized library for distibuted computing in the front-end. Remember, you dont have to build the job runner . You just make the tools available for general purpose.
+Current idea: SaaS for distibuted computing that enpowers researchers and app developers to use p2p networks for offloading computationally expensive processes. Provides an interface to customers to add jobs and a web/desktop client for volunteers/paid people to choose what jobs they want to contribute their latent processing power to. 
 
 - [ ] Find people doing this already. How are they doing it?
    - https://github.com/Mostafa-Samir/klyng/blob/master/README.md
