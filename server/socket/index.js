@@ -5,5 +5,11 @@ module.exports = (io) => {
     socket.on('disconnect', () => {
       console.log(`Connection ${socket.id} has left the building`)
     })
+
+    socket.on('update', ({ value }) => {
+
+      // Call function to find relevant ad based on value
+
+    })
   })
 }

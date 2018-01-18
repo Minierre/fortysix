@@ -1,17 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {Provider} from 'react-redux'
-import store from './store'
-import Routes from './routes'
+import App from './App'
 import '../public/style.css'
 
-
 // establishes socket connection
-import './socket'
+import socket from './socket'
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Routes />
-  </Provider>,
-  document.getElementById('app')
-)
+ReactDOM.render( <App socket={socket} />, document.getElementById('app'))
