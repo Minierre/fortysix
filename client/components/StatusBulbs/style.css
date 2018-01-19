@@ -1,0 +1,15 @@
+#status-bulbs-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+}
+
+.status-bulb {
+  margin: 0 0 0.125em 0.125em;
+  width: 30px;
+  height: 30px;
+  background: rgb(41, 128, 41);
+  border-radius: 50px;
+  border: 1px solid black;
+}
+

@@ -1,21 +1,65 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import axios from 'axios'
-import debounce from 'lodash/debounce'
-
-const imageURL = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg'
+import { Button } from 'react-bootstrap'
+import {
+  Navbar,
+  StatusBulbs,
+  RuntimeLabel,
+  ConsoleOutput
+} from './components'
+import './style.css'
 
 class App extends Component {
 
-  onChange(evt) {
-    this.props.socket.emit('update', { value: evt.target.value })
+  componentDidMount() {
+    this.props.socket.on('callFunction', (times) => {
+      for (let i = 0; i < times; ++i) {
+        this.props.socket.emit('result', this.sumRandomNumbers(times))
+      }
+    })
+  }
+
+  onClick(evt) {
+    this.props.socket.emit('start')
+  }
+
+  generateRandomNumbers() {
+    const min = -10
+    const max = 10
+    let list = new Array(10000000)
+    for (let i = 0; i < 10000000; ++i) {
+      list[i] = Math.random() * (max - min) + min
+    }
+    return list
+  }
+
+  sumRandomNumbers(times) {
+    let num = 0
+    const listnums = this.generateRandomNumbers()
+    for (let i = 0; i < listnums.length; ++i) {
+      num += listnums[i]
+    }
+    return num
   }
 
   render() {
     return (
-      <div>
-        <img style={{ height: '250px' }} alt="ad" src={imageURL} />
-        <input onChange={this.onChange.bind(this)} />
+      <div id="app-wrapper">
+        <Navbar />
+        <div id="content-wrapper">
+          <div className="algo-name-header-wrapper">
+            <h2>Accumlated Large Sum Demo</h2>
+          </div>
+          <div className="toolbar-wrapper">
+            <Button
+              bsStyle="primary"
+              onClick={this.onClick.bind(this)}
+            >Run Job</Button>
+          </div>
+          <StatusBulbs />
+          <RuntimeLabel />
+          <ConsoleOutput />
+        </div>
       </div>
     )
   }
