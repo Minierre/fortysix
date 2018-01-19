@@ -7,12 +7,16 @@ module.exports = (io) => {
   io.on('connection', (socket) => {
     console.log(`A socket connection to the server has been made: ${socket.id}`)
 
-    socket.on('disconnect', () => {
-      console.log(`Connection ${socket.id} has left the building`)
+
+    socket.on('result', (result) => {
+      console.log('result: ', result)
     })
 
+    // Congretad Huge Sum
     socket.on('start', () => {
-      io.emit('callFunction', 13)
+      Object.keys(io.sockets.sockets).forEach(function (id) {
+        io.sockets.sockets[id].emit('callFunction', 13)
+      })
     })
 
     socket.on('result', (result) => {

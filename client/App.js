@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Button } from 'react-bootstrap'
+import { Route, Switch, Router } from 'react-router-dom'
+import history from './history'
+
 import {
   Navbar,
   StatusBulbs,
