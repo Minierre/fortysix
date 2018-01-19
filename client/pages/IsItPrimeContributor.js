@@ -26,25 +26,6 @@ class IsItPrimeContributor extends Component {
     this.props.socket.emit('start')
   }
 
-  generateRandomNumbers() {
-    const min = -10
-    const max = 10
-    let list = new Array(10000000)
-    for (let i = 0; i < 10000000; ++i) {
-      list[i] = Math.random() * (max - min) + min
-    }
-    return list
-  }
-
-  sumRandomNumbers(times) {
-    let num = 0
-    const listnums = this.generateRandomNumbers()
-    for (let i = 0; i < listnums.length; ++i) {
-      num += listnums[i]
-    }
-    return num
-  }
-
   render() {
     return (
       <div id="app-wrapper">
