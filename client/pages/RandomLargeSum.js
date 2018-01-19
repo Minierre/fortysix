@@ -15,8 +15,26 @@ import {
 
 class RandomLargeSum extends Component {
 
+  constructor() {
+    super()
+    this.state = {
+      nodeCount: 0
+    }
+  }
+  componentDidMount() {
+    this.props.socket.on('updateCount-hugeSum', (nodeCount) => {
+      this.setState({ nodeCount })
+    })
+
+    this.props.socket.on('getRoomCount-hugeSum', (nodeCount) => {
+      this.setState({ nodeCount })
+    })
+
+    this.props.socket.emit('requestRoomCount', 'hugeSum')
+  }
+
   onClick(evt) {
-    this.props.socket.emit('start')
+    this.props.socket.emit('startHugeSum')
   }
 
   render() {
@@ -34,7 +52,7 @@ class RandomLargeSum extends Component {
             onClick={this.onClick.bind(this)}
           >Run Job</Button>
         </div>
-        <StatusBulbs />
+        <StatusBulbs count={this.state.nodeCount} />
         <RuntimeLabel />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
