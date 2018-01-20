@@ -23,16 +23,16 @@ class TravellingSalesman extends Component {
   constructor() {
     super()
     this.state = {
-      nodeCount: 0
+      room: {}
     }
   }
   componentDidMount() {
-    this.props.socket.on(UPDATE_COUNT_TRAVELLING_SALESMAN, (nodeCount) => {
-      this.setState({ nodeCount })
+    this.props.socket.on(UPDATE_COUNT_TRAVELLING_SALESMAN, (room) => {
+      this.setState({ room })
     })
 
-    this.props.socket.on(GET_ROOM_COUNT_TRAVELLING_SALESMAN, (nodeCount) => {
-      this.setState({ nodeCount })
+    this.props.socket.on(GET_ROOM_COUNT_TRAVELLING_SALESMAN, (room) => {
+      this.setState({ room })
     })
 
     this.props.socket.emit(REQUEST_ROOM_COUNT, TRAVELLING_SALESMAN)
@@ -63,7 +63,7 @@ class TravellingSalesman extends Component {
             onClick={this.onClick.bind(this)}
           >Run Job</Button>
         </div>
-        <StatusBulbs count={this.state.nodeCount} />
+        <StatusBulbs nodes={this.state.room.nodes} />
         <RuntimeLabel />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">

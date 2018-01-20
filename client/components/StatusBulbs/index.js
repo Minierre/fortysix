@@ -1,18 +1,19 @@
 import React from 'react'
 import times from 'lodash/times'
 import './style.css'
+import map from 'lodash/map'
 
-const StatusBulbs = ({ count }) => {
-
-  const statusBulbs = []
-
-  for (let i = 0; i < count; ++i) {
-    statusBulbs.push(<div key={i} className="status-bulb" />)
-  }
-
+const StatusBulbs = ({ nodes }) => {
   return (
     <div id="status-bulbs-wrapper">
-      {statusBulbs}
+      {
+        nodes && map(nodes, (node, id) => {
+          return node.error ?
+            <div key={id} className="status-bulb-error" />
+            :
+            <div key={id} className="status-bulb" />
+        })
+      }
     </div>
   )
 }

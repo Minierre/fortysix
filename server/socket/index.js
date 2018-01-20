@@ -16,8 +16,8 @@ const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 
 const rooms = {}
 
-const getNodesLength = (object = {}) => {
-  return object.nodes ? Object.keys(object.nodes).length : 0
+const getRoom = (object = {}) => {
+  return object || {}
 }
 
 module.exports = (io) => {
@@ -32,14 +32,14 @@ module.exports = (io) => {
         rooms[room] = {
           start: null,
           jobRunning: false,
-          nodes: { [socket.id]: { running: false } }
+          nodes: { [socket.id]: { running: false, error: false } }
         }
       } else {
         rooms[room] = {
           jobRunning: rooms[room].jobRunning,
           nodes: {
             ...rooms[room].nodes,
-            [socket.id]: { running: false }
+            [socket.id]: { running: false, error: false }
           }
         }
       }
@@ -48,20 +48,20 @@ module.exports = (io) => {
       socket.once('disconnect', () => {
         delete rooms[room].nodes[socket.id]
         socket.leave(room)
-        io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
+        io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
       })
-      io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
+      io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
     })
 
     // General purpose
     socket.on('leave', (room) => {
       socket.leave(room)
       delete rooms[room].nodes[socket.id]
-      io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
+      io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
     })
 
     socket.on('start', (room) => {
-      console.log(chalk.green('starting: '), socket.id, room)
+      console.log(chalk.green('STARTING: ') + room, socket.id, room)
     })
 
     socket.on('done', (room) => {
@@ -78,11 +78,18 @@ module.exports = (io) => {
         rooms[room].start = null
       }
 
-      console.log(chalk.green('done: '), socket.id, room)
+      console.log(chalk.green('DONE: '), socket.id, room)
     })
 
     socket.on('REQUEST_ROOM_COUNT', (room) => {
-      socket.emit('GET_ROOM_COUNT_' + room, getNodesLength(rooms[room]))
+      socket.emit('GET_ROOM_COUNT_' + room, getRoom(rooms[room]))
+    })
+
+    socket.on('JOB_ERROR', (room) => {
+      rooms[room].nodes[socket.id].running = false
+      rooms[room].nodes[socket.id].error = true
+      io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
+      console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}`)
     })
 
     jobInit(HUGE_SUM, socket, io, (io, room) => {
@@ -109,7 +116,10 @@ function jobInit(room, socket, io, partition) {
 
     Object.keys(rooms[room].nodes).forEach((socketId) => {
       rooms[room].nodes[socketId].running = true
+      rooms[room].nodes[socketId].error = false
     })
+
+    io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
 
     if (rooms[room]) {
       if (!rooms[room].running) {

@@ -11,10 +11,15 @@ class RandomLargeSumContributor extends Component {
     this.props.socket.emit('join', HUGE_SUM)
     this.props.socket.on(CALL_HUGE_SUM, (times) => {
       this.props.socket.emit('start', HUGE_SUM)
-      for (let i = 0; i < times; ++i) {
-        this.props.socket.emit('result', this.sumRandomNumbers(times))
+      try {
+        for (let i = 0; i < times; ++i) {
+          this.props.socket.emit('result', this.sumRandomNumbers(times))
+        }
+        this.props.socket.emit('done', HUGE_SUM)
+      } catch (err) {
+        console.error(err)
+        this.props.socket.emit('JOB_ERROR', HUGE_SUM)
       }
-      this.props.socket.emit('done', HUGE_SUM)
     })
 
     this.props.socket.on('disconnect', () => {

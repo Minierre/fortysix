@@ -11,8 +11,13 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.emit('join', TRAVELLING_SALESMAN)
     this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
-      this.props.socket.emit('result', this.shortestPath(parts, graph))
-      this.props.socket.emit('done', TRAVELLING_SALESMAN)
+      try {
+        this.props.socket.emit('result', this.shortestPath(parts, graph))
+        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+      } catch (err) {
+        console.error(err)
+        this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
+      }
     })
 
     this.props.socket.on('disconnect', () => {
