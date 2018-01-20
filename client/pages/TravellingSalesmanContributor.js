@@ -45,8 +45,8 @@ class TravellingSalesmanContributor extends Component {
   permutations(str, start, g) {
     let bestP = ['', Infinity];
     const perm = (substr, p='') => {
-      if (substr === '' && this.permdist(start + p + start, g) < bestP[1]) {
-        bestP = [start + p + start, this.permdist(start + p + start, g)];
+      if (substr === '' && this.permdist(start + p + start[0], g) < bestP[1]) {
+        bestP = [start + p + start[0], this.permdist(start + p + start[0], g)];
       } else {
         for (var i = 0; i < substr.length; i++) {
           perm(substr.slice(0, i) + substr.slice(i + 1), p + substr[i]);
