@@ -14,9 +14,9 @@ import {
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const START_TRAVELLING_SALESMAN = 'START_TRAVELLING_SALESMAN'
-const UPDATE_COUNT_TRAVELLING_SALESMAN = 'UPDATE_COUNT_TRAVELLING_SALESMAN'
-const GET_ROOM_COUNT_TRAVELLING_SALESMAN = 'GET_ROOM_COUNT_TRAVELLING_SALESMAN'
-const REQUEST_ROOM_COUNT = 'REQUEST_ROOM_COUNT'
+const UPDATE_TRAVELLING_SALESMAN = 'UPDATE_TRAVELLING_SALESMAN'
+const GET_ROOM_TRAVELLING_SALESMAN = 'GET_ROOM_TRAVELLING_SALESMAN'
+const REQUEST_ROOM = 'REQUEST_ROOM'
 
 class TravellingSalesman extends Component {
 
@@ -27,15 +27,15 @@ class TravellingSalesman extends Component {
     }
   }
   componentDidMount() {
-    this.props.socket.on(UPDATE_COUNT_TRAVELLING_SALESMAN, (room) => {
+    this.props.socket.on(UPDATE_TRAVELLING_SALESMAN, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.on(GET_ROOM_COUNT_TRAVELLING_SALESMAN, (room) => {
+    this.props.socket.on(GET_ROOM_TRAVELLING_SALESMAN, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.emit(REQUEST_ROOM_COUNT, TRAVELLING_SALESMAN)
+    this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
   }
 
   onClick(evt) {
