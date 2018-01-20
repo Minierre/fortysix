@@ -34,8 +34,11 @@ class TravellingSalesmanContributor extends Component {
 
   shortestPath(starts, graph) {
     let shortest = ['', Infinity]
-    for (var i = 0; i < Object.keys(starts).length; i++) {
-      let nodes = Object.keys(graph).filter(v => v !== starts[i]).join('')
+    for (var i = 0; i < starts.length; i++) {
+      let nodes = Object.keys(graph).reduce((a,b)=>{
+        if(!starts[i].includes(b)) a+=b
+        return a
+      },'')
       let s = this.permutations(nodes, starts[i], graph)
       if (s[1] < shortest[1]) shortest = s
     }
