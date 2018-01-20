@@ -19,6 +19,7 @@ module.exports = (io) => {
     socket.on('join', (room) => {
       if (!rooms[room]) {
         rooms[room] = {
+          start: null,
           jobRunning: false,
           nodes: { [socket.id]: { running: false } }
         }
@@ -26,7 +27,7 @@ module.exports = (io) => {
         rooms[room] = {
           jobRunning: rooms[room].jobRunning,
           nodes: {
-            ...rooms[room],
+            ...rooms[room].nodes,
             [socket.id]: { running: false }
           }
         }
@@ -48,6 +49,19 @@ module.exports = (io) => {
     })
 
     socket.on('done', (room) => {
+      rooms[room].nodes[socket.id].running = false
+
+      const allDone =
+        Object.keys(rooms[room].nodes)
+          .every(socketId => rooms[room].nodes[socketId].running === false)
+
+      if (allDone) {
+        console.log(
+          chalk.green('DURATION OF START HUGE SUM: ', Date.now() - rooms[room].start)
+        )
+        rooms[room].start = null
+      }
+
       console.log(chalk.green('done: '), socket.id, room)
     })
 
@@ -56,6 +70,12 @@ module.exports = (io) => {
     })
 
     socket.on('startHugeSum', () => {
+      rooms.hugeSum.start = Date.now()
+
+      Object.keys(rooms.hugeSum.nodes).forEach(socketId => {
+        rooms.hugeSum.nodes[socketId].running = true
+      })
+
       if (rooms.hugeSum) {
         if (!rooms.hugeSum.running) {
           rooms.hugeSum.running = true
