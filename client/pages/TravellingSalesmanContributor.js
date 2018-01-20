@@ -43,8 +43,7 @@ class TravellingSalesmanContributor extends Component {
 
   permutations(str, start, g) {
     let bestP = ['', Infinity];
-
-    function perm(substr, p) {
+    const perm = (substr, p='') => {
       if (substr === '' && this.permdist(start + p + start, g) < bestP[1]) {
         bestP = [start + p + start, this.permdist(start + p + start, g)];
       } else {
@@ -53,7 +52,7 @@ class TravellingSalesmanContributor extends Component {
         }
       }
     }
-    perm(str, '');
+    perm(str);
 
     return bestP;
   }
