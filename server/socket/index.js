@@ -74,7 +74,7 @@ module.exports = (io) => {
       if (allDone) {
         rooms[room].start = null
         console.log(
-          chalk.green('DURATION OF START HUGE SUM: ', Date.now() - rooms[room].start)
+          chalk.green(`DURATION OF ${room}: `, Date.now() - rooms[room].start)
         )
         io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
       }
