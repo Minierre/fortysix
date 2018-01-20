@@ -72,10 +72,11 @@ module.exports = (io) => {
           .every(socketId => rooms[room].nodes[socketId].running === false)
 
       if (allDone) {
+        rooms[room].start = null
         console.log(
           chalk.green('DURATION OF START HUGE SUM: ', Date.now() - rooms[room].start)
         )
-        rooms[room].start = null
+        io.sockets.emit('UPDATE_COUNT_' + room, getRoom(rooms[room]))
       }
 
       console.log(chalk.green('DONE: '), socket.id, room)
