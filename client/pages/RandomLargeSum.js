@@ -12,7 +12,6 @@ import {
   HistoryTable
 } from '../components'
 
-
 class RandomLargeSum extends Component {
 
   constructor() {
