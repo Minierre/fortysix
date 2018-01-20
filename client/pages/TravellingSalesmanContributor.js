@@ -12,6 +12,7 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
       try {
+        console.log(parts, graph)
         this.props.socket.emit('result', this.shortestPath(parts, graph))
         this.props.socket.emit('done', TRAVELLING_SALESMAN)
       } catch (err) {
