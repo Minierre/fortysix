@@ -21,15 +21,13 @@ class TravellingSalesmanContributor extends Component {
   }
 
   shortestPath(starts, graph) {
-    let shortest = ['', Infinity];
-
-    console.log(starts, graph)
+    let shortest = ['', Infinity]
     for (var i = 0; i < Object.keys(starts).length; i++) {
-      let nodes = Object.keys(graph).filter(v => v !== starts[i]).join('');
-      let s = this.permutations(nodes, starts[i], graph);
-      if (s[1] < shortest[1]) shortest = s;
+      let nodes = Object.keys(graph).filter(v => v !== starts[i]).join('')
+      let s = this.permutations(nodes, starts[i], graph)
+      if (s[1] < shortest[1]) shortest = s
     }
-    return shortest;
+    return shortest
   }
 
   permutations(str, start, g) {

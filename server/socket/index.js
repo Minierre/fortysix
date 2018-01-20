@@ -27,6 +27,7 @@ module.exports = (io) => {
 
     // General purpose
     socket.on('join', (room) => {
+      socket.join(room)
       if (!rooms[room]) {
         rooms[room] = {
           start: null,
@@ -79,7 +80,7 @@ module.exports = (io) => {
     })
 
     socket.on('REQUEST_ROOM_COUNT', (room) => {
-      socket.emit('GET_ROOM_COUNT' + room, getNodesLength(rooms[room]))
+      socket.emit('GET_ROOM_COUNT_' + room, getNodesLength(rooms[room]))
     })
 
     jobInit(HUGE_SUM, socket, io, (io, callName) => {
@@ -99,7 +100,6 @@ module.exports = (io) => {
 
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
-  const callName = 'CALL_' + room
 
   socket.on(startName, (args) => {
     rooms[room].start = Date.now()
@@ -111,7 +111,7 @@ function jobInit(room, socket, io, partition) {
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        partition(io, callName, args)
+        partition(io, room, args)
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))
