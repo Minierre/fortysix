@@ -5,6 +5,12 @@ const {
   sumRandomNumbers
 } = require('../modules/randomLargeSum')
 
+// constants for job names
+const HUGE_SUM = 'HUGE_SUM'
+const START_HUGE_SUM = 'START_HUGE_SUM'
+const GET_ROOM_COUNT_HUGE_SUM = 'GET_ROOM_COUNT_HUGE_SUM'
+const REQUEST_ROOM_COUNT = 'REQUEST_ROOM_COUNT'
+
 const rooms = {}
 
 const getNodesLength = (object = {}) => {
@@ -16,6 +22,7 @@ module.exports = (io) => {
   io.on('connection', (socket) => {
     console.log(`A socket connection to the server has been made: ${socket.id}`)
 
+    // General purpose
     socket.on('join', (room) => {
       if (!rooms[room]) {
         rooms[room] = {
@@ -32,16 +39,19 @@ module.exports = (io) => {
           }
         }
       }
+
+      // General purpose
       socket.once('disconnect', () => {
         delete rooms[room].nodes[socket.id]
-        io.sockets.emit('updateCount-' + room, getNodesLength(rooms[room]))
+        io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
       })
-      io.sockets.emit('updateCount-' + room, getNodesLength(rooms[room]))
+      io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
     })
 
+    // General p
     socket.on('leave', (room) => {
       delete rooms[room].nodes[socket.id]
-      io.sockets.emit('updateCount-' + room, getNodesLength(rooms[room]))
+      io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
     })
 
     socket.on('start', (room) => {
@@ -65,34 +75,42 @@ module.exports = (io) => {
       console.log(chalk.green('done: '), socket.id, room)
     })
 
-    socket.on('requestRoomCount', (room) => {
-      socket.emit('getRoomCount-' + room, getNodesLength(rooms[room]))
+    socket.on('REQUEST_ROOM_COUNT', (room) => {
+      socket.emit('GET_ROOM_COUNT' + room, getNodesLength(rooms[room]))
     })
 
-    socket.on('startHugeSum', () => {
-      rooms.hugeSum.start = Date.now()
-
-      Object.keys(rooms.hugeSum.nodes).forEach(socketId => {
-        rooms.hugeSum.nodes[socketId].running = true
-      })
-
-      if (rooms.hugeSum) {
-        if (!rooms.hugeSum.running) {
-          rooms.hugeSum.running = true
-          Object.keys(io.sockets.sockets).forEach((id) => {
-            io.sockets.sockets[id].emit('callHugeSum', 13)
-          })
-          rooms.hugeSum.running = false
-        } else {
-          console.log(chalk.red('startHugeSum already running!'))
-        }
-      } else {
-        console.log(chalk.red('startHugeSum attempted without nodes'))
-      }
-    })
+    jobInit(HUGE_SUM, socket, io)
 
     socket.on('result', (result) => {
       console.log('result: ', result)
     })
+  })
+}
+
+
+function jobInit(room, socket, io) {
+  const startName = 'START_' + room
+  const callName = 'CALL_' + room
+
+  socket.on(startName, () => {
+    rooms[room].start = Date.now()
+
+    Object.keys(rooms[room].nodes).forEach(socketId => {
+      rooms[room].nodes[socketId].running = true
+    })
+
+    if (rooms[room]) {
+      if (!rooms[room].running) {
+        rooms[room].running = true
+        Object.keys(io.sockets.sockets).forEach((id) => {
+          io.sockets.sockets[id].emit(callName, 13)
+        })
+        rooms[room].running = false
+      } else {
+        console.log(chalk.red(`${startName} already running!`))
+      }
+    } else {
+      console.log(chalk.red(`${startName} attempted without nodes`))
+    }
   })
 }

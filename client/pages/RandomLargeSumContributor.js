@@ -1,21 +1,25 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 
+const HUGE_SUM = 'HUGE_SUM'
+const LEAVE_HUGE_SUM = 'LEAVE_HUGE_SUM'
+const CALL_HUGE_SUM = 'CALL_HUGE_SUM'
+
 class RandomLargeSumContributor extends Component {
 
   componentDidMount() {
-    this.props.socket.emit('join', 'hugeSum')
-    this.props.socket.on('callHugeSum', (times) => {
-      this.props.socket.emit('start', 'hugeSum')
+    this.props.socket.emit('join', HUGE_SUM)
+    this.props.socket.on(CALL_HUGE_SUM, (times) => {
+      this.props.socket.emit('start', HUGE_SUM)
       for (let i = 0; i < times; ++i) {
         this.props.socket.emit('result', this.sumRandomNumbers(times))
       }
-      this.props.socket.emit('done', 'hugeSum')
+      this.props.socket.emit('done', HUGE_SUM)
     })
   }
 
   componentWillUnmount() {
-    this.props.socket.emit('leaveHugeSum')
+    this.props.socket.emit(LEAVE_HUGE_SUM)
   }
 
   generateRandomNumbers() {
