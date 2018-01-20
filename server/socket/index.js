@@ -47,13 +47,15 @@ module.exports = (io) => {
       // General purpose
       socket.once('disconnect', () => {
         delete rooms[room].nodes[socket.id]
+        socket.leave(room)
         io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
       })
       io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
     })
 
-    // General p
+    // General purpose
     socket.on('leave', (room) => {
+      socket.leave(room)
       delete rooms[room].nodes[socket.id]
       io.sockets.emit('UPDATE_COUNT_' + room, getNodesLength(rooms[room]))
     })
@@ -83,9 +85,10 @@ module.exports = (io) => {
       socket.emit('GET_ROOM_COUNT_' + room, getNodesLength(rooms[room]))
     })
 
-    jobInit(HUGE_SUM, socket, io, (io, callName) => {
-      Object.keys(io.sockets.sockets).forEach((id) => {
-        io.sockets.sockets[id].emit(callName, 13)
+    jobInit(HUGE_SUM, socket, io, (io, room) => {
+      const socketsInRoom = io.sockets.adapter.rooms[HUGE_SUM].sockets
+      Object.keys(socketsInRoom).forEach((id) => {
+        io.sockets.sockets[id].emit('CALL_' + room, 13)
       })
     })
 

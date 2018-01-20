@@ -16,6 +16,12 @@ class RandomLargeSumContributor extends Component {
       }
       this.props.socket.emit('done', HUGE_SUM)
     })
+
+    this.props.socket.on('disconnect', () => {
+      this.props.socket.on('connect', () => {
+        this.props.socket.emit('join', HUGE_SUM)
+      })
+    })
   }
 
   componentWillUnmount() {

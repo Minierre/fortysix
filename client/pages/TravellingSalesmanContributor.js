@@ -14,6 +14,12 @@ class TravellingSalesmanContributor extends Component {
       this.props.socket.emit('result', this.shortestPath(parts, graph))
       this.props.socket.emit('done', TRAVELLING_SALESMAN)
     })
+
+    this.props.socket.on('disconnect', () => {
+      this.props.socket.on('connect', () => {
+        this.props.socket.emit('join', TRAVELLING_SALESMAN)
+      })
+    })
   }
 
   componentWillUnmount() {
