@@ -23,6 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.15.3",
+    "big.js": "^5.0.3",
     "body-parser": "^1.16.1",
     "chalk": "^2.3.0",
     "child_process": "^1.0.2",

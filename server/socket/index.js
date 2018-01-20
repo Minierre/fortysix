@@ -15,6 +15,10 @@ const REQUEST_ROOM = 'REQUEST_ROOM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 
 const rooms = {}
+let finalResult = {
+  tour: '',
+  dist: Infinity
+}
 
 const getRoom = (object = {}) => {
   return object || {}
@@ -66,16 +70,22 @@ module.exports = (io) => {
 
     socket.on('done', (room) => {
       rooms[room].nodes[socket.id].running = false
-
       const allDone =
         Object.keys(rooms[room].nodes)
           .every(socketId => rooms[room].nodes[socketId].running === false)
 
       if (allDone) {
-        rooms[room].start = null
         console.log(
-          chalk.green('DURATION OF START HUGE SUM: ', Date.now() - rooms[room].start)
+          chalk.green(`DURATION OF ${room}: `, Date.now() - rooms[room].start)
         )
+        console.log(
+          chalk.magenta(`FINAL RESULT ${finalResult.tour} ${finalResult.dist}`)
+        )
+        rooms[room].start = null
+        finalResult = {
+          tour: '',
+          dist: Infinity
+        }
         io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
       }
 
@@ -103,7 +113,13 @@ module.exports = (io) => {
     jobInit(TRAVELLING_SALESMAN, socket, io, travellingSalesman.partition)
 
     socket.on('result', (result) => {
+      if(finalResult.dist > result[1]){
+        finalResult.tour = result[0]
+        finalResult.dist = result[1]
+      }
+
       console.log('result: ', result)
+      console.log('running best: ', finalResult)
     })
   })
 }

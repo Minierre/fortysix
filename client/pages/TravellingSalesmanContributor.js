@@ -12,6 +12,7 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
       try {
+        console.log(parts, graph)
         this.props.socket.emit('result', this.shortestPath(parts, graph))
         this.props.socket.emit('done', TRAVELLING_SALESMAN)
       } catch (err) {
@@ -43,8 +44,7 @@ class TravellingSalesmanContributor extends Component {
 
   permutations(str, start, g) {
     let bestP = ['', Infinity];
-
-    function perm(substr, p) {
+    const perm = (substr, p='') => {
       if (substr === '' && this.permdist(start + p + start, g) < bestP[1]) {
         bestP = [start + p + start, this.permdist(start + p + start, g)];
       } else {
@@ -53,7 +53,7 @@ class TravellingSalesmanContributor extends Component {
         }
       }
     }
-    perm(str, '');
+    perm(str);
 
     return bestP;
   }
