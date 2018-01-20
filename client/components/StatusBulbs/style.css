@@ -12,4 +12,19 @@
   border-radius: 50px;
   border: 1px solid black;
 }
+.status-bulb-running {
+  margin: 0 0 0.125em 0.125em;
+  width: 30px;
+  height: 30px;
+}
+
+.status-bulb-error {
+  margin: 0 0 0.125em 0.125em;
+  width: 30px;
+  height: 30px;
+  background: rgb(218, 17, 17);
+  border-radius: 50px;
+  border: 1px solid black;
+}
+
 

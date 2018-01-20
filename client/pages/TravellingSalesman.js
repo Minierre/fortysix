@@ -12,45 +12,49 @@ import {
   HistoryTable
 } from '../components'
 
-const HUGE_SUM = 'HUGE_SUM'
-const START_HUGE_SUM = 'START_HUGE_SUM'
-const UPDATE_COUNT_HUGE_SUM = 'UPDATE_COUNT_HUGE_SUM'
-const GET_ROOM_COUNT_HUGE_SUM = 'GET_ROOM_COUNT_HUGE_SUM'
+const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
+const START_TRAVELLING_SALESMAN = 'START_TRAVELLING_SALESMAN'
+const UPDATE_COUNT_TRAVELLING_SALESMAN = 'UPDATE_COUNT_TRAVELLING_SALESMAN'
+const GET_ROOM_COUNT_TRAVELLING_SALESMAN = 'GET_ROOM_COUNT_TRAVELLING_SALESMAN'
 const REQUEST_ROOM_COUNT = 'REQUEST_ROOM_COUNT'
 
-class RandomLargeSum extends Component {
+class TravellingSalesman extends Component {
 
   constructor() {
     super()
     this.state = {
-      room: {
-        nodes: {}
-      }
+      room: {}
     }
   }
   componentDidMount() {
-    this.props.socket.on(UPDATE_COUNT_HUGE_SUM, (room) => {
+    this.props.socket.on(UPDATE_COUNT_TRAVELLING_SALESMAN, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.on(GET_ROOM_COUNT_HUGE_SUM, (room) => {
+    this.props.socket.on(GET_ROOM_COUNT_TRAVELLING_SALESMAN, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.emit(REQUEST_ROOM_COUNT, HUGE_SUM)
+    this.props.socket.emit(REQUEST_ROOM_COUNT, TRAVELLING_SALESMAN)
   }
 
   onClick(evt) {
-    this.props.socket.emit(START_HUGE_SUM)
+    this.props.socket.emit(START_TRAVELLING_SALESMAN, {
+      a: { b: 1, c: 3, d: 4, e: 4 },
+      b: { c: 2, d: 2, e: 5, a: 3 },
+      c: { d: 4, e: 1, a: 7, b: 2 },
+      d: { e: 5, a: 6, b: 1, c: 1 },
+      e: { a: 3, b: 2, c: 3, d: 1 }
+    })
   }
 
   render() {
     return (
       <div>
         <div className="algo-name-header-wrapper">
-          <h2>Accumlated Large Sum Demo</h2>
+          <h2>Travelling Salesman Demo</h2>
           <p>
-            For each node this algorithm will randomly generate 10 million numbers between -10 and 10, get their sum then print it to the console.
+            For each task node for this algorithim finds a subset of the permutations neccesary to determine the shortest tour and send the results back to the root node.
           </p>
         </div>
         <div className="toolbar-wrapper">
@@ -74,5 +78,5 @@ class RandomLargeSum extends Component {
   }
 }
 
-export default RandomLargeSum
+export default TravellingSalesman
 
