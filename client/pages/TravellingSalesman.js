@@ -86,6 +86,7 @@ class TravellingSalesman extends Component {
           >Run Job</Button>
         </div>
         <StatusBulbs nodes={this.state.room.nodes} />
+        <div>{(this.state.room.nodes)?Object.keys(this.state.room.nodes).length:0}</div>
         <RuntimeLabel />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
