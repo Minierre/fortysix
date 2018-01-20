@@ -5,11 +5,14 @@ const {
   sumRandomNumbers
 } = require('../modules/randomLargeSum')
 
+const travellingSalesman = require('../modules/travellingSalesman')
+
 // constants for job names
 const HUGE_SUM = 'HUGE_SUM'
 const START_HUGE_SUM = 'START_HUGE_SUM'
 const GET_ROOM_COUNT_HUGE_SUM = 'GET_ROOM_COUNT_HUGE_SUM'
 const REQUEST_ROOM_COUNT = 'REQUEST_ROOM_COUNT'
+const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 
 const rooms = {}
 
@@ -79,7 +82,13 @@ module.exports = (io) => {
       socket.emit('GET_ROOM_COUNT' + room, getNodesLength(rooms[room]))
     })
 
-    jobInit(HUGE_SUM, socket, io)
+    jobInit(HUGE_SUM, socket, io, (io, callName) => {
+      Object.keys(io.sockets.sockets).forEach((id) => {
+        io.sockets.sockets[id].emit(callName, 13)
+      })
+    })
+
+    jobInit(TRAVELLING_SALESMAN, socket, io, travellingSalesman.partition)
 
     socket.on('result', (result) => {
       console.log('result: ', result)
@@ -88,23 +97,21 @@ module.exports = (io) => {
 }
 
 
-function jobInit(room, socket, io) {
+function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
 
-  socket.on(startName, () => {
+  socket.on(startName, (args) => {
     rooms[room].start = Date.now()
 
-    Object.keys(rooms[room].nodes).forEach(socketId => {
+    Object.keys(rooms[room].nodes).forEach((socketId) => {
       rooms[room].nodes[socketId].running = true
     })
 
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        Object.keys(io.sockets.sockets).forEach((id) => {
-          io.sockets.sockets[id].emit(callName, 13)
-        })
+        partition(io, callName, args)
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))

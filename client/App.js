@@ -10,7 +10,9 @@ import {
 
 import {
   RandomLargeSum,
-  RandomLargeSumContributor
+  RandomLargeSumContributor,
+  TravellingSalesman,
+  TravellingSalesmanContributor
 } from './pages'
 
 import './style.css'
@@ -31,6 +33,14 @@ class App extends Component {
               <Route
                 path="/random-large-sum"
                 component={() => <RandomLargeSumContributor socket={this.props.socket} />}
+              />
+              <Route
+                path="/admin/travelling-salesman"
+                component={() => <TravellingSalesman socket={this.props.socket} />}
+              />
+              <Route
+                path="/travelling-salesman"
+                component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
               />
             </Switch>
           </Main>
