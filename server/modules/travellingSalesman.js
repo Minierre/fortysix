@@ -6,7 +6,7 @@ function partition(io, room, graph) {
 
   let keys = Object.keys(graph)
   let portions = ['']
-  while(parts>portions.length){
+  while(parts>=portions.length){
     portions = portions.reduce((a,b)=>{
       keys.forEach(v=>{
         if(!b.includes(v)) a.push(b.concat(v))
