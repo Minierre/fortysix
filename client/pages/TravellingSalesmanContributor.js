@@ -84,6 +84,7 @@ class TravellingSalesmanContributor extends Component {
           thread.kill()
         })
         .on('error', (error) => {
+          this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
           console.error('Worker errored:', error)
         })
     }
