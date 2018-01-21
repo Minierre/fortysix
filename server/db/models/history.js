@@ -6,6 +6,9 @@ const History = db.define('history', {
     type: Sequelize.INTEGER,
     allowNull: false
   },
+  room: {
+    type: Sequelize.STRING
+  },
   startTime: {
     type: Sequelize.DATE,
     allowNull: false

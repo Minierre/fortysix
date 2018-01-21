@@ -1,4 +1,5 @@
 const chalk = require('chalk')
+const { History } = require('../db/models')
 
 const {
   generateRandomNumbers,
@@ -13,6 +14,7 @@ const START_HUGE_SUM = 'START_HUGE_SUM'
 const GET_ROOM_HUGE_SUM = 'GET_ROOM_HUGE_SUM'
 const REQUEST_ROOM = 'REQUEST_ROOM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
+const UPDATE_HISTORY = 'UPDATE_HISTORY'
 
 const rooms = {}
 let finalResult = {
@@ -75,20 +77,39 @@ module.exports = (io) => {
           .every(socketId => rooms[room].nodes[socketId].running === false)
 
       if (allDone) {
+        const endTime = Date.now()
         console.log(
-          chalk.green(`DURATION OF ${room}: `, Date.now() - rooms[room].start)
+          chalk.green(`DURATION OF ${room}: `, endTime - rooms[room].start)
         )
+
         console.log(
           chalk.magenta(`FINAL RESULT ${finalResult.tour} ${finalResult.dist}`)
         )
+
+        io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+
+        History.create({
+          nodes: Object.keys(rooms[room].nodes).length,
+          result: finalResult.tour + ' ' + finalResult.dist,
+          startTime: rooms[room].start,
+          endTime,
+          room
+        })
+          .then(() => {
+            History.findAll({ where: { room } }).then((history) => {
+              io.sockets.emit('UPDATE_HISTORY_' + room, history)
+            })
+          })
+
         rooms[room].start = null
         finalResult = {
           tour: '',
           dist: Infinity
         }
-        io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
       }
 
+
+      io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
       console.log(chalk.green('DONE: '), socket.id, room)
     })
 
