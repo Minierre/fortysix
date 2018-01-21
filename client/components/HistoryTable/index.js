@@ -2,8 +2,9 @@ import React from 'react'
 import {
   Table
 } from 'react-bootstrap'
+import moment from 'moment'
 
-const HistoryTable = () => (
+const HistoryTable = ({ data }) => (
   <Table responsive>
     <thead>
       <tr>
@@ -11,39 +12,22 @@ const HistoryTable = () => (
         <th>Date Run</th>
         <th># of Nodes</th>
         <th>Execution Time</th>
-        <th>Iterations per node</th>
         <th>Result</th>
-        <th>Sucessful</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>1</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-        <td>Table cell</td>
-      </tr>
+      {data && data.map(row => {
+        var date = new Date(row.startTime);
+        return (
+          <tr key={row.id}>
+            <td>{row.id}</td>
+            <td>{moment(date).format('MMMM Do YYYY, h:mm:ss a')}</td>
+            <td>{row.nodes}</td>
+            <td>{(new Date(row.endTime) - new Date(row.startTime)) / 1000}</td>
+            <td>{row.result}</td>
+          </tr>
+        )
+      })}
     </tbody>
   </Table>
 )

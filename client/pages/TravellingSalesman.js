@@ -5,9 +5,11 @@ import {
   Tab
 } from 'react-bootstrap'
 
+import axios from 'axios'
+
 import {
   StatusBulbs,
-  RuntimeLabel,
+  LastExecutionInfo,
   ConsoleOutput,
   HistoryTable
 } from '../components'
@@ -17,13 +19,16 @@ const START_TRAVELLING_SALESMAN = 'START_TRAVELLING_SALESMAN'
 const UPDATE_TRAVELLING_SALESMAN = 'UPDATE_TRAVELLING_SALESMAN'
 const GET_ROOM_TRAVELLING_SALESMAN = 'GET_ROOM_TRAVELLING_SALESMAN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
+const REQUEST_HISTORY = 'REQUEST_HISTORY'
+const UPDATE_HISTORY_TRAVELLING_SALESMAN = 'UPDATE_HISTORY_TRAVELLING_SALESMAN'
 
 class TravellingSalesman extends Component {
 
   constructor() {
     super()
     this.state = {
-      room: {}
+      room: {},
+      history: []
     }
     //  const threcadecaNode = {
     //   a: { b: 1, c: 3, d: 4, e: 4, f: 1, g: 4, h: 1, i: 2, j: 7, k: 8, l: 3, m: 10 },
@@ -55,12 +60,17 @@ class TravellingSalesman extends Component {
     }
   }
   componentDidMount() {
+
+    axios.get('/api/history/' + TRAVELLING_SALESMAN).then((history) => {
+      this.setState({ history: history.data })
+    })
+
     this.props.socket.on(UPDATE_TRAVELLING_SALESMAN, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.on(GET_ROOM_TRAVELLING_SALESMAN, (room) => {
-      this.setState({ room })
+    this.props.socket.on(UPDATE_HISTORY_TRAVELLING_SALESMAN, (history) => {
+      this.setState({ history })
     })
 
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
@@ -71,6 +81,9 @@ class TravellingSalesman extends Component {
   }
 
   render() {
+    // this sorts the table as a side effect
+    const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
+    const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
     return (
       <div>
         <div className="algo-name-header-wrapper">
@@ -83,14 +96,15 @@ class TravellingSalesman extends Component {
           <Button
             bsStyle="primary"
             onClick={this.onClick.bind(this)}
+            disabled={this.state.room.jobRunning}
           >Run Job</Button>
         </div>
         <StatusBulbs nodes={this.state.room.nodes} />
         <div>{(this.state.room.nodes)?Object.keys(this.state.room.nodes).length:0}</div>
-        <RuntimeLabel />
+        <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
-            <HistoryTable />
+            <HistoryTable data={this.state.history} />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Output">
             <ConsoleOutput />
