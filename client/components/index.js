@@ -1,6 +1,6 @@
 export { default as Navbar } from './Navbar'
 export { default as StatusBulbs } from './StatusBulbs'
-export { default as RuntimeLabel } from './RuntimeLabel'
+export { default as LastExecutionInfo } from './LastExecutionInfo'
 export { default as ConsoleOutput } from './ConsoleOutput'
 export { default as Main } from './Main'
 export { default as HistoryTable } from './HistoryTable'

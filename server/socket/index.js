@@ -10,11 +10,7 @@ const travellingSalesman = require('../modules/travellingSalesman')
 
 // constants for job names
 const HUGE_SUM = 'HUGE_SUM'
-const START_HUGE_SUM = 'START_HUGE_SUM'
-const GET_ROOM_HUGE_SUM = 'GET_ROOM_HUGE_SUM'
-const REQUEST_ROOM = 'REQUEST_ROOM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
-const UPDATE_HISTORY = 'UPDATE_HISTORY'
 
 const rooms = {}
 let finalResult = {
@@ -101,6 +97,7 @@ module.exports = (io) => {
             })
           })
 
+        rooms[room].jobRunning = false
         rooms[room].start = null
         finalResult = {
           tour: '',
@@ -114,7 +111,7 @@ module.exports = (io) => {
     })
 
     socket.on('REQUEST_ROOM', (room) => {
-      socket.emit('GET_ROOM_' + room, getRoom(rooms[room]))
+      socket.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
 
     socket.on('JOB_ERROR', (room) => {
@@ -151,6 +148,7 @@ function jobInit(room, socket, io, partition) {
 
   socket.on(startName, (args) => {
     rooms[room].start = Date.now()
+    rooms[room].jobRunning = true
 
     Object.keys(rooms[room].nodes).forEach((socketId) => {
       rooms[room].nodes[socketId].running = true

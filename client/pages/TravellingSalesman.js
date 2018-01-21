@@ -9,7 +9,7 @@ import axios from 'axios'
 
 import {
   StatusBulbs,
-  RuntimeLabel,
+  LastExecutionInfo,
   ConsoleOutput,
   HistoryTable
 } from '../components'
@@ -69,13 +69,11 @@ class TravellingSalesman extends Component {
       this.setState({ room })
     })
 
-    this.props.socket.on(GET_ROOM_TRAVELLING_SALESMAN, (room) => {
-      this.setState({ room })
-    })
-
     this.props.socket.on(UPDATE_HISTORY_TRAVELLING_SALESMAN, (history) => {
       this.setState({ history })
     })
+
+    this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
   }
 
   onClick(evt) {
@@ -95,11 +93,12 @@ class TravellingSalesman extends Component {
           <Button
             bsStyle="primary"
             onClick={this.onClick.bind(this)}
+            disabled={this.state.room.jobRunning}
           >Run Job</Button>
         </div>
         <StatusBulbs nodes={this.state.room.nodes} />
         <div>{(this.state.room.nodes)?Object.keys(this.state.room.nodes).length:0}</div>
-        <RuntimeLabel />
+        <LastExecutionInfo result={this.state.history.length && this.state.history[0].result} runtime={this.state.history.length && this.state.history[0].runtime} />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
             <HistoryTable data={this.state.history} />
