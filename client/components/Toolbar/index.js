@@ -19,7 +19,7 @@ const Toolbar = ({ startJob, abortJob, toggleMultiThreaded, jobRunning, multiThr
 
     <div className="switches-group">
       <Switch onClick={toggleMultiThreaded} on={multiThreaded} />
-      <div>Multi Threaded</div>
+      <div>Use web workers (multithreaded)</div>
     </div>
   </div>
 )

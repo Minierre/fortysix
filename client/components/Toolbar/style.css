@@ -3,7 +3,7 @@
   }
 
   .toolbar-wrapper {
-    width: 200px;
+    width: 300px;
     height: 70px;
     justify-content: space-between;
     display: flex;
@@ -12,7 +12,7 @@
   }
 
   .toolbar-wrapper .switches-group {
-    width: 150px;
+    width: 275px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
