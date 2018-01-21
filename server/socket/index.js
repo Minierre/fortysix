@@ -108,7 +108,6 @@ module.exports = (io) => {
         }
       }
 
-
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
       console.log(chalk.green('DONE: '), socket.id, room)
     })
@@ -136,7 +135,12 @@ module.exports = (io) => {
       })
     })
 
-    jobInit(TRAVELLING_SALESMAN, socket, io, travellingSalesman.partition)
+    jobInit(
+      TRAVELLING_SALESMAN,
+      socket,
+      io,
+      travellingSalesman.partition
+    )
 
     socket.on('result', (result) => {
       if(finalResult.dist > result[1]){
@@ -167,7 +171,12 @@ function jobInit(room, socket, io, partition) {
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        partition(io, room, args)
+        partition(
+          io,
+          room,
+          rooms[TRAVELLING_SALESMAN].multiThreaded,
+          args
+        )
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))

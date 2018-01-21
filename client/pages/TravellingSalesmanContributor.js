@@ -11,19 +11,15 @@ class TravellingSalesmanContributor extends Component {
 
   componentDidMount() {
     this.props.socket.emit('join', TRAVELLING_SALESMAN)
-    this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
+    this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph, { multiThreaded }) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
       try {
-        let shortest = ['', Infinity]
-        let i = 0
-        this.shortestPath(parts, graph, (s) => {
-          if (s[1] < shortest[1]) shortest = s
-          ++i
-          if (i === parts.length) {
-            this.props.socket.emit('result', shortest)
-            this.props.socket.emit('done', TRAVELLING_SALESMAN)
-          }
-        })
+        console.log(parts, graph, 'multiThreaded: ' + multiThreaded)
+        if (multiThreaded) {
+          this.runMultiThreaded(parts, graph)
+        } else {
+          this.runSingleThreaded(parts, graph)
+        }
       } catch (err) {
         console.error(err)
         this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
@@ -39,6 +35,62 @@ class TravellingSalesmanContributor extends Component {
 
   componentWillUnmount() {
     this.props.socket.emit(LEAVE_TRAVELLING_SALESMAN)
+  }
+
+  runSingleThreaded(parts, graph) {
+    this.props.socket.emit('result',
+      this.shortestPathSingleThreaded(parts, graph))
+    this.props.socket.emit('done', TRAVELLING_SALESMAN)
+  }
+
+  shortestPathSingleThreaded(starts, graph) {
+    let shortest = ['', Infinity]
+    for (var i = 0; i < starts.length; i++) {
+      let nodes = Object.keys(graph).reduce((a, b) => {
+        if (!starts[i].includes(b)) a += b
+        return a
+      }, '')
+      let s = this.permutations(nodes, starts[i], graph)
+      if (s[1] < shortest[1]) shortest = s
+    }
+    return shortest
+  }
+
+  permutations(str, start, g) {
+    let bestP = ['', Infinity]
+    const perm = (substr, p = '') => {
+      if (substr === '' && this.permdist(start + p + start[0], g) < bestP[1]) {
+        bestP = [start + p + start[0], this.permdist(start + p + start[0], g)];
+      } else {
+        for (var i = 0; i < substr.length; i++) {
+          perm(substr.slice(0, i) + substr.slice(i + 1), p + substr[i]);
+        }
+      }
+    }
+    perm(str);
+
+    return bestP;
+  }
+
+  permdist(p, g) {
+    let d = 0;
+    for (var i = 0; i < p.length - 1; i++) {
+      d += g[p[i]][p[i + 1]];
+    }
+    return d;
+  }
+
+  runMultiThreaded(parts, graph) {
+    let shortest = ['', Infinity]
+    let i = 0
+    this.shortestPath(parts, graph, (s) => {
+      if (s[1] < shortest[1]) shortest = s
+      ++i
+      if (i === parts.length) {
+        this.props.socket.emit('result', shortest)
+        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+      }
+    })
   }
 
   shortestPath(starts, graph, done) {

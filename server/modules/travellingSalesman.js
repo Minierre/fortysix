@@ -1,18 +1,18 @@
-function partition(io, room, graph) {
+function partition(io, room, multiThreaded, graph) {
   const partitions = {}
   const callName = 'CALL_' + room
   const socketsInRoom = io.sockets.adapter.rooms[room].sockets
   const parts = Object.keys(socketsInRoom).length
 
-  let keys = Object.keys(graph)
+  const keys = Object.keys(graph)
   let portions = ['']
-  while(parts>=portions.length){
-    portions = portions.reduce((a,b)=>{
-      keys.forEach(v=>{
-        if(!b.includes(v)) a.push(b.concat(v))
+  while (parts >= portions.length) {
+    portions = portions.reduce((a, b) => {
+      keys.forEach(v => {
+        if (!b.includes(v)) a.push(b.concat(v))
       })
       return a
-    },[])
+    }, [])
   }
 
   // this needs to be way better
@@ -23,7 +23,7 @@ function partition(io, room, graph) {
 
   Object.keys(socketsInRoom).forEach((id, i) => {
     io.sockets.sockets[id]
-      .emit(callName, partitions[i], graph)
+      .emit(callName, partitions[i], graph, { multiThreaded })
   })
 }
 
