@@ -12,6 +12,8 @@ import {
   HistoryTable
 } from '../components'
 
+import './style.css'
+
 const HUGE_SUM = 'HUGE_SUM'
 const START_HUGE_SUM = 'START_HUGE_SUM'
 const UPDATE_HUGE_SUM = 'UPDATE_HUGE_SUM'
@@ -61,11 +63,11 @@ class RandomLargeSum extends Component {
         </div>
         <StatusBulbs nodes={this.state.room.nodes} />
         <RuntimeLabel />
-        <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
-          <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
+        <Tabs defaultActiveKey={1} animation={false}>
+          <Tab eventKey={1} title="History">
             <HistoryTable />
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Output">
+          <Tab eventKey={2} title="Output">
             <ConsoleOutput />
           </Tab>
         </Tabs>

@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
+import { spawn } from 'threads'
+import './style.css'
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const LEAVE_TRAVELLING_SALESMAN = 'LEAVE_TRAVELLING_SALESMAN'
@@ -9,12 +11,15 @@ class TravellingSalesmanContributor extends Component {
 
   componentDidMount() {
     this.props.socket.emit('join', TRAVELLING_SALESMAN)
-    this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
+    this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph, { multiThreaded }) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
       try {
-        console.log(parts, graph)
-        this.props.socket.emit('result', this.shortestPath(parts, graph))
-        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+        console.log(parts, graph, 'multiThreaded: ' + multiThreaded)
+        if (multiThreaded) {
+          this.runMultiThreaded(parts, graph)
+        } else {
+          this.runSingleThreaded(parts, graph)
+        }
       } catch (err) {
         console.error(err)
         this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
@@ -32,13 +37,19 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.emit(LEAVE_TRAVELLING_SALESMAN)
   }
 
-  shortestPath(starts, graph) {
+  runSingleThreaded(parts, graph) {
+    this.props.socket.emit('result',
+      this.shortestPathSingleThreaded(parts, graph))
+    this.props.socket.emit('done', TRAVELLING_SALESMAN)
+  }
+
+  shortestPathSingleThreaded(starts, graph) {
     let shortest = ['', Infinity]
     for (var i = 0; i < starts.length; i++) {
-      let nodes = Object.keys(graph).reduce((a,b)=>{
-        if(!starts[i].includes(b)) a+=b
+      let nodes = Object.keys(graph).reduce((a, b) => {
+        if (!starts[i].includes(b)) a += b
         return a
-      },'')
+      }, '')
       let s = this.permutations(nodes, starts[i], graph)
       if (s[1] < shortest[1]) shortest = s
     }
@@ -46,8 +57,8 @@ class TravellingSalesmanContributor extends Component {
   }
 
   permutations(str, start, g) {
-    let bestP = ['', Infinity];
-    const perm = (substr, p='') => {
+    let bestP = ['', Infinity]
+    const perm = (substr, p = '') => {
       if (substr === '' && this.permdist(start + p + start[0], g) < bestP[1]) {
         bestP = [start + p + start[0], this.permdist(start + p + start[0], g)];
       } else {
@@ -67,6 +78,68 @@ class TravellingSalesmanContributor extends Component {
       d += g[p[i]][p[i + 1]];
     }
     return d;
+  }
+
+  runMultiThreaded(parts, graph) {
+    let shortest = ['', Infinity]
+    let i = 0
+    this.shortestPath(parts, graph, (s) => {
+      if (s[1] < shortest[1]) shortest = s
+      ++i
+      if (i === parts.length) {
+        this.props.socket.emit('result', shortest)
+        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+      }
+    })
+  }
+
+  shortestPath(starts, graph, done) {
+    for (var i = 0; i < starts.length; i++) {
+      let nodes = Object.keys(graph).reduce((a, b) => {
+        if (!starts[i].includes(b)) a += b
+        return a
+      }, '')
+
+      const thread = spawn((args, done) => {
+
+        function permutations(str, start, g) {
+          let bestP = ['', Infinity];
+          const perm = (substr, p = '') => {
+            if (substr === '' && permdist(start + p + start[0], g) < bestP[1]) {
+              bestP = [start + p + start[0], permdist(start + p + start[0], g)];
+            } else {
+              for (var i = 0; i < substr.length; i++) {
+                perm(substr.slice(0, i) + substr.slice(i + 1), p + substr[i]);
+              }
+            }
+          }
+          perm(str);
+
+          return bestP;
+        }
+
+        function permdist(p, g) {
+          let d = 0;
+          for (var i = 0; i < p.length - 1; i++) {
+            d += g[p[i]][p[i + 1]];
+          }
+          return d;
+        }
+
+        done({ result: permutations(args.nodes, args.start, args.graph) })
+      })
+
+      thread
+        .send({ start: starts[i], graph, nodes })
+        .on('message', (s) => {
+          done(s.result)
+          thread.kill()
+        })
+        .on('error', (error) => {
+          this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
+          console.error('Worker errored:', error)
+        })
+    }
   }
 
   render() {

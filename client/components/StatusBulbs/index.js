@@ -11,13 +11,14 @@ const StatusBulbs = ({ nodes }) => {
         nodes && map(nodes, (node, id) => {
           if (node.error) return <div key={id} className="status-bulb-error" />
           if (node.running) return (
-            <ReactLoading
-              height={30}
-              width={30}
-              key={id}
-              type="spin"
-              color="#444"
-            />
+            <div key={id} className="status-bulb-running">
+              <ReactLoading
+                height={30}
+                width={30}
+                type="spin"
+                color="#444"
+              />
+            </div>
           )
           return <div key={id} className="status-bulb" />
         })

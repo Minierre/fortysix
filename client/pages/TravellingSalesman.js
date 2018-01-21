@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import {
-  Button,
   Tabs,
   Tab
 } from 'react-bootstrap'
@@ -11,24 +10,26 @@ import {
   StatusBulbs,
   LastExecutionInfo,
   ConsoleOutput,
-  HistoryTable
+  HistoryTable,
+  Toolbar
 } from '../components'
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const START_TRAVELLING_SALESMAN = 'START_TRAVELLING_SALESMAN'
 const UPDATE_TRAVELLING_SALESMAN = 'UPDATE_TRAVELLING_SALESMAN'
-const GET_ROOM_TRAVELLING_SALESMAN = 'GET_ROOM_TRAVELLING_SALESMAN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
-const REQUEST_HISTORY = 'REQUEST_HISTORY'
 const UPDATE_HISTORY_TRAVELLING_SALESMAN = 'UPDATE_HISTORY_TRAVELLING_SALESMAN'
+const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 class TravellingSalesman extends Component {
 
   constructor() {
     super()
     this.state = {
-      room: {},
-      history: []
+      room: {
+        multiThreaded: false
+      },
+      history: [],
     }
     //  const threcadecaNode = {
     //   a: { b: 1, c: 3, d: 4, e: 4, f: 1, g: 4, h: 1, i: 2, j: 7, k: 8, l: 3, m: 10 },
@@ -76,8 +77,16 @@ class TravellingSalesman extends Component {
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
   }
 
-  onClick(evt) {
+  startJob(evt) {
     this.props.socket.emit(START_TRAVELLING_SALESMAN, this.elevenNode)
+  }
+
+  abortJob(evt) {
+
+  }
+
+  toggleMultiThreaded(evt) {
+    this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: 'TRAVELLING_SALESMAN' })
   }
 
   render() {
@@ -92,15 +101,15 @@ class TravellingSalesman extends Component {
             For each task node for this algorithim finds a subset of the permutations neccesary to determine the shortest tour and send the results back to the root node.
           </p>
         </div>
-        <div className="toolbar-wrapper">
-          <Button
-            bsStyle="primary"
-            onClick={this.onClick.bind(this)}
-            disabled={this.state.room.jobRunning}
-          >Run Job</Button>
-        </div>
+        <Toolbar
+          startJob={this.startJob.bind(this)}
+          abortJob={this.abortJob.bind(this)}
+          toggleMultiThreaded={this.toggleMultiThreaded.bind(this)}
+          jobRunning={this.state.room.jobRunning}
+          multiThreaded={this.state.room.multiThreaded || false}
+        />
+        <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
         <StatusBulbs nodes={this.state.room.nodes} />
-        <div>{(this.state.room.nodes)?Object.keys(this.state.room.nodes).length:0}</div>
         <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">

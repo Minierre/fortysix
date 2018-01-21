@@ -11,6 +11,7 @@ const travellingSalesman = require('../modules/travellingSalesman')
 // constants for job names
 const HUGE_SUM = 'HUGE_SUM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
+const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 const rooms = {}
 let finalResult = {
@@ -34,11 +35,13 @@ module.exports = (io) => {
         rooms[room] = {
           start: null,
           jobRunning: false,
+          multiThreaded: false,
           nodes: { [socket.id]: { running: false, error: false } }
         }
       } else {
         rooms[room] = {
           jobRunning: rooms[room].jobRunning,
+          multiThreaded: false,
           nodes: {
             ...rooms[room].nodes,
             [socket.id]: { running: false, error: false }
@@ -105,12 +108,16 @@ module.exports = (io) => {
         }
       }
 
-
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
       console.log(chalk.green('DONE: '), socket.id, room)
     })
 
     socket.on('REQUEST_ROOM', (room) => {
+      socket.emit('UPDATE_' + room, getRoom(rooms[room]))
+    })
+
+    socket.on(TOGGLE_MULTITHREADED, ({ room, value }) => {
+      rooms[room].multiThreaded = value
       socket.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
 
@@ -128,7 +135,12 @@ module.exports = (io) => {
       })
     })
 
-    jobInit(TRAVELLING_SALESMAN, socket, io, travellingSalesman.partition)
+    jobInit(
+      TRAVELLING_SALESMAN,
+      socket,
+      io,
+      travellingSalesman.partition
+    )
 
     socket.on('result', (result) => {
       if(finalResult.dist > result[1]){
@@ -141,7 +153,6 @@ module.exports = (io) => {
     })
   })
 }
-
 
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
@@ -160,7 +171,12 @@ function jobInit(room, socket, io, partition) {
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        partition(io, room, args)
+        partition(
+          io,
+          room,
+          rooms[TRAVELLING_SALESMAN].multiThreaded,
+          args
+        )
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))
