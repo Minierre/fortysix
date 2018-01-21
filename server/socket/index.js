@@ -11,6 +11,7 @@ const travellingSalesman = require('../modules/travellingSalesman')
 // constants for job names
 const HUGE_SUM = 'HUGE_SUM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
+const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 const rooms = {}
 let finalResult = {
@@ -34,11 +35,13 @@ module.exports = (io) => {
         rooms[room] = {
           start: null,
           jobRunning: false,
+          multiThreaded: false,
           nodes: { [socket.id]: { running: false, error: false } }
         }
       } else {
         rooms[room] = {
           jobRunning: rooms[room].jobRunning,
+          multiThreaded: false,
           nodes: {
             ...rooms[room].nodes,
             [socket.id]: { running: false, error: false }
@@ -111,6 +114,11 @@ module.exports = (io) => {
     })
 
     socket.on('REQUEST_ROOM', (room) => {
+      socket.emit('UPDATE_' + room, getRoom(rooms[room]))
+    })
+
+    socket.on(TOGGLE_MULTITHREADED, ({ room, value }) => {
+      rooms[room].multiThreaded = value
       socket.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
 

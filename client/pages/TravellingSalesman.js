@@ -19,6 +19,7 @@ const START_TRAVELLING_SALESMAN = 'START_TRAVELLING_SALESMAN'
 const UPDATE_TRAVELLING_SALESMAN = 'UPDATE_TRAVELLING_SALESMAN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
 const UPDATE_HISTORY_TRAVELLING_SALESMAN = 'UPDATE_HISTORY_TRAVELLING_SALESMAN'
+const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 class TravellingSalesman extends Component {
 
@@ -85,9 +86,7 @@ class TravellingSalesman extends Component {
   }
 
   toggleMultiThreaded(evt) {
-    const { room } = this.state
-    room.multiThreaded = !room.multiThreaded
-    this.setState({ room })
+    this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: 'TRAVELLING_SALESMAN' })
   }
 
   render() {
