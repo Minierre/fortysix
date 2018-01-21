@@ -81,6 +81,9 @@ class TravellingSalesman extends Component {
   }
 
   render() {
+    // this sorts the table as a side effect
+    const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
+    const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
     return (
       <div>
         <div className="algo-name-header-wrapper">
@@ -98,7 +101,7 @@ class TravellingSalesman extends Component {
         </div>
         <StatusBulbs nodes={this.state.room.nodes} />
         <div>{(this.state.room.nodes)?Object.keys(this.state.room.nodes).length:0}</div>
-        <LastExecutionInfo result={this.state.history.length && this.state.history[0].result} runtime={this.state.history.length && this.state.history[0].runtime} />
+        <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
             <HistoryTable data={this.state.history} />
