@@ -49,6 +49,7 @@ class TravellingSalesmanContributor extends Component {
       }, '')
 
       const thread = spawn((args, done) => {
+
         function permutations(str, start, g) {
           let bestP = ['', Infinity];
           const perm = (substr, p = '') => {
@@ -73,22 +74,18 @@ class TravellingSalesmanContributor extends Component {
           return d;
         }
 
-        done({ result: permutations(args.nodes, args.start, args.graph) });
+        done({ result: permutations(args.nodes, args.start, args.graph) })
       })
 
       thread
         .send({ start: starts[i], graph, nodes })
-        .on('message', function (s) {
-          console.log('message')
+        .on('message', (s) => {
           done(s.result)
-          thread.kill();
+          thread.kill()
         })
-        .on('error', function (error) {
-          console.error('Worker errored:', error);
+        .on('error', (error) => {
+          console.error('Worker errored:', error)
         })
-        .on('exit', function () {
-          console.log('Worker has been terminated.');
-        });
     }
   }
 
