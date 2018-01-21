@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
-const spawn = require('threads').spawn;
-
+import { spawn } from 'threads'
+import './style.css'
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const LEAVE_TRAVELLING_SALESMAN = 'LEAVE_TRAVELLING_SALESMAN'

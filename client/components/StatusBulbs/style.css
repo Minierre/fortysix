@@ -13,7 +13,7 @@
   border: 1px solid black;
 }
 .status-bulb-running {
-  margin: 0 0 0.125em 0.125em;
+  margin: 0 0 0.125em 0.15em;
   width: 30px;
   height: 30px;
 }

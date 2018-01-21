@@ -13,7 +13,7 @@ const Navbar = () => (
   <NavigationBar inverse>
     <NavigationBar.Header>
       <NavigationBar.Brand>
-        <a href="#brand">Portion</a>
+        Partonia
       </NavigationBar.Brand>
     </NavigationBar.Header>
   </NavigationBar>

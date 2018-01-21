@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 
+import './style.css'
+
+
 const HUGE_SUM = 'HUGE_SUM'
 const LEAVE_HUGE_SUM = 'LEAVE_HUGE_SUM'
 const CALL_HUGE_SUM = 'CALL_HUGE_SUM'
