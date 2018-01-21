@@ -142,7 +142,6 @@ module.exports = (io) => {
   })
 }
 
-
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
 

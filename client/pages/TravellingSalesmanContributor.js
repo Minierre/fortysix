@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
+const spawn = require('threads').spawn;
+
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const LEAVE_TRAVELLING_SALESMAN = 'LEAVE_TRAVELLING_SALESMAN'
@@ -12,9 +14,16 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)
       try {
-        console.log(parts, graph)
-        this.props.socket.emit('result', this.shortestPath(parts, graph))
-        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+        let shortest = ['', Infinity]
+        let i = 0
+        this.shortestPath(parts, graph, (s) => {
+          if (s[1] < shortest[1]) shortest = s
+          ++i
+          if (i === parts.length) {
+            this.props.socket.emit('result', shortest)
+            this.props.socket.emit('done', TRAVELLING_SALESMAN)
+          }
+        })
       } catch (err) {
         console.error(err)
         this.props.socket.emit('JOB_ERROR', TRAVELLING_SALESMAN)
@@ -32,41 +41,55 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.emit(LEAVE_TRAVELLING_SALESMAN)
   }
 
-  shortestPath(starts, graph) {
-    let shortest = ['', Infinity]
+  shortestPath(starts, graph, done) {
     for (var i = 0; i < starts.length; i++) {
-      let nodes = Object.keys(graph).reduce((a,b)=>{
-        if(!starts[i].includes(b)) a+=b
+      let nodes = Object.keys(graph).reduce((a, b) => {
+        if (!starts[i].includes(b)) a += b
         return a
-      },'')
-      let s = this.permutations(nodes, starts[i], graph)
-      if (s[1] < shortest[1]) shortest = s
-    }
-    return shortest
-  }
+      }, '')
 
-  permutations(str, start, g) {
-    let bestP = ['', Infinity];
-    const perm = (substr, p='') => {
-      if (substr === '' && this.permdist(start + p + start[0], g) < bestP[1]) {
-        bestP = [start + p + start[0], this.permdist(start + p + start[0], g)];
-      } else {
-        for (var i = 0; i < substr.length; i++) {
-          perm(substr.slice(0, i) + substr.slice(i + 1), p + substr[i]);
+      const thread = spawn((args, done) => {
+        function permutations(str, start, g) {
+          let bestP = ['', Infinity];
+          const perm = (substr, p = '') => {
+            if (substr === '' && permdist(start + p + start[0], g) < bestP[1]) {
+              bestP = [start + p + start[0], permdist(start + p + start[0], g)];
+            } else {
+              for (var i = 0; i < substr.length; i++) {
+                perm(substr.slice(0, i) + substr.slice(i + 1), p + substr[i]);
+              }
+            }
+          }
+          perm(str);
+
+          return bestP;
         }
-      }
-    }
-    perm(str);
 
-    return bestP;
-  }
+        function permdist(p, g) {
+          let d = 0;
+          for (var i = 0; i < p.length - 1; i++) {
+            d += g[p[i]][p[i + 1]];
+          }
+          return d;
+        }
 
-  permdist(p, g) {
-    let d = 0;
-    for (var i = 0; i < p.length - 1; i++) {
-      d += g[p[i]][p[i + 1]];
+        done({ result: permutations(args.nodes, args.start, args.graph) });
+      })
+
+      thread
+        .send({ start: starts[i], graph, nodes })
+        .on('message', function (s) {
+          console.log('message')
+          done(s.result)
+          thread.kill();
+        })
+        .on('error', function (error) {
+          console.error('Worker errored:', error);
+        })
+        .on('exit', function () {
+          console.log('Worker has been terminated.');
+        });
     }
-    return d;
   }
 
   render() {
