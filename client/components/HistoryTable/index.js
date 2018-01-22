@@ -14,6 +14,7 @@ const HistoryTable = ({ data }) => (
           <th>Date Run</th>
           <th># of Nodes</th>
           <th>Execution Time (seconds)</th>
+          <th>Multithreaded</th>
           <th>Result</th>
         </tr>
       </thead>
@@ -26,6 +27,7 @@ const HistoryTable = ({ data }) => (
               <td>{moment(date).format('MMMM Do YYYY, h:mm:ss a')}</td>
               <td>{row.nodes}</td>
               <td>{(new Date(row.endTime) - new Date(row.startTime)) / 1000}</td>
+              <td>{row.multiThreaded+''}</td>
               <td>{row.result}</td>
             </tr>
           )

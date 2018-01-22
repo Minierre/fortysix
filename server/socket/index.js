@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const { History } = require('../db/models')
-
+const remove = require('lodash/remove')
 const {
   generateRandomNumbers,
   sumRandomNumbers
@@ -13,7 +13,15 @@ const HUGE_SUM = 'HUGE_SUM'
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
-const rooms = {}
+const rooms = {
+  TRAVELLING_SALESMAN: {
+    nodes: {},
+    tasks: [],
+    jobRunning: false,
+    multiThreaded: false,
+    start: null
+  }
+}
 let finalResult = {
   tour: '',
   dist: Infinity
@@ -34,6 +42,7 @@ module.exports = (io) => {
       if (!rooms[room]) {
         rooms[room] = {
           start: null,
+          tasks: [],
           jobRunning: false,
           multiThreaded: false,
           nodes: { [socket.id]: { running: false, error: false } }
@@ -42,6 +51,7 @@ module.exports = (io) => {
         rooms[room] = {
           jobRunning: rooms[room].jobRunning,
           multiThreaded: false,
+          tasks: rooms[room].tasks,
           nodes: {
             ...rooms[room].nodes,
             [socket.id]: { running: false, error: false }
@@ -69,13 +79,48 @@ module.exports = (io) => {
       console.log(chalk.green('STARTING: ') + room, socket.id, room)
     })
 
-    socket.on('done', (room) => {
+    socket.on('done', ({ room, result, id, graph }) => {
       rooms[room].nodes[socket.id].running = false
-      const allDone =
-        Object.keys(rooms[room].nodes)
-          .every(socketId => rooms[room].nodes[socketId].running === false)
 
-      if (allDone) {
+      if (finalResult.dist > result[1]) {
+        finalResult.tour = result[0]
+        finalResult.dist = result[1]
+      }
+
+      console.log('result: ', result)
+      console.log('running best: ', finalResult)
+
+      // Check if more tasks
+      // If more tasks get another
+      // If not allDone = true
+      const { tasks } = rooms[room]
+      console.log(tasks)
+      const taskExists = tasks.some(task => task.id === id)
+      if (taskExists) {
+        rooms[room].tasks = remove(rooms[room].tasks, task => {
+          return task.id !== id
+        })
+      }
+      if (rooms[room].tasks.length > 0) {
+        rooms[room].nodes[socket.id].running = true
+        io.sockets.sockets[socket.id].emit(
+          'CALL_' + room,
+          rooms[room].tasks[0],
+          graph,
+          { multiThreaded: rooms[room].multiThreaded }
+        )
+
+        rooms[room].tasks = rooms[room].tasks.concat(rooms[room].tasks[0])
+        rooms[room].tasks = rooms[room].tasks.slice(1)
+
+        // console.log('AFTER: ' + rooms[room].tasks)
+      }
+
+      const allDone = Object.keys(rooms[room].tasks).length === 0
+      // Object.keys(rooms[room].nodes)
+      //   .every(socketId => rooms[room].nodes[socketId].running === false)
+
+      if (allDone && rooms[room].jobRunning) {
         const endTime = Date.now()
         console.log(
           chalk.green(`DURATION OF ${room}: `, endTime - rooms[room].start)
@@ -91,6 +136,7 @@ module.exports = (io) => {
           nodes: Object.keys(rooms[room].nodes).length,
           result: finalResult.tour + ' ' + finalResult.dist,
           startTime: rooms[room].start,
+          multiThreaded: rooms[room].multiThreaded,
           endTime,
           room
         })
@@ -98,14 +144,14 @@ module.exports = (io) => {
             History.findAll({ where: { room } }).then((history) => {
               io.sockets.emit('UPDATE_HISTORY_' + room, history)
             })
-          })
 
-        rooms[room].jobRunning = false
-        rooms[room].start = null
-        finalResult = {
-          tour: '',
-          dist: Infinity
-        }
+            rooms[room].jobRunning = false
+            rooms[room].start = null
+            finalResult = {
+              tour: '',
+              dist: Infinity
+            }
+          })
       }
 
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
@@ -128,12 +174,12 @@ module.exports = (io) => {
       console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}`)
     })
 
-    jobInit(HUGE_SUM, socket, io, (io, room) => {
-      const socketsInRoom = io.sockets.adapter.rooms[HUGE_SUM].sockets
-      Object.keys(socketsInRoom).forEach((id) => {
-        io.sockets.sockets[id].emit('CALL_' + room, 13)
-      })
-    })
+    // jobInit(HUGE_SUM, socket, io, (io, room) => {
+    //   const socketsInRoom = io.sockets.adapter.rooms[HUGE_SUM].sockets
+    //   Object.keys(socketsInRoom).forEach((id) => {
+    //     io.sockets.sockets[id].emit('CALL_' + room, 13)
+    //   })
+    // })
 
     jobInit(
       TRAVELLING_SALESMAN,
@@ -141,23 +187,16 @@ module.exports = (io) => {
       io,
       travellingSalesman.partition
     )
-
-    socket.on('result', (result) => {
-      if(finalResult.dist > result[1]){
-        finalResult.tour = result[0]
-        finalResult.dist = result[1]
-      }
-
-      console.log('result: ', result)
-      console.log('running best: ', finalResult)
-    })
   })
 }
 
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
+  const callName = 'CALL_' + room
+
 
   socket.on(startName, (args) => {
+    if (!rooms[room]) return
     rooms[room].start = Date.now()
     rooms[room].jobRunning = true
 
@@ -174,8 +213,18 @@ function jobInit(room, socket, io, partition) {
         partition(
           io,
           room,
-          rooms[TRAVELLING_SALESMAN].multiThreaded,
-          args
+          args, ((portions) => {
+            rooms[room].tasks = portions
+            Object.keys(rooms[room].nodes).forEach((id, i) => {
+              io.sockets.sockets[id]
+                .emit(
+                callName,
+                rooms[room].tasks[rooms[room].tasks.length - 1 - i],
+                args,
+                { multiThreaded: rooms[room].multiThreaded }
+                )
+            })
+          })
         )
         rooms[room].running = false
       } else {
