@@ -49,8 +49,9 @@ module.exports = (io) => {
         }
       } else {
         rooms[room] = {
+          start: rooms[room].start,
           jobRunning: rooms[room].jobRunning,
-          multiThreaded: false,
+          multiThreaded: rooms[room].multiThreaded,
           tasks: rooms[room].tasks,
           nodes: {
             ...rooms[room].nodes,
@@ -94,7 +95,7 @@ module.exports = (io) => {
       // If more tasks get another
       // If not allDone = true
       const { tasks } = rooms[room]
-      console.log(tasks)
+      // console.log(tasks)
       const taskExists = tasks.some(task => task.id === id)
       if (taskExists) {
         rooms[room].tasks = remove(rooms[room].tasks, task => {
@@ -131,6 +132,7 @@ module.exports = (io) => {
         )
 
         io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+        rooms[room].jobRunning = false
 
         History.create({
           nodes: Object.keys(rooms[room].nodes).length,
@@ -145,7 +147,7 @@ module.exports = (io) => {
               io.sockets.emit('UPDATE_HISTORY_' + room, history)
             })
 
-            rooms[room].jobRunning = false
+
             rooms[room].start = null
             finalResult = {
               tour: '',
@@ -214,7 +216,17 @@ function jobInit(room, socket, io, partition) {
           io,
           room,
           args, ((portions) => {
-            rooms[room].tasks = portions
+
+            rooms[room].tasks = (rooms[room].multiThreaded)
+              ?
+              portions.reduce((a, b, i) => {
+                if (a[Math.floor(i / 4)]) a[Math.floor(i / 4)].value.push(b.value[0])
+                else a[Math.floor(i / 4)] = b
+                return a
+              }, [])
+              :
+              portions.map(v => ({ id: v.id, value: v.value[0] }))
+
             Object.keys(rooms[room].nodes).forEach((id, i) => {
               io.sockets.sockets[id]
                 .emit(

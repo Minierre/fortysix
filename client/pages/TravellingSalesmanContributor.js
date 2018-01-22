@@ -41,6 +41,7 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.emit('done', {
       room: TRAVELLING_SALESMAN,
       id: part.id,
+      graph,
       result: this.shortestPathSingleThreaded(part.value, graph)
     })
   }
