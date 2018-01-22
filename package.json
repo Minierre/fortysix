@@ -51,6 +51,7 @@
     "sequelize": "^4.3.1",
     "socket.io": "^2.0.3",
     "threads": "^0.10.1",
+    "uuid": "^3.2.1",
     "volleyball": "^1.4.1"
   },
   "devDependencies": {

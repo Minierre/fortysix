@@ -27,7 +27,9 @@ class TravellingSalesman extends Component {
     super()
     this.state = {
       room: {
-        multiThreaded: false
+        multiThreaded: false,
+        nodes: {},
+        jobRunning: false
       },
       history: [],
     }
@@ -107,6 +109,7 @@ class TravellingSalesman extends Component {
           toggleMultiThreaded={this.toggleMultiThreaded.bind(this)}
           jobRunning={this.state.room.jobRunning}
           multiThreaded={this.state.room.multiThreaded || false}
+          nodesInRoom={Object.keys(this.state.room.nodes || {}).length > 0}
         />
         <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
         <StatusBulbs nodes={this.state.room.nodes} />

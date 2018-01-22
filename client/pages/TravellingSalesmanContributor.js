@@ -37,22 +37,23 @@ class TravellingSalesmanContributor extends Component {
     this.props.socket.emit(LEAVE_TRAVELLING_SALESMAN)
   }
 
-  runSingleThreaded(parts, graph) {
-    this.props.socket.emit('result',
-      this.shortestPathSingleThreaded(parts, graph))
-    this.props.socket.emit('done', TRAVELLING_SALESMAN)
+  runSingleThreaded(part, graph) {
+    this.props.socket.emit('done', {
+      room: TRAVELLING_SALESMAN,
+      id: part.id,
+      graph,
+      result: this.shortestPathSingleThreaded(part.value, graph)
+    })
   }
 
-  shortestPathSingleThreaded(starts, graph) {
+  shortestPathSingleThreaded(start, graph) {
     let shortest = ['', Infinity]
-    for (var i = 0; i < starts.length; i++) {
-      let nodes = Object.keys(graph).reduce((a, b) => {
-        if (!starts[i].includes(b)) a += b
-        return a
-      }, '')
-      let s = this.permutations(nodes, starts[i], graph)
-      if (s[1] < shortest[1]) shortest = s
-    }
+    let nodes = Object.keys(graph).reduce((a, b) => {
+      if (!start.includes(b)) a += b
+      return a
+    }, '')
+    let s = this.permutations(nodes, start, graph)
+    if (s[1] < shortest[1]) shortest = s
     return shortest
   }
 
@@ -83,12 +84,17 @@ class TravellingSalesmanContributor extends Component {
   runMultiThreaded(parts, graph) {
     let shortest = ['', Infinity]
     let i = 0
-    this.shortestPath(parts, graph, (s) => {
+    this.shortestPath(parts.value, graph, (s) => {
       if (s[1] < shortest[1]) shortest = s
       ++i
-      if (i === parts.length) {
-        this.props.socket.emit('result', shortest)
-        this.props.socket.emit('done', TRAVELLING_SALESMAN)
+      if (i === parts.value.length) {
+        this.props.socket.emit('done', {
+          room: TRAVELLING_SALESMAN,
+          id: parts.id,
+          result: shortest,
+          graph,
+          multiThreaded: true
+        })
       }
     })
   }
@@ -113,7 +119,7 @@ class TravellingSalesmanContributor extends Component {
               }
             }
           }
-          perm(str);
+            perm(str);
 
           return bestP;
         }
