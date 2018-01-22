@@ -88,8 +88,8 @@ module.exports = (io) => {
         finalResult.dist = result[1]
       }
 
-      console.log('result: ', result)
-      console.log('running best: ', finalResult)
+      // console.log('result: ', result)
+      // console.log('running best: ', finalResult)
 
       // Check if more tasks
       // If more tasks get another

@@ -48,7 +48,21 @@ class TravellingSalesman extends Component {
     //   l: { b: 3, c: 12, d: 4, e: 5, f: 4, g: 1, h: 1, i: 4, j: 71, k: 98, a: 4, m: 1 },
     //   m: { b: 4, c: 2, d: 1, e: 2, f: 7, g: 1, h: 1, i: 1, j: 7, k: 89, l: 3, a: 2 }
     // }
-    this.elevenNode = {
+    // this.graph = {
+    //   a: { b: 1, c: 3, d: 4, e: 4, f: 1, g: 4, h: 1, i: 2, j: 7, k: 8 , l:9},
+    //   b: { a: 25, c: 4, d: 5, e: 1, f: 72, g: 13, h: 4, i: 1, j: 3, k: 3 , l:3},
+    //   c: { b: 1, a: 2, d: 4, e: 9, f: 3, g: 4, h: 4, i: 1, j: 26, k: 2 , l:2},
+    //   d: { b: 2, c: 1, a: 3, e: 4, f: 1, g: 45, h: 5, i: 3, j: 28, k: 8 , l:4},
+    //   e: { b: 46, c: 1, d: 50, a: 8, f: 1, g: 3, h: 1, i: 2, j: 32, k: 8 , l:5},
+    //   f: { b: 8, c: 9, d: 3, e: 6, a: 7, g: 1, h: 90, i: 2, j: 7, k: 8 , l:12},
+    //   g: { b: 6, c: 8, d: 9, e: 5, f: 9, a: 7, h: 1, i: 22, j: 71, k: 8 , l:11},
+    //   h: { b: 4, c: 7, d: 9, e: 2, f: 4, g: 8, a: 12, i: 3, j: 7, k: 18 , l:20},
+    //   i: { b: 1, c: 15, d: 6, e: 3, f: 12, g: 75, h: 23, a: 62, j: 7, k: 85 , l:19},
+    //   j: { b: 9, c: 4, d: 5, e: 8, f: 33, g: 7, h: 9, i: 5, a: 57, k: 28 , l:7},
+    //   k: { b: 7, c: 3, d: 76, e: 11, f: 12, g: 31, h: 56, i: 2, j: 47, a: 8 , l:5},
+    //   l: { b: 4, c: 5, d: 6, e: 19, f: 2, g: 3, h: 5, i: 24, j: 7, a: 13 , k:9}
+    // }
+    this.graph = {
       a: { b: 1, c: 3, d: 4, e: 4, f: 1, g: 4, h: 1, i: 2, j: 7, k: 8 },
       b: { a: 25, c: 4, d: 5, e: 1, f: 72, g: 13, h: 4, i: 1, j: 3, k: 3 },
       c: { b: 1, a: 2, d: 4, e: 9, f: 3, g: 4, h: 4, i: 1, j: 26, k: 2 },
@@ -80,7 +94,7 @@ class TravellingSalesman extends Component {
   }
 
   startJob(evt) {
-    this.props.socket.emit(START_TRAVELLING_SALESMAN, this.elevenNode)
+    this.props.socket.emit(START_TRAVELLING_SALESMAN, this.graph)
   }
 
   abortJob(evt) {
