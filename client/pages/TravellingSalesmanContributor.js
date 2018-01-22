@@ -31,6 +31,10 @@ class TravellingSalesmanContributor extends Component {
         this.props.socket.emit('join', TRAVELLING_SALESMAN)
       })
     })
+
+    this.props.socket.on('ABORT_' + TRAVELLING_SALESMAN, () => {
+      window.location.reload(true)
+    })
   }
 
   componentWillUnmount() {

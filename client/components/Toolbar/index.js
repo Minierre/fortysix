@@ -14,8 +14,8 @@ const Toolbar = ({ startJob, abortJob, toggleMultiThreaded, jobRunning, multiThr
         >Run Job</Button>
         <Button
           bsStyle="danger"
-          disabled={!jobRunning}
-        >Abort</Button>
+          onClick={abortJob}
+        >Reset</Button>
       </div>
 
       <div className="switches-group">

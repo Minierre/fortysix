@@ -164,6 +164,19 @@ module.exports = (io) => {
       socket.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
 
+    socket.on('ABORT', (room) => {
+
+      rooms[room] = {
+        start: null,
+        tasks: [],
+        jobRunning: false,
+        multiThreaded: false,
+        nodes: { }
+      }
+
+      io.sockets.emit('ABORT_' + room)
+    })
+
     socket.on(TOGGLE_MULTITHREADED, ({ room, value }) => {
       rooms[room].multiThreaded = value
       socket.emit('UPDATE_' + room, getRoom(rooms[room]))

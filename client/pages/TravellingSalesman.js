@@ -84,7 +84,7 @@ class TravellingSalesman extends Component {
   }
 
   abortJob(evt) {
-
+    this.props.socket.emit('ABORT', TRAVELLING_SALESMAN)
   }
 
   toggleMultiThreaded(evt) {
