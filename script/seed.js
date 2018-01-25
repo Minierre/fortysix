@@ -13,7 +13,7 @@ const db = require('../server/db')
 const { User, History } = require('../server/db/models')
 
 async function seed() {
-  await db.sync({ force: true })
+  await db.sync()
   console.log('db synced!')
   // Whoa! Because we `await` the promise that db.sync returns, the next line will not be
   // executed until that promise resolves!
