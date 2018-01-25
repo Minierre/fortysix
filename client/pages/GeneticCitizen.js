@@ -76,7 +76,7 @@ const data = {
       }
       return pop
     }).toString()],
-  selection: ((population, arrayOfFitnesses, n = 1) => {
+  selection: ((population, arrayOfFitnesses, n = 1)=>{
     let numSelectionsLeft = n;
     let selections = [];
     let totalFit = arrayOfFitnesses.reduce((a, b) => a + b, 0);
@@ -133,10 +133,11 @@ class GeneticCitizen extends Component {
   }
 
   runMultiThreaded(task) {
-    console.log(task)
-    let Selection = eval(task.selection)
-    let Mutations = task.mutations.map(v=>eval(v))
-    let Fitness = eval(task.fitness)
+    console.log('IN THE MULTITHREAD', task)
+    let Selection = eval('('+task.selection+')')
+    console.log(typeof Selection)
+    let Mutations = task.mutations.map(v=>eval('('+v+')'))
+    let Fitness = eval('('+task.fitness+')')
     let population = task.population
     let fittest = []
 
