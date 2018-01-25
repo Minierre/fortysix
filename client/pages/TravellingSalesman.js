@@ -92,6 +92,8 @@ class TravellingSalesman extends Component {
       this.setState({ history })
     })
 
+    this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
+
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
   }
 
@@ -145,4 +147,3 @@ class TravellingSalesman extends Component {
 }
 
 export default TravellingSalesman
-
