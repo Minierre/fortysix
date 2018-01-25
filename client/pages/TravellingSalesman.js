@@ -83,6 +83,7 @@ class TravellingSalesman extends Component {
     })
 
     this.props.socket.on(UPDATE_TRAVELLING_SALESMAN, (room) => {
+      console.log('hello');
       this.setState({ room })
     })
 
@@ -142,4 +143,3 @@ class TravellingSalesman extends Component {
 }
 
 export default TravellingSalesman
-

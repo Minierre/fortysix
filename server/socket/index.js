@@ -77,7 +77,7 @@ module.exports = (io) => {
     })
 
     socket.on('start', (room) => {
-      // console.log(chalk.green('STARTING: ') + room, socket.id, room)
+      console.log(chalk.green('STARTING: ') + room, socket.id, room)
     })
 
     socket.on('done', ({ room, result, id, graph }) => {
@@ -88,8 +88,8 @@ module.exports = (io) => {
         finalResult.dist = result[1]
       }
 
-      // console.log('result: ', result)
-      // console.log('running best: ', finalResult)
+      console.log('result: ', result)
+      console.log('running best: ', finalResult)
 
       // Check if more tasks
       // If more tasks get another
@@ -157,7 +157,7 @@ module.exports = (io) => {
       }
 
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-      // console.log(chalk.green('DONE: '), socket.id, room)
+      console.log(chalk.green('DONE: '), socket.id, room)
     })
 
     socket.on('REQUEST_ROOM', (room) => {
