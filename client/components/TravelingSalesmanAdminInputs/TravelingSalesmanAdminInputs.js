@@ -3,6 +3,7 @@ import times from 'lodash/times'
 import './style.css'
 import map from 'lodash/map'
 import ReactLoading from 'react-loading';
+import CodeEditor from '../CodeEditor/CodeEditor'
 
 import axios from 'axios'
 
@@ -71,6 +72,7 @@ class AlgorithmInputs extends Component {
             <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
           )}
         </DropdownButton>
+        <CodeEditor />
       </div>
     )
   }
