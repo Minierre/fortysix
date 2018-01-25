@@ -166,9 +166,6 @@ function registerDone(socket, io) {
     console.log('result: ', result)
     console.log('running best: ', finalResult)
 
-    // Check if more tasks
-    // If more tasks get another
-    // If not allDone = true
     const {
       tasks
     } = rooms[room]
@@ -196,8 +193,6 @@ function registerDone(socket, io) {
     }
 
     const allDone = Object.keys(rooms[room].tasks).length === 0
-    // Object.keys(rooms[room].nodes)
-    //   .every(socketId => rooms[room].nodes[socketId].running === false)
 
     if (allDone && rooms[room].jobRunning) {
       const endTime = Date.now()
@@ -213,13 +208,13 @@ function registerDone(socket, io) {
       rooms[room].jobRunning = false
 
       History.create({
-          nodes: Object.keys(rooms[room].nodes).length,
-          result: finalResult.tour + ' ' + finalResult.dist,
-          startTime: rooms[room].start,
-          multiThreaded: rooms[room].multiThreaded,
-          endTime,
-          room
-        })
+        nodes: Object.keys(rooms[room].nodes).length,
+        result: finalResult.tour + ' ' + finalResult.dist,
+        startTime: rooms[room].start,
+        multiThreaded: rooms[room].multiThreaded,
+        endTime,
+        room
+      })
         .then(() => {
           History.findAll({
             where: {
