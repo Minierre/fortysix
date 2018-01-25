@@ -6,7 +6,12 @@ import ReactLoading from 'react-loading';
 
 import axios from 'axios'
 
-class TravelingSalesmanAdminInputs extends Component {
+import {
+  DropdownButton,
+  MenuItem
+} from 'react-bootstrap'
+
+class AlgorithmInputs extends Component {
   constructor() {
     super();
     this.state = { fitnessFunc: {},
@@ -15,6 +20,8 @@ class TravelingSalesmanAdminInputs extends Component {
       selectionFuncs: [],
       mutationFuncs: []
     }
+    this.handleSelectDropdownSelection = this.handleSelectDropdownSelection.bind(this)
+    this.handleMutationDropdownSelection = this.handleMutationDropdownSelection.bind(this)
   }
   componentDidMount() {
     this.fetchMutuationAlgorithms();
@@ -32,15 +39,41 @@ class TravelingSalesmanAdminInputs extends Component {
     axios.post('/api/fitnessFunc', func)
       .then(fitnessFunc => this.setState({ fitnessFunc }))
   }
+  // dynamically handles a selection for a dropdown menu
+  handleSelectDropdownSelection(e) {
+    this.setState({ currentSelectionFunc: this.state.selectionFuncs[e] })
+  }
+  handleMutationDropdownSelection(e) {
+    this.setState({ currentMutationFunc: this.state.mutationFuncs[e] })
+  }
 
   render() {
     console.log(this.state)
     return (
       <div>
-        <h1>Test</h1>
+        <DropdownButton
+          onSelect={this.handleSelectDropdownSelection}
+          title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
+          key={1}
+          id="selection-algorithm-dropdown"
+        >
+          {this.state.selectionFuncs.map((func, idx) =>
+            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+          )}
+        </DropdownButton>
+        <DropdownButton
+          onSelect={this.handleMutationDropdownSelection}
+          title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
+          key={2}
+          id="mutations-algorithm-dropdown"
+        >
+          {this.state.mutationFuncs.map((func, idx) =>
+            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+          )}
+        </DropdownButton>
       </div>
     )
   }
 }
 
-export default TravelingSalesmanAdminInputs
+export default AlgorithmInputs
