@@ -83,13 +83,14 @@ class TravellingSalesman extends Component {
     })
 
     this.props.socket.on(UPDATE_TRAVELLING_SALESMAN, (room) => {
-      console.log('hello');
       this.setState({ room })
     })
 
     this.props.socket.on(UPDATE_HISTORY_TRAVELLING_SALESMAN, (history) => {
       this.setState({ history })
     })
+
+    this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
 
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
   }
