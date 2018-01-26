@@ -49,13 +49,11 @@ class AlgorithmInputs extends Component {
   }
 
   render() {
-    console.log(this.state)
     return (
       <div>
         <DropdownButton
           onSelect={this.handleSelectDropdownSelection}
           title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
-          key={1}
           id="selection-algorithm-dropdown"
         >
           {this.state.selectionFuncs.map((func, idx) =>
@@ -65,7 +63,6 @@ class AlgorithmInputs extends Component {
         <DropdownButton
           onSelect={this.handleMutationDropdownSelection}
           title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
-          key={2}
           id="mutations-algorithm-dropdown"
         >
           {this.state.mutationFuncs.map((func, idx) =>
