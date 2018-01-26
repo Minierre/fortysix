@@ -4,12 +4,15 @@ import './style.css'
 import map from 'lodash/map'
 import ReactLoading from 'react-loading';
 import CodeEditor from '../CodeEditor/CodeEditor'
+import Slider from 'material-ui/Slider';
+import './style.css'
 
 import axios from 'axios'
 
 import {
   DropdownButton,
-  MenuItem
+  MenuItem,
+  Well
 } from 'react-bootstrap'
 
 class AlgorithmInputs extends Component {
@@ -19,10 +22,14 @@ class AlgorithmInputs extends Component {
       currentSelectionFunc: {},
       currentMutationFunc: {},
       selectionFuncs: [],
-      mutationFuncs: []
+      mutationFuncs: [],
+      population: 500,
+      generations: 10
     }
     this.handleSelectDropdownSelection = this.handleSelectDropdownSelection.bind(this)
     this.handleMutationDropdownSelection = this.handleMutationDropdownSelection.bind(this)
+    this.handlePopSliderChange = this.handlePopSliderChange.bind(this)
+    this.handleGenSliderChange = this.handleGenSliderChange.bind(this)
   }
   componentDidMount() {
     this.fetchMutuationAlgorithms();
@@ -47,29 +54,69 @@ class AlgorithmInputs extends Component {
   handleMutationDropdownSelection(e) {
     this.setState({ currentMutationFunc: this.state.mutationFuncs[e] })
   }
+  handlePopSliderChange(e, population) {
+    this.setState({ population });
+  }
+  handleGenSliderChange(e, generations) {
+    this.setState({ generations });
+  }
 
   render() {
     return (
-      <div>
-        <DropdownButton
-          onSelect={this.handleSelectDropdownSelection}
-          title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
-          id="selection-algorithm-dropdown"
-        >
-          {this.state.selectionFuncs.map((func, idx) =>
-            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
-          )}
-        </DropdownButton>
-        <DropdownButton
-          onSelect={this.handleMutationDropdownSelection}
-          title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
-          id="mutations-algorithm-dropdown"
-        >
-          {this.state.mutationFuncs.map((func, idx) =>
-            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
-          )}
-        </DropdownButton>
-        <CodeEditor />
+      <div id="scientist-inputs">
+        <div id="code-editor">
+          <CodeEditor />
+        </div>
+        <div>
+          <DropdownButton
+            onSelect={this.handleSelectDropdownSelection}
+            title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
+            id="selection-algorithm-dropdown"
+          >
+            {this.state.selectionFuncs.map((func, idx) =>
+              <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+            )}
+          </DropdownButton>
+          <DropdownButton
+            onSelect={this.handleMutationDropdownSelection}
+            title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
+            id="mutations-algorithm-dropdown"
+          >
+            {this.state.mutationFuncs.map((func, idx) =>
+              <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+            )}
+          </DropdownButton>
+          <div className="sliders">
+            <div className="slider">
+              <h5>Population Size</h5>
+              <Well className="input-information-well">{this.state.population}</Well>
+              <Slider
+                className="scientist-input-sliders"
+                onChange={this.handlePopSliderChange}
+                value={this.state.population}
+                style={{ width: 200 }}
+                defaultValue={this.state.population}
+                min={100}
+                max={1000}
+                step={2}
+              />
+            </div>
+            <div className="slider">
+              <h5>Number of Generations</h5>
+              <Well className="input-information-well">{this.state.generations}</Well>
+              <Slider
+                className="scientist-input-sliders"
+                onChange={this.handleGenSliderChange}
+                value={this.state.generations}
+                style={{ width: 200 }}
+                defaultValue={this.state.generations}
+                min={5}
+                max={50}
+                step={1}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     )
   }

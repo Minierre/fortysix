@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 let CodeMirror = require('react-codemirror');
+require('codemirror/mode/javascript/javascript');
+import '../../../node_modules/codemirror/lib/codemirror.css';
+import './style.css'
 
 class codeEditor extends Component {
   constructor() {
@@ -15,7 +18,7 @@ class codeEditor extends Component {
 	  })
   }
   render() {
-    const options = { lineNumbers: true }
+    const options = { lineNumbers: true, mode: 'javascript' }
     return <CodeMirror value={this.state.code} onChange={this.updateCode} options={options} />
   }
 }

@@ -1,0 +1,31 @@
+.well {
+  width: 4vw
+}
+
+#scientist-input-sliders {
+  display: flex;
+  flex-direction: row;
+  padding: .5em
+}
+
+#code-editor {
+  border: 2px solid silver;
+  border-radius: 4px;
+  margin-bottom: 1em;
+  width: 45vw;
+}
+
+#scientist-inputs{
+  display: flex;
+  flex-direction: column;
+}
+
+.slider {
+  display: flex;
+  flex-direction: column;
+}
+
+.sliders{
+  display: flex;
+  flex-direction: row;
+}
