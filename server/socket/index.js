@@ -165,8 +165,8 @@ function doneCallback(args, socket, io) {
   console.log('running best: ', rooms[args.room].lastResult)
 
   const {
-      tasks
-    } = rooms[args.room]
+    tasks
+  } = rooms[args.room]
   // console.log(tasks)
   const taskExists = tasks.some(task => task.id === args.id)
   if (taskExists) {
@@ -193,44 +193,48 @@ function doneCallback(args, socket, io) {
   const allDone = Object.keys(rooms[args.room].tasks).length === 0
 
   if (allDone && rooms[args.room].jobRunning) {
-    const endTime = Date.now()
-    console.log(
-      chalk.green(`DURATION OF ${args.room}: `, endTime - rooms[args.room].start)
-    )
-
-    console.log(
-      chalk.magenta(`FINAL RESULT ${rooms[args.room].lastResult.tour} ${rooms[args.room].lastResult.dist}`)
-    )
-
-    io.sockets.emit('UPDATE_' + args.room, getRoom(rooms[args.room]))
-    rooms[args.room].jobRunning = false
-
-    History.create({
-      nodes: Object.keys(rooms[args.room].nodes).length,
-      result: rooms[args.room].lastResult.tour + ' ' + rooms[args.room].lastResult.dist,
-      startTime: rooms[args.room].start,
-      multiThreaded: rooms[args.room].multiThreaded,
-      endTime,
-      room: args.room
-    })
-      .then(() => {
-        History.findAll({
-          where: {
-            room: args.room
-          }
-        }).then((history) => {
-          io.sockets.emit('UPDATE_HISTORY_' + args.room, history)
-        })
-        rooms[args.room].start = null
-        rooms[args.room].lastResult = {
-          tour: '',
-          dist: Infinity
-        }
-      })
+    algorithmDone(args.room, io)
   }
 
   io.sockets.emit('UPDATE_' + args.room, getRoom(rooms[args.room]))
   console.log(chalk.green('DONE: '), socket.id, args.room)
+}
+
+function algorithmDone(room, io) {
+  const endTime = Date.now()
+  console.log(
+    chalk.green(`DURATION OF ${room}: `, endTime - rooms[room].start)
+  )
+
+  console.log(
+    chalk.magenta(`FINAL RESULT ${rooms[room].lastResult.tour} ${rooms[room].lastResult.dist}`)
+  )
+
+  io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+  rooms[room].jobRunning = false
+
+  History.create({
+      nodes: Object.keys(rooms[room].nodes).length,
+      result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
+      startTime: rooms[room].start,
+      multiThreaded: rooms[room].multiThreaded,
+      endTime,
+      room
+    })
+    .then(() => {
+      History.findAll({
+        where: {
+          room
+        }
+      }).then((history) => {
+        io.sockets.emit('UPDATE_HISTORY_' + room, history)
+      })
+      rooms[room].start = null
+      rooms[room].lastResult = {
+        tour: '',
+        dist: Infinity
+      }
+    })
 }
 
 function jobInit(room, socket, io, partition) {
@@ -271,11 +275,11 @@ function jobInit(room, socket, io, partition) {
             Object.keys(rooms[room].nodes).forEach((id, i) => {
               io.sockets.sockets[id]
                 .emit(
-                callName,
-                rooms[room].tasks[rooms[room].tasks.length - 1 - i],
-                args, {
-                  multiThreaded: rooms[room].multiThreaded
-                }
+                  callName,
+                  rooms[room].tasks[rooms[room].tasks.length - 1 - i],
+                  args, {
+                    multiThreaded: rooms[room].multiThreaded
+                  }
                 )
             })
           })
