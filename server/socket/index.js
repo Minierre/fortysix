@@ -149,16 +149,20 @@ function doneCallback(args, socket, io) {
     rooms[args.room].nodes[socket.id].running = false
   }
 
+  // TODO: Needs to be changed dramatically
   if (!rooms[args.room].lastResult) {
     rooms[args.room].lastResult = {
-      tour: '',
-      dist: Infinity
+      maxGeneration: 0,
+      maxFitness: 0
     }
   }
 
-  if (rooms[args.room].lastResult.dist > args.result[1]) {
-    rooms[args.room].lastResult.tour = args.result[0]
-    rooms[args.room].lastResult.dist = args.result[1]
+  // TODO: Change moderately
+  const maxFitness = Math.max(...args.fitnesses)
+
+  if (rooms[args.room].lastResult.maxGeneration <= args.gen || rooms[args.room].lastResult.maxFitness <= maxFitness) {
+    rooms[args.room].lastResult.maxGeneration = args.gen
+    rooms[args.room].lastResult.maxFitness = maxFitness
   }
 
   console.log('result: ', args.result)
@@ -240,8 +244,10 @@ function algorithmDone(room, io) {
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
+  console.log('START NAME', startName)
 
   socket.on(startName, (args) => {
+    console.log('!!!!!', startName, args)
     if (!rooms[room]) return
     rooms[room].start = Date.now()
     rooms[room].jobRunning = true

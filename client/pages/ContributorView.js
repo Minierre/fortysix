@@ -195,7 +195,7 @@ const data = {
 
 
 
-class GeneticCitizen extends Component {
+class ContributorView extends Component {
 
   componentDidMount() {
     this.runMultiThreaded(data)
@@ -227,55 +227,60 @@ class GeneticCitizen extends Component {
   }
 
   runMultiThreaded(task) {
-    console.log('IN THE MULTITHREAD', task)
-    let Selection = eval('('+task.selection+')')
-    console.log(typeof Selection)
-    let Mutations = task.mutations.map(v=>eval('('+v+')'))
+    let Selection = eval('(' + task.selection + ')')
+    let Mutations = task.mutations.map(v=>eval('(' + v + ')'))
     let Fitness = task.fitness
     let population = task.population
     let fittest = []
 
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
-      let F = eval('(' + fitnessfunc + ')')
-      let fitnessess = chromosomes.map(v => F(v))
-      done({chromosomes,fitnessess})
+      const F = eval('(' + fitnessfunc + ')')
+      const fitnessess = chromosomes.map(v => F(v))
+      done({ chromosomes, fitnessess })
     })
 
-    console.log('inputs: ',[
-      {chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness },
-      {chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness },
-      {chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness },
-      {chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }
+    console.log('inputs: ', [
+      { chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness },
+      { chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness },
+      { chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness },
+      { chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }
     ])
 
     Promise.all([
-      thread.send({chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness}).promise(),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness}).promise(),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4)*3), fitnessfunc: Fitness}).promise(),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 4)*3), fitnessfunc: Fitness}).promise()
+      thread.send({ chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness }).promise(),
+      thread.send({ chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness }).promise(),
+      thread.send({ chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }).promise(),
+      thread.send({ chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }).promise()
     ])
-    .then(all => {
-      console.log('**********: ',all)
-      let pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
-      let fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
-      console.log('pop & fitpop',pop,fitpop)
-      fittest = Selection(pop,fitpop,2)
-      console.log('fittest',fittest)
-      Mutations.forEach(m=>{
-        fittest = m(fittest)
+      .then((all) => {
+        const pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
+        const fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
+        fittest = Selection(pop, fitpop, 2)
+        const memo = []
+        const fitnesses = pop.reduce((a, b, i) => {
+          if (fittest.includes(b) && !memo.includes(b)) {
+            memo.push(b)
+            a.push(fitpop[i])
+          }
+          return a
+        }, [])
+
+        Mutations.forEach((m) => {
+          fittest = m(fittest)
+        })
+
+        const returnTaskObj = {
+          fitnesses,
+          room: GENETIC_ALG,
+          id: task.id,
+          population: fittest,
+          gen: task.gen + 1,
+          fitness: task.fitness,
+          selection: task.selection,
+          mutations: task.mutations
+        }
+        this.props.socket.emit('done', returnTaskObj)
       })
-      let returnTaskObj = {
-        room: GENETIC_ALG,
-        id: task.id,
-        population: fittest,
-        gen: task.gen + 1,
-        fitness: task.fitness,
-        selection: task.selection,
-        mutations: task.mutations
-      }
-      console.log(returnTaskObj)
-      this.props.socket.emit('done', returnTaskObj)
-    })
   }
 
   render() {
@@ -292,6 +297,4 @@ class GeneticCitizen extends Component {
   }
 }
 
-GeneticCitizen.propTypes = {}
-
-export default GeneticCitizen
+export default ContributorView
