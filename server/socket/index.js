@@ -303,4 +303,3 @@ function jobInit(room, socket, io, partition) {
     }
   })
 }
-

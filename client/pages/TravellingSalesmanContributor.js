@@ -11,6 +11,7 @@ const CALL_TRAVELLING_SALESMAN = 'CALL_TRAVELLING_SALESMAN'
 class TravellingSalesmanContributor extends Component {
 
   componentDidMount() {
+    console.log(this.props.match.params);
     this.props.socket.emit('join', TRAVELLING_SALESMAN)
     this.props.socket.on(CALL_TRAVELLING_SALESMAN, (parts, graph, { multiThreaded }) => {
       this.props.socket.emit('start', TRAVELLING_SALESMAN)

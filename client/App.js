@@ -38,11 +38,15 @@ class App extends Component {
                     component={() => <RandomLargeSumContributor socket={this.props.socket} />}
                   />
                   <Route
-                    path="/admin/travelling-salesman"
+                    path="/admin/:roomHash"
                     component={() => <TravellingSalesman socket={this.props.socket} />}
                   />
                   <Route
                     path="/travelling-salesman"
+                    component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/:roomHash"
                     component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
                   />
                   <Route
