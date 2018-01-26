@@ -141,15 +141,15 @@ class GeneticCitizen extends Component {
     let population = task.population
     let fittest = []
 
-    const thread = spawn(({ chromosomes, fitnessfunc }, d) => {
+    const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
       let fitnessess = chromosomes.map(v => fitnessfunc(v))
     })
 
     Promise.all([
-      thread.send(population.slice(0, Math.floor(population.length / 4)), fitnessfunc).promise(),
-      thread.send(population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc ).promise(),
-      thread.send(population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4)*3), fitnessfunc ).promise(),
-      thread.send(population.slice(Math.floor(population.length / 4)*3), fitnessfunc ).promise()
+      thread.send({chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness}),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness} ),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4)*3), fitnessfunc: Fitness} ),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 4)*3), fitnessfunc: Fitness} )
     ])
     .then(all => {
       let pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
