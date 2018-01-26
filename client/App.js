@@ -23,29 +23,31 @@ class App extends Component {
     return (
       <div id="app-wrapper">
         <MuiThemeProvider>
-          <Navbar />
-          <Router history={history}>
-            <Main>
-              <Switch>
-                <Route
-                  path="/admin/random-large-sum"
-                  component={() => <RandomLargeSum socket={this.props.socket} />}
-                />
-                <Route
-                  path="/random-large-sum"
-                  component={() => <RandomLargeSumContributor socket={this.props.socket} />}
-                />
-                <Route
-                  path="/admin/travelling-salesman"
-                  component={() => <TravellingSalesman socket={this.props.socket} />}
-                />
-                <Route
-                  path="/travelling-salesman"
-                  component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
-                />
-              </Switch>
-            </Main>
-          </Router >
+          <div>
+            <Navbar />
+            <Router history={history}>
+              <Main>
+                <Switch>
+                  <Route
+                    path="/admin/random-large-sum"
+                    component={() => <RandomLargeSum socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/random-large-sum"
+                    component={() => <RandomLargeSumContributor socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/admin/travelling-salesman"
+                    component={() => <TravellingSalesman socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/travelling-salesman"
+                    component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
+                  />
+                </Switch>
+              </Main>
+            </Router >
+          </div>
         </MuiThemeProvider>
       </div>
     )

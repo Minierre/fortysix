@@ -5,12 +5,14 @@ import map from 'lodash/map'
 import ReactLoading from 'react-loading';
 import CodeEditor from '../CodeEditor/CodeEditor'
 import Slider from 'material-ui/Slider';
+import './style.css'
 
 import axios from 'axios'
 
 import {
   DropdownButton,
-  MenuItem
+  MenuItem,
+  Well
 } from 'react-bootstrap'
 
 class AlgorithmInputs extends Component {
@@ -20,10 +22,12 @@ class AlgorithmInputs extends Component {
       currentSelectionFunc: {},
       currentMutationFunc: {},
       selectionFuncs: [],
-      mutationFuncs: []
+      mutationFuncs: [],
+      population: 500
     }
     this.handleSelectDropdownSelection = this.handleSelectDropdownSelection.bind(this)
     this.handleMutationDropdownSelection = this.handleMutationDropdownSelection.bind(this)
+    this.handleSliderChange = this.handleSliderChange.bind(this)
   }
   componentDidMount() {
     this.fetchMutuationAlgorithms();
@@ -48,9 +52,11 @@ class AlgorithmInputs extends Component {
   handleMutationDropdownSelection(e) {
     this.setState({ currentMutationFunc: this.state.mutationFuncs[e] })
   }
+  handleSliderChange(e, population) {
+    this.setState({ population });
+  }
 
   render() {
-    console.log(this.state)
     return (
       <div>
         <DropdownButton
@@ -73,7 +79,17 @@ class AlgorithmInputs extends Component {
             <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
           )}
         </DropdownButton>
-        <Slider style={{ width: 200 }}defaultValue={1} />
+        <h5>Population Size</h5>
+        <Well className="input-information-well">{this.state.population}</Well>
+        <Slider
+          onChange={this.handleSliderChange}
+          value={this.state.population}
+          style={{ width: 200 }}
+          defaultValue={this.state.population}
+          min={100}
+          max={1000}
+          step={2}
+        />
         <CodeEditor />
       </div>
     )
