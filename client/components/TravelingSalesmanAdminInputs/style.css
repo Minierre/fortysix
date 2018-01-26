@@ -1,3 +1,9 @@
 .well {
   width: 4vw
 }
+
+#scientist-input-sliders {
+  display: flex;
+  flex-direction: row;
+  margin: .25em
+}

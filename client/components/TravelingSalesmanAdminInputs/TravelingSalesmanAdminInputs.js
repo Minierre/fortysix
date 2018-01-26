@@ -23,11 +23,13 @@ class AlgorithmInputs extends Component {
       currentMutationFunc: {},
       selectionFuncs: [],
       mutationFuncs: [],
-      population: 500
+      population: 500,
+      generations: 10
     }
     this.handleSelectDropdownSelection = this.handleSelectDropdownSelection.bind(this)
     this.handleMutationDropdownSelection = this.handleMutationDropdownSelection.bind(this)
-    this.handleSliderChange = this.handleSliderChange.bind(this)
+    this.handlePopSliderChange = this.handlePopSliderChange.bind(this)
+    this.handleGenSliderChange = this.handleGenSliderChange.bind(this)
   }
   componentDidMount() {
     this.fetchMutuationAlgorithms();
@@ -52,8 +54,11 @@ class AlgorithmInputs extends Component {
   handleMutationDropdownSelection(e) {
     this.setState({ currentMutationFunc: this.state.mutationFuncs[e] })
   }
-  handleSliderChange(e, population) {
+  handlePopSliderChange(e, population) {
     this.setState({ population });
+  }
+  handleGenSliderChange(e, generations) {
+    this.setState({ generations });
   }
 
   render() {
@@ -62,7 +67,6 @@ class AlgorithmInputs extends Component {
         <DropdownButton
           onSelect={this.handleSelectDropdownSelection}
           title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
-          key={1}
           id="selection-algorithm-dropdown"
         >
           {this.state.selectionFuncs.map((func, idx) =>
@@ -72,24 +76,40 @@ class AlgorithmInputs extends Component {
         <DropdownButton
           onSelect={this.handleMutationDropdownSelection}
           title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
-          key={2}
           id="mutations-algorithm-dropdown"
         >
           {this.state.mutationFuncs.map((func, idx) =>
             <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
           )}
         </DropdownButton>
-        <h5>Population Size</h5>
-        <Well className="input-information-well">{this.state.population}</Well>
-        <Slider
-          onChange={this.handleSliderChange}
-          value={this.state.population}
-          style={{ width: 200 }}
-          defaultValue={this.state.population}
-          min={100}
-          max={1000}
-          step={2}
-        />
+        <div id="scientist-input-sliders">
+          <div>
+            <h5>Population Size</h5>
+            <Well className="input-information-well">{this.state.population}</Well>
+            <Slider
+              onChange={this.handlePopSliderChange}
+              value={this.state.population}
+              style={{ width: 200 }}
+              defaultValue={this.state.population}
+              min={100}
+              max={1000}
+              step={2}
+            />
+          </div>
+          <div>
+            <h5>Number of Generations</h5>
+            <Well className="input-information-well">{this.state.generations}</Well>
+            <Slider
+              onChange={this.handleGenSliderChange}
+              value={this.state.generations}
+              style={{ width: 200 }}
+              defaultValue={this.state.generations}
+              min={5}
+              max={50}
+              step={1}
+            />
+          </div>
+        </div>
         <CodeEditor />
       </div>
     )
