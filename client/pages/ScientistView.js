@@ -76,10 +76,11 @@ class ScientistView extends Component {
   startJob(evt) {
     let parameters = {
       params: {
-        fitnessFunc: this.state.fitnessFunc,
+        // for now
+        fitnessFunc: 1,
         population: this.state.population,
         generations: this.state.generations,
-        currentSelectionFunc: this.startJob.currentSelectionFunc.id,
+        currentSelectionFunc: this.state.currentSelectionFunc.id,
         currentMutationFunc: this.state.currentMutationFunc.id,
         chromosomeLength: this.state.chromosomeLength
       },
@@ -121,6 +122,7 @@ class ScientistView extends Component {
   }
 
   render() {
+    console.log(this.state)
     // this sorts the table as a side effect
     const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
     const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000

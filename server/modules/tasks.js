@@ -1,13 +1,32 @@
 const uuid = require('uuid/v1')
+const { Mutations, Selections, Fitness } = require('../db/models')
 // Generate task objects based on parameters input
 
-function generateTasks({ params }, room, nodes) {
+async function generateTasks({ params }, room, nodes) {
 
   // call DB for functions via id's
 
   const tasks = []
 
+  // const mutids = params.currentMutationFunc.map(mut => mut.id)
 
+  // const mutations = await Mutations.findAll({
+  //   where: {
+  //     id: mutids
+  //   },
+  //   attributes: ['function']
+  // });
+  const mutations = await Mutations.findById(params.currentMutationFunc.id, {
+    attributes: ['function']
+  });
+
+  const selection = await Selections.findById(params.currentSelectionFunc,
+    { attributes: ['function']
+  })
+
+  const fitness = await Fitness.findById(params.fitnessFunc,
+    { attributes: ['function']
+  })
 
 
   for (let i = 0; i < 4 * Object.keys(nodes).length; i++) {
@@ -16,9 +35,9 @@ function generateTasks({ params }, room, nodes) {
       id: uuid(),
       gen: 1,
       population: genPop(params.chromosomeLength, params.population),
-      fitness: {},
-      mutations: [],
-      selection: {}
+      fitness,
+      mutations,
+      selection,
     }
     tasks.push(task)
   }

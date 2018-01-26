@@ -271,17 +271,17 @@ function jobInit(room, socket, io, generateTasks) {
       if (!rooms[room].running) {
         rooms[room].running = true
         rooms[room].tasks = generateTasks(args, room, rooms[room].nodes)
-
-        Object.keys(rooms[room].nodes).forEach((id, i) => {
-          io.sockets.sockets[id]
-            .emit(
-              callName,
-              rooms[room].tasks[rooms[room].tasks.length - 1 - i],
-              args, {
-                multiThreaded: rooms[room].multiThreaded
-              }
-            )
-        })
+        console.log(rooms[room].tasks)
+        // Object.keys(rooms[room].nodes).forEach((id, i) => {
+        //   io.sockets.sockets[id]
+        //     .emit(
+        //       callName,
+        //       rooms[room].tasks[rooms[room].tasks.length - 1 - i],
+        //       args, {
+        //         multiThreaded: rooms[room].multiThreaded
+        //       }
+        //     )
+        // })
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))
