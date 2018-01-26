@@ -149,16 +149,20 @@ function doneCallback(args, socket, io) {
     rooms[args.room].nodes[socket.id].running = false
   }
 
+  // TODO: Needs to be changed dramatically
   if (!rooms[args.room].lastResult) {
     rooms[args.room].lastResult = {
-      tour: '',
-      dist: Infinity
+      maxGeneration: 0,
+      maxFitness: 0
     }
   }
 
-  if (rooms[args.room].lastResult.dist > args.result[1]) {
-    rooms[args.room].lastResult.tour = args.result[0]
-    rooms[args.room].lastResult.dist = args.result[1]
+  // TODO: Change moderately
+  const maxFitness = Math.max(...args.fitnesses)
+
+  if (rooms[args.room].lastResult.maxGeneration <= args.gen || rooms[args.room].lastResult.maxFitness <= maxFitness) {
+    rooms[args.room].lastResult.maxGeneration = args.gen
+    rooms[args.room].lastResult.maxFitness = maxFitness
   }
 
   console.log('result: ', args.result)
@@ -167,13 +171,16 @@ function doneCallback(args, socket, io) {
   const {
     tasks
   } = rooms[args.room]
-  // console.log(tasks)
+
+  // TODO: Needs to be changed dramatically
   const taskExists = tasks.some(task => task.id === args.id)
   if (taskExists) {
     rooms[args.room].tasks = remove(rooms[args.room].tasks, task => {
       return task.id !== args.id
     })
   }
+
+  // TODO: Needs to be changed moderately
   if (rooms[args.room].tasks.length > 0) {
     rooms[args.room].nodes[socket.id].running = true
     io.sockets.sockets[socket.id].emit(
@@ -190,8 +197,10 @@ function doneCallback(args, socket, io) {
     // console.log('AFTER: ' + rooms[args.room].tasks)
   }
 
+  // TODO: Needs to be changed DRAMATTICALLY
   const allDone = Object.keys(rooms[args.room].tasks).length === 0
 
+  // TODO: Needs to be changed moderately
   if (allDone && rooms[args.room].jobRunning) {
     algorithmDone(args.room, io)
   }
@@ -213,6 +222,7 @@ function algorithmDone(room, io) {
   io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
   rooms[room].jobRunning = false
 
+  // TODO: DRAMATIC CHANGE
   History.create({
       nodes: Object.keys(rooms[room].nodes).length,
       result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
