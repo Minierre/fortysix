@@ -6,6 +6,8 @@ import {
 
 import axios from 'axios'
 
+import TravelingSalesmanAdminInputs from '../components/TravelingSalesmanAdminInputs/TravelingSalesmanAdminInputs';
+
 import {
   StatusBulbs,
   LastExecutionInfo,
@@ -119,6 +121,7 @@ class TravellingSalesman extends Component {
             For each task node for this algorithim finds a subset of the permutations neccesary to determine the shortest tour and send the results back to the root node.
           </p>
         </div>
+        <TravelingSalesmanAdminInputs />
         <Toolbar
           startJob={this.startJob.bind(this)}
           abortJob={this.abortJob.bind(this)}
