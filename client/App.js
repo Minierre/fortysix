@@ -5,14 +5,15 @@ import history from './history'
 
 import {
   Navbar,
-  Main
+  Main,
 } from './components'
 
 import {
   RandomLargeSum,
   RandomLargeSumContributor,
   TravellingSalesman,
-  TravellingSalesmanContributor
+  TravellingSalesmanContributor,
+  Home
 } from './pages'
 
 import './style.css'
@@ -41,6 +42,10 @@ class App extends Component {
               <Route
                 path="/travelling-salesman"
                 component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
+              />
+              <Route
+                path="/"
+                component={() => <Home socket={this.props.socket} />}
               />
             </Switch>
           </Main>
