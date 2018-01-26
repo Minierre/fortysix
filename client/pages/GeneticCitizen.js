@@ -198,7 +198,6 @@ const data = {
 class GeneticCitizen extends Component {
 
   componentDidMount() {
-    this.runMultiThreaded(data)
     this.props.socket.emit('join', GENETIC_ALG)
     this.props.socket.on(CALL_GENETIC_ALG, (task) => {
       this.props.socket.emit('start', GENETIC_ALG)
