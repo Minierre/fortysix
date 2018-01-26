@@ -12,8 +12,8 @@ import {
 import {
   RandomLargeSum,
   RandomLargeSumContributor,
-  TravellingSalesman,
-  TravellingSalesmanContributor,
+  ScientistView,
+  ContributorView,
   Home
 } from './pages'
 
@@ -39,11 +39,11 @@ class App extends Component {
                   />
                   <Route
                     path="/admin/travelling-salesman"
-                    component={() => <TravellingSalesman socket={this.props.socket} />}
+                    component={() => <ScientistView socket={this.props.socket} />}
                   />
                   <Route
                     path="/travelling-salesman"
-                    component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
+                    component={() => <ContributorView socket={this.props.socket} />}
                   />
                   <Route
                     path="/"
