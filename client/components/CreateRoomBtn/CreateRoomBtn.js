@@ -1,26 +1,24 @@
 import React from 'react'
 import history from '../../history'
-const crypto = require('crypto');
-
 import axios from 'axios'
-
 import {
   Button
 } from 'react-bootstrap'
-
+const crypto = require('crypto');
 
 // need a better way to create hashes but this will do for now
 function createHash() {
   const secret = (Math.random() * Math.random() * 10000000000).toString();
   const hash = crypto.createHmac('sha256', secret)
+    .update('ExtraSecret')
+    .digest('hex');
   return hash;
 }
 
 function createRoom() {
   const hash = createHash()
   axios.post('/api/room', { roomName: 'testRoom', roomHash: hash })
-    .then(res => console.log(res.data))
-    .then(history.push('/hi'))
+    .then(res => history.push(`/${res.data.roomHash}`))
 }
 
 const CreateRoomBtn = () => (
