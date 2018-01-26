@@ -12,8 +12,8 @@ import {
 import {
   RandomLargeSum,
   RandomLargeSumContributor,
-  TravellingSalesman,
-  TravellingSalesmanContributor,
+  ScientistView,
+  ContributorView,
   Home
 } from './pages'
 
@@ -43,7 +43,7 @@ class App extends Component {
                   />
                   <Route
                     path="/travelling-salesman"
-                    component={() => <TravellingSalesmanContributor socket={this.props.socket} />}
+                    component={() => <ContributorView socket={this.props.socket} />}
                   />
                   <Route
                     path="/:roomHash"

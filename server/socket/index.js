@@ -250,8 +250,10 @@ function algorithmDone(room, io) {
 function jobInit(room, socket, io, partition) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
+  console.log('START NAME', startName)
 
   socket.on(startName, (args) => {
+    console.log('!!!!!', startName, args)
     if (!rooms[room]) return
     rooms[room].start = Date.now()
     rooms[room].jobRunning = true
