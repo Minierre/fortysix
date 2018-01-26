@@ -95,6 +95,12 @@ class TravellingSalesman extends Component {
     this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
 
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
+
+    this.props.socket.on('disconnect', () => {
+      this.props.socket.on('connect', () => {
+        this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
+      })
+    })
   }
 
   startJob(evt) {
