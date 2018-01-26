@@ -63,8 +63,8 @@ const data = {
     }).toString(),
     ((pop, p)=>{
       for (var j = 1; j < pop.length; j++) {
-        let c1 = pop[i]
-        let c2 = pop[i - 1]
+        let c1 = pop[j]
+        let c2 = pop[j - 1]
         if (Math.random() < p) {
           let i = Math.floor(Math.random() * (c1.length - 1))
           i++
@@ -137,37 +137,43 @@ class GeneticCitizen extends Component {
     let Selection = eval('('+task.selection+')')
     console.log(typeof Selection)
     let Mutations = task.mutations.map(v=>eval('('+v+')'))
-    let Fitness = eval('('+task.fitness+')')
+    let Fitness = task.fitness
     let population = task.population
     let fittest = []
 
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
-      let fitnessess = chromosomes.map(v => fitnessfunc(v))
+      let F = eval('(' + fitnessfunc + ')')
+      let fitnessess = chromosomes.map(v => F(v))
+      done({chromosomes,fitnessess})
     })
 
     Promise.all([
-      thread.send({chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness}),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness} ),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4)*3), fitnessfunc: Fitness} ),
-      thread.send({chromosomes: population.slice(Math.floor(population.length / 4)*3), fitnessfunc: Fitness} )
+      thread.send({chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness}).promise(),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness}).promise(),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4)*3), fitnessfunc: Fitness}).promise(),
+      thread.send({chromosomes: population.slice(Math.floor(population.length / 4)*3), fitnessfunc: Fitness}).promise()
     ])
     .then(all => {
+      console.log('**********: ',all)
       let pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
       let fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
+      console.log('pop & fitpop',pop,fitpop)
       fittest = Selection(pop,fitpop,2)
-      mutations.forEach(m=>{
+      console.log('fittest',fittest)
+      Mutations.forEach(m=>{
         fittest = m(fittest)
       })
-      console.log(fittest)
-      this.props.socket.emit('done', {
+      let returnTaskObj = {
         room: GENETIC_ALG,
         id: task.id,
         population: fittest,
-        gen: task.gen+1,
+        gen: task.gen + 1,
         fitness: task.fitness,
         selection: task.selection,
         mutations: task.mutations
-      })
+      }
+      console.log(returnTaskObj)
+      this.props.socket.emit('done', returnTaskObj)
     })
   }
 
