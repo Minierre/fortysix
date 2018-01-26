@@ -63,54 +63,60 @@ class AlgorithmInputs extends Component {
 
   render() {
     return (
-      <div>
-        <DropdownButton
-          onSelect={this.handleSelectDropdownSelection}
-          title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
-          id="selection-algorithm-dropdown"
-        >
-          {this.state.selectionFuncs.map((func, idx) =>
-            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
-          )}
-        </DropdownButton>
-        <DropdownButton
-          onSelect={this.handleMutationDropdownSelection}
-          title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
-          id="mutations-algorithm-dropdown"
-        >
-          {this.state.mutationFuncs.map((func, idx) =>
-            <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
-          )}
-        </DropdownButton>
-        <div id="scientist-input-sliders">
-          <div>
-            <h5>Population Size</h5>
-            <Well className="input-information-well">{this.state.population}</Well>
-            <Slider
-              onChange={this.handlePopSliderChange}
-              value={this.state.population}
-              style={{ width: 200 }}
-              defaultValue={this.state.population}
-              min={100}
-              max={1000}
-              step={2}
-            />
-          </div>
-          <div>
-            <h5>Number of Generations</h5>
-            <Well className="input-information-well">{this.state.generations}</Well>
-            <Slider
-              onChange={this.handleGenSliderChange}
-              value={this.state.generations}
-              style={{ width: 200 }}
-              defaultValue={this.state.generations}
-              min={5}
-              max={50}
-              step={1}
-            />
+      <div id="scientist-inputs">
+        <div id="code-editor">
+          <CodeEditor />
+        </div>
+        <div>
+          <DropdownButton
+            onSelect={this.handleSelectDropdownSelection}
+            title={(this.state.currentSelectionFunc && this.state.currentSelectionFunc.name) || 'Select a Selection Algorithm'}
+            id="selection-algorithm-dropdown"
+          >
+            {this.state.selectionFuncs.map((func, idx) =>
+              <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+            )}
+          </DropdownButton>
+          <DropdownButton
+            onSelect={this.handleMutationDropdownSelection}
+            title={(this.state.currentMutationFunc && this.state.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
+            id="mutations-algorithm-dropdown"
+          >
+            {this.state.mutationFuncs.map((func, idx) =>
+              <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
+            )}
+          </DropdownButton>
+          <div className="sliders">
+            <div className="slider">
+              <h5>Population Size</h5>
+              <Well className="input-information-well">{this.state.population}</Well>
+              <Slider
+                className="scientist-input-sliders"
+                onChange={this.handlePopSliderChange}
+                value={this.state.population}
+                style={{ width: 200 }}
+                defaultValue={this.state.population}
+                min={100}
+                max={1000}
+                step={2}
+              />
+            </div>
+            <div className="slider">
+              <h5>Number of Generations</h5>
+              <Well className="input-information-well">{this.state.generations}</Well>
+              <Slider
+                className="scientist-input-sliders"
+                onChange={this.handleGenSliderChange}
+                value={this.state.generations}
+                style={{ width: 200 }}
+                defaultValue={this.state.generations}
+                min={5}
+                max={50}
+                step={1}
+              />
+            </div>
           </div>
         </div>
-        <CodeEditor />
       </div>
     )
   }

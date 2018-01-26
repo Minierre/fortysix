@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 let CodeMirror = require('react-codemirror');
 require('codemirror/mode/javascript/javascript');
 import '../../../node_modules/codemirror/lib/codemirror.css';
-//'../../../node_modules/codemirror/lib/codemirror.css'
+import './style.css'
 
 class codeEditor extends Component {
   constructor() {
