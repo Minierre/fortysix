@@ -11,11 +11,6 @@ const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 const rooms = {}
 
-let finalResult = {
-  tour: '',
-  dist: Infinity
-}
-
 const getRoom = (object = {}) => {
   return object || {}
 }
@@ -99,21 +94,24 @@ function registerJoin(socket, io) {
             running: false,
             error: false
           }
-        }
+        },
+        lastResult: null,
       }
     } else {
       rooms[room] = {
-        start: rooms[room].start,
-        jobRunning: rooms[room].jobRunning,
-        multiThreaded: rooms[room].multiThreaded,
-        tasks: rooms[room].tasks,
+        // start: rooms[room].start,
+        // jobRunning: rooms[room].jobRunning,
+      //  multiThreaded: rooms[room].multiThreaded,
+        // tasks: rooms[room].tasks,
+        ...rooms[room],
         nodes: {
           ...rooms[room].nodes,
           [socket.id]: {
             running: false,
             error: false
           }
-        }
+        },
+        // lastResult: rooms[room].lastResult
       }
     }
 
@@ -158,13 +156,20 @@ function registerDone(socket, io) {
       rooms[room].nodes[socket.id].running = false
     }
 
-    if (finalResult.dist > result[1]) {
-      finalResult.tour = result[0]
-      finalResult.dist = result[1]
+    if (!rooms[room].lastResult) {
+      rooms[room].lastResult = {
+        tour: '',
+        dist: Infinity
+      }
+    }
+
+    if (rooms[room].lastResult.dist > result[1]) {
+      rooms[room].lastResult.tour = result[0]
+      rooms[room].lastResult.dist = result[1]
     }
 
     console.log('result: ', result)
-    console.log('running best: ', finalResult)
+    console.log('running best: ', rooms[room].lastResult)
 
     const {
       tasks
@@ -201,7 +206,7 @@ function registerDone(socket, io) {
       )
 
       console.log(
-        chalk.magenta(`FINAL RESULT ${finalResult.tour} ${finalResult.dist}`)
+        chalk.magenta(`FINAL RESULT ${rooms[room].lastResult.tour} ${rooms[room].lastResult.dist}`)
       )
 
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
@@ -209,7 +214,7 @@ function registerDone(socket, io) {
 
       History.create({
         nodes: Object.keys(rooms[room].nodes).length,
-        result: finalResult.tour + ' ' + finalResult.dist,
+        result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
         startTime: rooms[room].start,
         multiThreaded: rooms[room].multiThreaded,
         endTime,
@@ -223,10 +228,8 @@ function registerDone(socket, io) {
           }).then((history) => {
             io.sockets.emit('UPDATE_HISTORY_' + room, history)
           })
-
-
           rooms[room].start = null
-          finalResult = {
+          rooms[room].lastResult = {
             tour: '',
             dist: Infinity
           }
