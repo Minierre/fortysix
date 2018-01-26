@@ -6,6 +6,8 @@ import {
 
 import axios from 'axios'
 
+import TravelingSalesmanAdminInputs from '../components/TravelingSalesmanAdminInputs/TravelingSalesmanAdminInputs';
+
 import {
   StatusBulbs,
   LastExecutionInfo,
@@ -90,7 +92,15 @@ class TravellingSalesman extends Component {
       this.setState({ history })
     })
 
+    this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
+
     this.props.socket.emit(REQUEST_ROOM, TRAVELLING_SALESMAN)
+
+    this.props.socket.on('disconnect', () => {
+      this.props.socket.on('connect', () => {
+        this.props.socket.emit('ADMIN_JOIN', TRAVELLING_SALESMAN)
+      })
+    })
   }
 
   startJob(evt) {
@@ -117,6 +127,7 @@ class TravellingSalesman extends Component {
             For each task node for this algorithim finds a subset of the permutations neccesary to determine the shortest tour and send the results back to the root node.
           </p>
         </div>
+        <TravelingSalesmanAdminInputs />
         <Toolbar
           startJob={this.startJob.bind(this)}
           abortJob={this.abortJob.bind(this)}
@@ -142,4 +153,3 @@ class TravellingSalesman extends Component {
 }
 
 export default TravellingSalesman
-

@@ -3,6 +3,9 @@ module.exports = router
 
 router.use('/users', require('./users'))
 router.use('/history', require('./history'))
+router.use('/mutation-algs', require('./mutation-algs'))
+router.use('/selection-algs', require('./selection-algs'))
+router.use('/room', require('./room'))
 
 router.use((req, res, next) => {
   const error = new Error('Not Found')
