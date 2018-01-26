@@ -4,6 +4,7 @@ import './style.css'
 import map from 'lodash/map'
 import ReactLoading from 'react-loading';
 import CodeEditor from '../CodeEditor/CodeEditor'
+import Slider from 'material-ui/Slider';
 
 import axios from 'axios'
 
@@ -72,6 +73,7 @@ class AlgorithmInputs extends Component {
             <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
           )}
         </DropdownButton>
+        <Slider style={{ width: 200 }}defaultValue={1} />
         <CodeEditor />
       </div>
     )
