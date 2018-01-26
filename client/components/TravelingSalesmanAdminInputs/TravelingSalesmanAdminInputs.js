@@ -67,6 +67,7 @@ class AlgorithmInputs extends Component {
             )}
           </DropdownButton>
           <div className="sliders">
+
             <div className="slider">
               <h5>Population Size</h5>
               <Well className="input-information-well">{this.props.population}</Well>
@@ -81,6 +82,7 @@ class AlgorithmInputs extends Component {
                 step={2}
               />
             </div>
+
             <div className="slider">
               <h5>Number of Generations</h5>
               <Well className="input-information-well">{this.props.generations}</Well>
@@ -95,6 +97,22 @@ class AlgorithmInputs extends Component {
                 step={1}
               />
             </div>
+
+            <div className="slider">
+              <h5>Chromosome Length</h5>
+              <Well className="input-information-well">{this.props.chromosomeLength}</Well>
+              <Slider
+                className="scientist-input-sliders"
+                onChange={(e, pop) => this.props.setChromLength(pop)}
+                value={this.props.chromosomeLength}
+                style={{ width: 200 }}
+                defaultValue={this.props.chromosomeLength}
+                min={8}
+                max={500}
+                step={1}
+              />
+            </div>
+
           </div>
         </div>
       </div>

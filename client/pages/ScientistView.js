@@ -40,12 +40,14 @@ class ScientistView extends Component {
       generations: 10,
       currentSelectionFunc: {},
       currentMutationFunc: {},
+      chromosomeLength: 10
     }
     this.setFitnessFunc = this.setFitnessFunc.bind(this);
     this.setMutationFuncs = this.setMutationFuncs.bind(this);
     this.setSelectionFunc = this.setSelectionFunc.bind(this);
     this.setPopulationSize = this.setPopulationSize.bind(this);
     this.setGenerations = this.setGenerations.bind(this);
+    this.setChromLength = this.setChromLength.bind(this);
   }
   componentDidMount() {
     axios.get('/api/history/' + GENETIC_ALG).then((history) => {
@@ -79,6 +81,7 @@ class ScientistView extends Component {
         generations: this.state.generations,
         currentSelectionFunc: this.startJob.currentSelectionFunc.id,
         currentMutationFunc: this.state.currentMutationFunc.id,
+        chromosomeLength: this.state.chromosomeLength
       },
       room: this.state.room
     }
@@ -94,23 +97,27 @@ class ScientistView extends Component {
   }
 
   setFitnessFunc(fitnessFunc) {
-    this.setState( { fitnessFunc } );
+    this.setState({ fitnessFunc });
   }
 
   setMutationFuncs(currentMutationFunc) {
-    this.setState( currentMutationFunc );
+    this.setState(currentMutationFunc);
   }
 
   setSelectionFunc(currentSelectionFunc) {
-    this.setState( currentSelectionFunc );
+    this.setState(currentSelectionFunc);
   }
 
   setPopulationSize(population) {
-    this.setState( { population } );
+    this.setState({ population });
   }
 
   setGenerations(generations) {
-    this.setState( { generations } );
+    this.setState({ generations });
+  }
+
+  setChromLength(chromosomeLength) {
+    this.setState({ chromosomeLength })
   }
 
   render() {
@@ -131,10 +138,12 @@ class ScientistView extends Component {
           setSelectionFunc={this.setSelectionFunc}
           setPopulationSize={this.setPopulationSize}
           setGenerations={this.setGenerations}
+          setChromLength={this.setChromLength}
           currentSelectionFunc={this.state.currentSelectionFunc}
           currentMutationFunc={this.state.currentMutationFunc}
           population={this.state.population}
           generations={this.state.generations}
+          chromosomeLength={this.state.chromosomeLength}
         />
         <Toolbar
           startJob={this.startJob.bind(this)}
