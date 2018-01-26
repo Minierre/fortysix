@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 import { spawn } from 'threads'
 import './style.css'
+import GeneticCitizen from './GeneticCitizen'
 
 const TRAVELLING_SALESMAN = 'TRAVELLING_SALESMAN'
 const LEAVE_TRAVELLING_SALESMAN = 'LEAVE_TRAVELLING_SALESMAN'
@@ -154,14 +155,9 @@ class TravellingSalesmanContributor extends Component {
 
   render() {
     return (
-      <Panel>
-        <Panel.Heading>
-          <Panel.Title componentClass="h3">
-            By having this page open you are contributing to science.
-          </Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>Thank you for contributing to science.</Panel.Body>
-      </Panel>
+      <div>
+        <GeneticCitizen socket={this.props.socket}/>
+      </div>
     )
   }
 }
