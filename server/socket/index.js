@@ -345,10 +345,7 @@ function dispatchTask(finishedTask) {
     // is there a better way to generate a new task here? Security flaw
     const params = { ...finishedTask,
       population: rooms[finishedTask.room].population }
-      console.log('PARAMS', params)
       const newTask = generateTasks({ params }, finishedTask.room, 1, rooms[finishedTask.room].fitness, rooms[finishedTask.room].mutations, rooms[finishedTask.room].selection, rooms[finishedTask.room].chromosomeLength)
-
-      console.log('NEW TASK', newTask)
       rooms[finishedTask.room].tasks = rooms[finishedTask.room].tasks.concat(newTask);
   }
 }
