@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import {
   Tabs,
   Tab
@@ -50,25 +51,26 @@ class ScientistView extends Component {
     this.setChromLength = this.setChromLength.bind(this);
   }
   componentDidMount() {
-    axios.get('/api/history/' + GENETIC_ALG).then((history) => {
+    const roomHash = this.props.match.params.roomHash;
+    axios.get('/api/history/' + roomHash).then((history) => {
       this.setState({ history: history.data })
     })
 
-    this.props.socket.on(UPDATE_GENETIC_ALG, (room) => {
+    this.props.socket.on("UPDATE_" + roomHash, (room) => {
       this.setState({ room })
     })
 
-    this.props.socket.on(UPDATE_HISTORY_GENETIC_ALG, (history) => {
+    this.props.socket.on("UPDATE_HISTORY_" + roomHash, (history) => {
       this.setState({ history })
     })
 
-    this.props.socket.emit(ADMIN_JOIN, GENETIC_ALG)
+    this.props.socket.emit(ADMIN_JOIN, roomHash)
 
-    this.props.socket.emit(REQUEST_ROOM, GENETIC_ALG)
+    this.props.socket.emit(REQUEST_ROOM, roomHash)
 
     this.props.socket.on('disconnect', () => {
       this.props.socket.on('connect', () => {
-        this.props.socket.emit('ADMIN_JOIN', GENETIC_ALG)
+        this.props.socket.emit('ADMIN_JOIN', roomHash)
       })
     })
   }
@@ -90,11 +92,15 @@ class ScientistView extends Component {
   }
 
   abortJob(evt) {
-    this.props.socket.emit('ABORT', GENETIC_ALG)
+    //for now
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit('ABORT', roomHash)
   }
 
   toggleMultiThreaded(evt) {
-    this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: GENETIC_ALG })
+    //for now
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: roomHash })
   }
 
   setFitnessFunc(fitnessFunc) {
@@ -120,9 +126,24 @@ class ScientistView extends Component {
   setChromLength(chromosomeLength) {
     this.setState({ chromosomeLength })
   }
+  startJob(evt) {
+    //for now
+    const roomHash = this.props.match.params.roomHash
+    let parameters = {
+      params: {
+        fitnessFunc: 1,
+        population: this.state.population,
+        generations: this.state.generations,
+        currentSelectionFunc: this.state.currentSelectionFunc.id,
+        currentMutationFunc: this.state.currentMutationFunc.id,
+        chromosomeLength: this.state.chromosomeLength
+      },
+      room: this.state.room
+    }
+    this.props.socket.emit("START_" + roomHash, parameters)
+  }
 
   render() {
-    console.log(this.state)
     // this sorts the table as a side effect
     const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
     const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
@@ -166,9 +187,9 @@ class ScientistView extends Component {
             <ConsoleOutput />
           </Tab>
         </Tabs>
-      </div >
+      </div>
     )
   }
 }
 
-export default ScientistView
+export default withRouter(ScientistView)

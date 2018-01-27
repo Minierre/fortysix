@@ -38,11 +38,15 @@ class App extends Component {
                     component={() => <RandomLargeSumContributor socket={this.props.socket} />}
                   />
                   <Route
-                    path="/admin/travelling-salesman"
+                    path="/admin/:roomHash"
                     component={() => <ScientistView socket={this.props.socket} />}
                   />
                   <Route
                     path="/travelling-salesman"
+                    component={() => <ContributorView socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/:roomHash"
                     component={() => <ContributorView socket={this.props.socket} />}
                   />
                   <Route
@@ -51,7 +55,7 @@ class App extends Component {
                   />
                 </Switch>
               </Main>
-            </Router >
+            </Router>
           </div>
         </MuiThemeProvider>
       </div>

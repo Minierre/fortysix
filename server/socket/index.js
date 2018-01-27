@@ -293,4 +293,3 @@ function jobInit(room, socket, io, generateTasks) {
     }
   })
 }
-

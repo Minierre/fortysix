@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 import { spawn } from 'threads'
+import { withRouter } from 'react-router-dom'
 import './style.css'
 
 const GENETIC_ALG = 'GENETIC_ALG'
@@ -195,25 +196,26 @@ const data = {
 class ContributorView extends Component {
 
   componentDidMount() {
-    this.props.socket.emit('join', GENETIC_ALG)
-    this.props.socket.on(CALL_GENETIC_ALG, (task) => {
-      this.props.socket.emit('start', GENETIC_ALG)
+    const roomHash = this.props.match.params.roomHash;
+    this.props.socket.emit('join', roomHash)
+    this.props.socket.on("CALL_" + roomHash, (task) => {
+      this.props.socket.emit('start', roomHash)
       try {
-        console.log('running: ',task)
+        console.log('running: ', task)
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)
-        this.props.socket.emit('JOB_ERROR', GENETIC_ALG)
+        this.props.socket.emit('JOB_ERROR', roomHash)
       }
     })
 
     this.props.socket.on('disconnect', () => {
       this.props.socket.on('connect', () => {
-        this.props.socket.emit('join', GENETIC_ALG)
+        this.props.socket.emit('join', roomHash)
       })
     })
 
-    this.props.socket.on('ABORT_' + GENETIC_ALG, () => {
+    this.props.socket.on('ABORT_' + roomHash, () => {
       window.location.reload(true)
     })
   }
@@ -267,7 +269,7 @@ class ContributorView extends Component {
 
         const returnTaskObj = {
           fitnesses,
-          room: GENETIC_ALG,
+          room: roomHash,
           id: task.id,
           population: fittest,
           gen: task.gen + 1,
@@ -293,4 +295,4 @@ class ContributorView extends Component {
   }
 }
 
-export default ContributorView
+export default withRouter(ContributorView)
