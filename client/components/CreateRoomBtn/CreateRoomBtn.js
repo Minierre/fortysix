@@ -17,7 +17,7 @@ function createHash() {
 
 function createRoom() {
   const hash = createHash()
-  axios.post('/api/room', { roomName: 'testRoom4', roomHash: hash })
+  axios.post('/api/room', { roomName: 'testRoom8', roomHash: hash })
     .then(res => history.push(`/${res.data.roomHash}`))
 }
 
