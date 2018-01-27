@@ -1,7 +1,9 @@
 const chalk = require('chalk')
 const {
-  History
+  History,
+  Fitness
 } = require('../db/models')
+const { generateTasks } = require('../modules/tasks')
 const remove = require('lodash/remove')
 
 const travellingSalesman = require('../modules/travellingSalesman')
@@ -30,7 +32,7 @@ function registerJoinAdmin(socket, io) {
       socket,
       io,
       // This is where you put the magic
-      travellingSalesman.partition
+      generateTasks
     )
   })
 }
@@ -224,13 +226,13 @@ function algorithmDone(room, io) {
 
   // TODO: DRAMATIC CHANGE
   History.create({
-      nodes: Object.keys(rooms[room].nodes).length,
-      result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
-      startTime: rooms[room].start,
-      multiThreaded: rooms[room].multiThreaded,
-      endTime,
-      room
-    })
+    nodes: Object.keys(rooms[room].nodes).length,
+    result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
+    startTime: rooms[room].start,
+    multiThreaded: rooms[room].multiThreaded,
+    endTime,
+    room
+  })
     .then(() => {
       History.findAll({
         where: {
@@ -247,7 +249,7 @@ function algorithmDone(room, io) {
     })
 }
 
-function jobInit(room, socket, io, partition) {
+function jobInit(room, socket, io, generateTasks) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
   console.log('START NAME', startName)
@@ -268,34 +270,18 @@ function jobInit(room, socket, io, partition) {
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        partition(
-          io,
-          room,
-          args, ((portions) => {
-
-            rooms[room].tasks = (rooms[room].multiThreaded) ?
-              portions.reduce((a, b, i) => {
-                if (a[Math.floor(i / 4)]) a[Math.floor(i / 4)].value.push(b.value[0])
-                else a[Math.floor(i / 4)] = b
-                return a
-              }, []) :
-              portions.map(v => ({
-                id: v.id,
-                value: v.value[0]
-              }))
-
-            Object.keys(rooms[room].nodes).forEach((id, i) => {
-              io.sockets.sockets[id]
-                .emit(
-                  callName,
-                  rooms[room].tasks[rooms[room].tasks.length - 1 - i],
-                  args, {
-                    multiThreaded: rooms[room].multiThreaded
-                  }
-                )
-            })
-          })
-        )
+        rooms[room].tasks = generateTasks(args, room, rooms[room].nodes)
+        console.log(rooms[room].tasks)
+        // Object.keys(rooms[room].nodes).forEach((id, i) => {
+        //   io.sockets.sockets[id]
+        //     .emit(
+        //       callName,
+        //       rooms[room].tasks[rooms[room].tasks.length - 1 - i],
+        //       args, {
+        //         multiThreaded: rooms[room].multiThreaded
+        //       }
+        //     )
+        // })
         rooms[room].running = false
       } else {
         console.log(chalk.red(`${startName} already running!`))
