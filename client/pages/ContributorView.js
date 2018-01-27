@@ -230,8 +230,6 @@ class ContributorView extends Component {
     let Fitness = task.fitness.function
     let population = task.population
     let fittest = []
-    console.log('YOOOOO', Selection, Mutations, Fitness, population)
-
 
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
       const F = eval('(' + fitnessfunc + ')')

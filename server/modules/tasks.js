@@ -2,7 +2,7 @@ const uuid = require('uuid/v1')
 const { Mutations, Selections, Fitness } = require('../db/models')
 // Generate task objects based on parameters input
 
-async function generateTasks({ params }, room, numTasks) {
+function generateTasks({ params }, room, numTasks, fitness, mutations, selection, chromosomeLength) {
   const tasks = []
 
   // const mutations = await Mutations.findAll({
@@ -13,24 +13,24 @@ async function generateTasks({ params }, room, numTasks) {
   // });
 
 
-  const mutations = await Mutations.findById(params.currentMutationFunc, {
-    attributes: ['function']
-  });
+  // const mutations = await Mutations.findById(params.currentMutationFunc, {
+  //   attributes: ['function']
+  // });
 
-  const selection = await Selections.findById(params.currentSelectionFunc,
-    { attributes: ['function']
-  })
+  // const selection = await Selections.findById(params.currentSelectionFunc,
+  //   { attributes: ['function']
+  // })
 
-  const fitness = await Fitness.findById(params.fitnessFunc,
-    { attributes: ['function']
-  })
+  // const fitness = await Fitness.findById(params.fitnessFunc,
+  //   { attributes: ['function']
+  // })
 
   for (let i = 0; i < numTasks; i++) {
     const task = {
       room,
       id: uuid(),
       gen: 1,
-      population: genPop(params.chromosomeLength, params.population),
+      population: genPop(chromosomeLength, params.population),
       fitness,
       mutations: [mutations],
       selection,
@@ -85,5 +85,6 @@ function garbageCollection(taskNum){
 */
 
 // shortens the taskQueue when it
+
 
 module.exports = { generateTasks }
