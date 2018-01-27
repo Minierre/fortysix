@@ -76,6 +76,7 @@ class ScientistView extends Component {
   }
 
   startJob(evt) {
+    const roomHash = this.props.match.params.roomHash
     let parameters = {
       params: {
         // for now
@@ -88,7 +89,7 @@ class ScientistView extends Component {
       },
       room: this.state.room
     }
-    this.props.socket.emit(START_GENETIC_ALG, parameters)
+    this.props.socket.emit("START_" + roomHash, parameters)
   }
 
   abortJob(evt) {
@@ -104,23 +105,23 @@ class ScientistView extends Component {
   }
 
   setFitnessFunc(fitnessFunc) {
-    this.setState({ fitnessFunc });
+    this.setState({ fitnessFunc })
   }
 
   setMutationFuncs(currentMutationFunc) {
-    this.setState(currentMutationFunc);
+    this.setState(currentMutationFunc)
   }
 
   setSelectionFunc(currentSelectionFunc) {
-    this.setState(currentSelectionFunc);
+    this.setState(currentSelectionFunc)
   }
 
   setPopulationSize(population) {
-    this.setState({ population });
+    this.setState({ population })
   }
 
   setGenerations(generations) {
-    this.setState({ generations });
+    this.setState({ generations })
   }
 
   setChromLength(chromosomeLength) {
