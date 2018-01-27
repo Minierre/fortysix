@@ -8,6 +8,7 @@ async function generateTasks({ params }, room, nodes) {
 
   const tasks = []
 
+
   // const mutids = params.currentMutationFunc.map(mut => mut.id)
 
   // const mutations = await Mutations.findAll({
@@ -27,8 +28,7 @@ async function generateTasks({ params }, room, nodes) {
   const fitness = await Fitness.findById(params.fitnessFunc,
     { attributes: ['function']
   })
-
-
+  
   for (let i = 0; i < 4 * Object.keys(nodes).length; i++) {
     const task = {
       room,
