@@ -2,7 +2,7 @@ const uuid = require('uuid/v1')
 const { Mutations, Selections, Fitness } = require('../db/models')
 // Generate task objects based on parameters input
 
-async function generateTasks({ params }, room, nodes) {
+async function generateTasks({ params }, room, numTasks) {
 
   // call DB for functions via id's
 
@@ -17,7 +17,9 @@ async function generateTasks({ params }, room, nodes) {
   //   },
   //   attributes: ['function']
   // });
-  const mutations = await Mutations.findById(params.currentMutationFunc.id, {
+
+
+  const mutations = await Mutations.findById(params.currentMutationFunc, {
     attributes: ['function']
   });
 
@@ -28,8 +30,8 @@ async function generateTasks({ params }, room, nodes) {
   const fitness = await Fitness.findById(params.fitnessFunc,
     { attributes: ['function']
   })
-  
-  for (let i = 0; i < 4 * Object.keys(nodes).length; i++) {
+
+  for (let i = 0; i < numTasks; i++) {
     const task = {
       room,
       id: uuid(),
@@ -64,5 +66,30 @@ function genPop(l, s) {
 //       id: v.id,
 //       value: v.value[0]
 //     }))
+
+/*
+this would be the more optimized approach with the task queue, but for now
+i'll just unshift the task queue:
+
+keep the task queue one long array and trim it as it gets too big
+
+function getTask(taskQ) {
+  let taskNum = 0;
+  return function wrapped() {
+    const task = taskQ[taskNum];
+    taskNum++;
+    return task;
+  }
+}
+
+function garbageCollection(taskNum){
+  if (taskNum === 100) {
+    task = task.slice(100, taskQ.length -1)
+    taskNum = 0
+  }
+}
+*/
+
+// shortens the taskQueue when it
 
 module.exports = { generateTasks }
