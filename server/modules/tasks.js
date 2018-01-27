@@ -7,9 +7,6 @@ function generateTasks({ params }, room, nodes) {
 
   const tasks = []
 
-
-
-
   for (let i = 0; i < 4 * Object.keys(nodes).length; i++) {
     const task = {
       room,
