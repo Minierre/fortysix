@@ -3,13 +3,7 @@ const { Mutations, Selections, Fitness } = require('../db/models')
 // Generate task objects based on parameters input
 
 async function generateTasks({ params }, room, numTasks) {
-
-  // call DB for functions via id's
-
   const tasks = []
-
-
-  // const mutids = params.currentMutationFunc.map(mut => mut.id)
 
   // const mutations = await Mutations.findAll({
   //   where: {
@@ -38,7 +32,7 @@ async function generateTasks({ params }, room, numTasks) {
       gen: 1,
       population: genPop(params.chromosomeLength, params.population),
       fitness,
-      mutations,
+      mutations: [mutations],
       selection,
     }
     tasks.push(task)
