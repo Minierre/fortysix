@@ -97,6 +97,7 @@ function registerJoin(socket, io) {
             error: false
           }
         },
+        bucket: {},
         lastResult: null,
       }
     } else {
@@ -255,34 +256,35 @@ function jobInit(room, socket, io, generateTasks) {
   console.log('START NAME', startName)
 
   socket.on(startName, (args) => {
-    console.log('!!!!!', startName, args)
+
     if (!rooms[room]) return
     rooms[room].start = Date.now()
     rooms[room].jobRunning = true
-
     Object.keys(rooms[room].nodes).forEach((socketId) => {
       rooms[room].nodes[socketId].running = true
       rooms[room].nodes[socketId].error = false
     })
 
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-
     if (rooms[room]) {
       if (!rooms[room].running) {
         rooms[room].running = true
-        rooms[room].tasks = generateTasks(args, room, rooms[room].nodes)
-        console.log(rooms[room].tasks)
-        // Object.keys(rooms[room].nodes).forEach((id, i) => {
-        //   io.sockets.sockets[id]
-        //     .emit(
-        //       callName,
-        //       rooms[room].tasks[rooms[room].tasks.length - 1 - i],
-        //       args, {
-        //         multiThreaded: rooms[room].multiThreaded
-        //       }
-        //     )
-        // })
-        rooms[room].running = false
+        // generates 4X tasks for each node in the system
+        generateTasks(args, room, Object.keys(rooms[room].nodes).length * 4)
+        .then(tasks => {
+          rooms[room].tasks = tasks
+          Object.keys(rooms[room].nodes).forEach((id, i) => {
+            io.sockets.sockets[id]
+              .emit(
+                callName,
+                rooms[room].tasks.shift(),
+                args, {
+                  multiThreaded: rooms[room].multiThreaded
+                }
+              )
+          })
+          rooms[room].running = false
+        })
       } else {
         console.log(chalk.red(`${startName} already running!`))
       }
