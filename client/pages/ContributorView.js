@@ -225,9 +225,9 @@ class ContributorView extends Component {
   }
 
   runMultiThreaded(task) {
-    let Selection = eval('(' + task.selection + ')')
-    let Mutations = task.mutations.map(v=>eval('(' + v + ')'))
-    let Fitness = task.fitness
+    let Selection = eval('(' + task.selection.function + ')')
+    let Mutations = task.mutations.map(v=>eval('(' + v.function + ')'))
+    let Fitness = task.fitness.function
     let population = task.population
     let fittest = []
 
@@ -237,12 +237,12 @@ class ContributorView extends Component {
       done({ chromosomes, fitnessess })
     })
 
-    console.log('inputs: ', [
-      { chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness },
-      { chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness },
-      { chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness },
-      { chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }
-    ])
+    // console.log('inputs: ', [
+    //   { chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness },
+    //   { chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness },
+    //   { chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness },
+    //   { chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }
+    // ])
 
     Promise.all([
       thread.send({ chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness }).promise(),
@@ -269,7 +269,7 @@ class ContributorView extends Component {
 
         const returnTaskObj = {
           fitnesses,
-          room: roomHash,
+          room: this.props.match.params.roomHash,
           id: task.id,
           population: fittest,
           gen: task.gen + 1,

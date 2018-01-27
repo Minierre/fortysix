@@ -2,14 +2,8 @@ const uuid = require('uuid/v1')
 const { Mutations, Selections, Fitness } = require('../db/models')
 // Generate task objects based on parameters input
 
-async function generateTasks({ params }, room, numTasks) {
-
-  // call DB for functions via id's
-
+function generateTasks({ params }, room, numTasks, fitness, mutations, selection, chromosomeLength) {
   const tasks = []
-
-
-  // const mutids = params.currentMutationFunc.map(mut => mut.id)
 
   // const mutations = await Mutations.findAll({
   //   where: {
@@ -19,26 +13,26 @@ async function generateTasks({ params }, room, numTasks) {
   // });
 
 
-  const mutations = await Mutations.findById(params.currentMutationFunc, {
-    attributes: ['function']
-  });
+  // const mutations = await Mutations.findById(params.currentMutationFunc, {
+  //   attributes: ['function']
+  // });
 
-  const selection = await Selections.findById(params.currentSelectionFunc,
-    { attributes: ['function']
-  })
+  // const selection = await Selections.findById(params.currentSelectionFunc,
+  //   { attributes: ['function']
+  // })
 
-  const fitness = await Fitness.findById(params.fitnessFunc,
-    { attributes: ['function']
-  })
+  // const fitness = await Fitness.findById(params.fitnessFunc,
+  //   { attributes: ['function']
+  // })
 
   for (let i = 0; i < numTasks; i++) {
     const task = {
       room,
       id: uuid(),
       gen: 1,
-      population: genPop(params.chromosomeLength, params.population),
+      population: genPop(chromosomeLength, params.population),
       fitness,
-      mutations,
+      mutations: [mutations],
       selection,
     }
     tasks.push(task)
@@ -91,5 +85,6 @@ function garbageCollection(taskNum){
 */
 
 // shortens the taskQueue when it
+
 
 module.exports = { generateTasks }
