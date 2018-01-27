@@ -196,9 +196,7 @@ const data = {
 class ContributorView extends Component {
 
   componentDidMount() {
-    // console.log(this.props.match.params.roomHash);
     const roomHash = this.props.match.params.roomHash;
-    console.log(roomHash);
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)

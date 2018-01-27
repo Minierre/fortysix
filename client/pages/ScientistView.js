@@ -75,8 +75,6 @@ class ScientistView extends Component {
     })
   }
 
-<<<<<<< HEAD
-=======
   startJob(evt) {
     let parameters = {
       params: {
@@ -92,14 +90,15 @@ class ScientistView extends Component {
     }
     this.props.socket.emit(START_GENETIC_ALG, parameters)
   }
->>>>>>> 43101782df73f710b6dbcc56a042290fae7b81f5
 
   abortJob(evt) {
+    //for now
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('ABORT', roomHash)
   }
 
   toggleMultiThreaded(evt) {
+    //for now
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: roomHash })
   }
@@ -128,6 +127,7 @@ class ScientistView extends Component {
     this.setState({ chromosomeLength })
   }
   startJob(evt) {
+    //for now
     const roomHash = this.props.match.params.roomHash
     let parameters = {
       params: {
@@ -144,7 +144,6 @@ class ScientistView extends Component {
   }
 
   render() {
-    console.log(this.state)
     // this sorts the table as a side effect
     const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
     const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
