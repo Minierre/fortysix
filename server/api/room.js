@@ -3,8 +3,14 @@ const { Room } = require('../db/models')
 
 module.exports = router
 
+router.get('/all', (req, res, next) => {
+  Room.findAll()
+    .then(rooms => res.json(rooms))
+    .catch(next)
+})
+
 router.get('/:roomHash', (req, res, next) => {
-  Room.findOne({ where: { roomHash: req.params.roomHash } })
+  Room.findOne({ where: { roomHash: req.params.roomHash  || null } })
     .then(room => res.json(room))
     .catch(next)
 })
@@ -27,4 +33,3 @@ router.put('/:roomHash', (req, res, next) => {
     .spread((numberOfAffectedRows, affectedRows) => res.send(affectedRows))
     .catch(next)
 })
-

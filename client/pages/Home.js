@@ -1,9 +1,9 @@
 import React from 'react'
-import CreateRoomBtn from '../components/CreateRoomBtn/CreateRoomBtn'
+import CreateRoom from '../components/CreateRoom/CreateRoom'
 
 const Home = () => (
   <div>
-    <CreateRoomBtn />
+    <CreateRoom />
   </div>
 )
 
