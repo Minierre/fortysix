@@ -221,13 +221,15 @@ class ContributorView extends Component {
   }
 
   componentWillUnmount() {
-    this.props.socket.emit(LEAVE_GENETIC_ALG)
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit("LEAVE_" + roomHash)
   }
 
   runMultiThreaded(task) {
-    let Selection = eval('(' + task.selection.function + ')')
-    let Mutations = task.mutations.map(v=>eval('(' + v.function + ')'))
-    let Fitness = task.fitness.function
+    const roomHash = this.props.match.params.roomHash
+    let Selection = eval('(' + task.selection + ')')
+    let Mutations = task.mutations.map(v=>eval('(' + v + ')'))
+    let Fitness = task.fitness
     let population = task.population
     let fittest = []
 
@@ -236,13 +238,6 @@ class ContributorView extends Component {
       const fitnessess = chromosomes.map(v => F(v))
       done({ chromosomes, fitnessess })
     })
-
-    // console.log('inputs: ', [
-    //   { chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness },
-    //   { chromosomes: population.slice(Math.floor(population.length / 4), Math.floor(population.length / 2)), fitnessfunc: Fitness },
-    //   { chromosomes: population.slice(Math.floor(population.length / 2), Math.floor(population.length / 4) * 3), fitnessfunc: Fitness },
-    //   { chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }
-    // ])
 
     Promise.all([
       thread.send({ chromosomes: population.slice(0, Math.floor(population.length / 4)), fitnessfunc: Fitness }).promise(),

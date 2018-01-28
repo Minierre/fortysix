@@ -182,7 +182,9 @@ function doneCallback(args, socket, io) {
         multiThreaded: rooms[args.room].multiThreaded
       }
     )
+    
     // console.log('AFTER: ' + rooms[args.room].tasks)
+
   }
 
   if (allDone && rooms[args.room].jobRunning) {

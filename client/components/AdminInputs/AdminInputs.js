@@ -1,31 +1,25 @@
 import React, { Component } from 'react'
-import times from 'lodash/times'
-import './style.css'
-import map from 'lodash/map'
-import ReactLoading from 'react-loading';
-import CodeEditor from '../CodeEditor/CodeEditor'
-import Slider from 'material-ui/Slider';
-import './style.css'
-
+import Slider from 'material-ui/Slider'
 import axios from 'axios'
-
 import {
   DropdownButton,
   MenuItem,
   Well
 } from 'react-bootstrap'
+import CodeEditor from '../CodeEditor/CodeEditor'
+import './style.css'
 
-class AlgorithmInputs extends Component {
+class AdminInputs extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       selectionFuncs: [],
       mutationFuncs: [],
     }
   }
   componentDidMount() {
-    this.fetchMutuationAlgorithms();
-    this.fetchSelectionAlgorithms();
+    this.fetchMutuationAlgorithms()
+    this.fetchSelectionAlgorithms()
   }
   fetchMutuationAlgorithms() {
     axios.get('/api/mutation-algs')
@@ -66,8 +60,8 @@ class AlgorithmInputs extends Component {
               <MenuItem key={func.id} eventKey={idx}>{func.name}</MenuItem>
             )}
           </DropdownButton>
-          <div className="sliders">
 
+          <div className="sliders">
             <div className="slider">
               <h5>Population Size</h5>
               <Well className="input-information-well">{this.props.population}</Well>
@@ -112,7 +106,6 @@ class AlgorithmInputs extends Component {
                 step={1}
               />
             </div>
-
           </div>
         </div>
       </div>
@@ -120,4 +113,4 @@ class AlgorithmInputs extends Component {
   }
 }
 
-export default AlgorithmInputs
+export default AdminInputs
