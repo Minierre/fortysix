@@ -113,12 +113,11 @@ async function seed() {
   ])
 
   const rooms = await Promise.all([
-    Room.create({ roomHash: '123', roomName: 'TRAVELLING_SALESMAN' }),
-    Room.create({ roomHash: '456', roomName: 'GAME_OF_LIFE' })
-  ])
-
-  const fitness = await Promise.all([
-    Fitness.create({ function: GoLFitness, name: 'Game of Life' }),
+    Room.create({
+      roomHash: '456',
+      roomName: 'Game of Life',
+      fitnessFunc: GoLFitness
+    })
   ])
 
   const mutations = await Promise.all([

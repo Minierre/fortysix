@@ -27,25 +27,33 @@ class ScientistView extends Component {
         nodes: {},
         jobRunning: false
       },
+      roomPersisted: {
+        roomName: '',
+        fitnessFunc: null
+      },
       history: [],
-      fitnessFunc: {},
       population: 500,
       generations: 10,
       currentSelectionFunc: {},
       currentMutationFunc: {},
       chromosomeLength: 10
     }
-    this.setFitnessFunc = this.setFitnessFunc.bind(this);
     this.setMutationFuncs = this.setMutationFuncs.bind(this);
     this.setSelectionFunc = this.setSelectionFunc.bind(this);
     this.setPopulationSize = this.setPopulationSize.bind(this);
     this.setGenerations = this.setGenerations.bind(this);
     this.setChromLength = this.setChromLength.bind(this);
+    this.saveFitnessFunc = this.saveFitnessFunc.bind(this);
+    this.setFitnessFunc = this.setFitnessFunc.bind(this);
   }
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash;
     axios.get('/api/history/' + roomHash).then((history) => {
       this.setState({ history: history.data })
+    })
+
+    axios.get('/api/room/' + roomHash).then((roomPersisted) => {
+      this.setState({ roomPersisted: roomPersisted.data })
     })
 
     this.props.socket.on("UPDATE_" + roomHash, (room) => {
@@ -71,8 +79,6 @@ class ScientistView extends Component {
     const roomHash = this.props.match.params.roomHash
     let parameters = {
       params: {
-        // for now
-        fitnessFunc: 1,
         population: this.state.population,
         generations: this.state.generations,
         currentSelectionFunc: this.state.currentSelectionFunc.id,
@@ -85,19 +91,34 @@ class ScientistView extends Component {
   }
 
   abortJob(evt) {
-    //for now
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('ABORT', roomHash)
   }
 
   toggleMultiThreaded(evt) {
-    //for now
     const roomHash = this.props.match.params.roomHash
-    this.props.socket.emit(TOGGLE_MULTITHREADED, { value: !this.state.room.multiThreaded, room: roomHash })
+    this.props.socket.emit(TOGGLE_MULTITHREADED, {
+      value: !this.state.room.multiThreaded,
+      room: roomHash
+    })
+  }
+
+  saveFitnessFunc() {
+    const fitnessFunc = this.state.roomPersisted.fitnessFunc
+    const roomHash = this.props.match.params.roomHash
+    axios.put('/api/room/' + roomHash, { fitnessFunc })
+      .then((roomPersisted) => {
+        this.setState({ roomPersisted: roomPersisted.data })
+      })
   }
 
   setFitnessFunc(fitnessFunc) {
-    this.setState({ fitnessFunc })
+    this.setState({
+      roomPersisted: {
+        ...this.state.roomPersisted,
+        fitnessFunc
+      }
+    })
   }
 
   setMutationFuncs(currentMutationFunc) {
@@ -119,22 +140,6 @@ class ScientistView extends Component {
   setChromLength(chromosomeLength) {
     this.setState({ chromosomeLength })
   }
-  startJob(evt) {
-    //for now
-    const roomHash = this.props.match.params.roomHash
-    let parameters = {
-      params: {
-        fitnessFunc: 1,
-        population: this.state.population,
-        generations: this.state.generations,
-        currentSelectionFunc: this.state.currentSelectionFunc.id,
-        currentMutationFunc: this.state.currentMutationFunc.id,
-        chromosomeLength: this.state.chromosomeLength
-      },
-      room: this.state.room
-    }
-    this.props.socket.emit("START_" + roomHash, parameters)
-  }
 
   render() {
     // this sorts the table as a side effect
@@ -143,12 +148,14 @@ class ScientistView extends Component {
     return (
       <div>
         <div className="algo-name-header-wrapper">
-          <h2>Genetic Algorithm Demo</h2>
+          <h2>{this.state.roomPersisted.roomName}</h2>
           <p>
             Enter a Fitness Function in the Code Editor Below.
           </p>
         </div>
         <AdminInputs
+          fitnessFunc={this.state.roomPersisted.fitnessFunc}
+          saveFitnessFunc={this.saveFitnessFunc}
           setFitnessFunc={this.setFitnessFunc}
           setMutationFuncs={this.setMutationFuncs}
           setSelectionFunc={this.setSelectionFunc}

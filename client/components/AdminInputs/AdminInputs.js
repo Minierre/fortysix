@@ -29,16 +29,16 @@ class AdminInputs extends Component {
     axios.get('/api/selection-algs')
       .then(funcs => this.setState({ selectionFuncs: funcs.data }))
   }
-  saveFitnessFunc(func) {
-    axios.post('/api/fitnessFunc', func)
-      .then(fitnessFunc => this.setState({ fitnessFunc }))
-  }
 
   render() {
     return (
       <div id="scientist-inputs">
         <div id="code-editor">
-          <CodeEditor />
+          <CodeEditor
+            fitnessFunc={this.props.fitnessFunc}
+            setFitnessFunc={this.props.setFitnessFunc}
+            saveFitnessFunc={this.props.saveFitnessFunc}
+          />
         </div>
         <div>
           <DropdownButton

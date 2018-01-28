@@ -4,199 +4,10 @@ import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
 import './style.css'
 
-const GENETIC_ALG = 'GENETIC_ALG'
-const LEAVE_GENETIC_ALG = 'LEAVE_GENETIC_ALG'
-const CALL_GENETIC_ALG = 'CALL_GENETIC_ALG'
-
-const data = {
-  room: GENETIC_ALG,
-  id: 1,
-  gen: 1,
-  population:[
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010',
-    '101001001',
-    '100001111',
-    '001000001',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '101101000',
-    '001010011',
-    '101100010'],
-  fitness: ((c, w)=>{
-    let memo = {}
-    let fitness = 0
-    let testingChromosome = c
-    function iterate(C, w) {
-      if (memo[C]) {
-        fitness--
-        return ('0').repeat(C.length)
-      }
-      memo[C] = true
-      let newC = ''
-      for (var i = 0; i < C.length; i++) {
-        let neighbors = 0
-        if (Math.floor((i - 1) / w) !== Math.floor(i / w) - 1) {
-          if (C[i - 1] === '1') neighbors++
-          if (i - 1 - w > 0 && C[i - 1 - w] === '1') neighbors++
-          if (i - 1 + w < C.length && C[i - 1 + w] === '1') neighbors++
-        }
-        if (Math.floor((i + 1) / w) !== Math.floor(i / w) + 1) {
-          if (C[i + 1] === '1') neighbors++
-          if (i + 1 - w > 0 && C[i + 1 - w] === '1') neighbors++
-          if (i + 1 + w < C.length && C[i + 1 + w] === '1') neighbors++
-        }
-        if (i - w > 0 && C[i - w] === '1') neighbors++
-        if (i + w < C.length && C[i + w] === '1') neighbors++
-
-        if (neighbors === 3 && C[i] === '0') newC += '1'
-        else if (neighbors < 2 && C[i] === '1') newC += '0'
-        else if (neighbors > 3 && C[i] === '1') newC += '0'
-        else newC += C[i]
-      }
-      return newC
-    }
-    while (testingChromosome !== ('0').repeat(c.length)) {
-      testingChromosome = iterate(testingChromosome, 3)
-      fitness++
-    }
-    return fitness
-  }).toString(),
-  mutations: [
-    ((pop, p=.02)=>{
-      return pop.map(v => v.split('').map(v => (Math.random() < p) ? (v === '0') ? '1' : '0' : v).join(''))
-    }).toString(),
-    ((pop, p=.2)=>{
-      for (var j = 1; j < pop.length; j++) {
-        let c1 = pop[j]
-        let c2 = pop[j - 1]
-        if (Math.random() < p) {
-          let i = Math.floor(Math.random() * (c1.length - 1))
-          i++
-          let c1b = c1.slice(0, i) + c2.slice(i)
-          let c2b = c2.slice(0, i) + c1.slice(i)
-          c1 = c1b
-          c2 = c2b
-        }
-      }
-      return pop
-    }).toString()],
-  selection: ((population, arrayOfFitnesses, n = 1)=>{
-    let numSelectionsLeft = n;
-    let selections = [];
-    let totalFit = arrayOfFitnesses.reduce((a, b) => a + b, 0);
-    let j = 0
-    while (numSelectionsLeft > 0) {
-      let randomFitnessLvl = Math.random() * totalFit;
-      for (let i = 0; i < arrayOfFitnesses.length; i++) {
-        randomFitnessLvl -= arrayOfFitnesses[i];
-        if (randomFitnessLvl <= 0) {
-          selections.push(population[i]);
-          totalFit -= arrayOfFitnesses[i];
-          arrayOfFitnesses[i] = 0;
-          numSelectionsLeft -= 1;
-          break;
-        }
-      }
-    }
-    return selections;
-  }).toString()
-}
-
 class ContributorView extends Component {
 
   componentDidMount() {
-    const roomHash = this.props.match.params.roomHash;
+    const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)
@@ -205,7 +16,9 @@ class ContributorView extends Component {
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)
-        this.props.socket.emit('JOB_ERROR', roomHash)
+        this.props.socket.emit('JOB_ERROR', {
+          roomHash, error: err.toString()
+        })
       }
     })
 
@@ -227,14 +40,14 @@ class ContributorView extends Component {
 
   runMultiThreaded(task) {
     const roomHash = this.props.match.params.roomHash
-    let Selection = eval('(' + task.selection + ')')
-    let Mutations = task.mutations.map(v=>eval('(' + v + ')'))
+    let Selection = eval('(' + task.selection.function + ')')
+    let Mutations = task.mutations.map(v=>eval('(' + v.function + ')'))
     let Fitness = task.fitness
     let population = task.population
     let fittest = []
 
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
-      const F = eval('(' + fitnessfunc + ')')
+      const F = eval('(' + fitnessfunc.function + ')')
       const fitnessess = chromosomes.map(v => F(v))
       done({ chromosomes, fitnessess })
     })
