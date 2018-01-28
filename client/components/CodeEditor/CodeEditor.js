@@ -1,28 +1,37 @@
 import React, { Component } from 'react'
+import { Controlled as CodeMirror } from 'react-codemirror2'
+import { Button } from 'react-bootstrap'
+import axios from 'axios'
 import './style.css'
 import '../../../node_modules/codemirror/lib/codemirror.css'
 
-const CodeMirror = require('react-codemirror')
 
 require('codemirror/mode/javascript/javascript')
 
-class codeEditor extends Component {
-  constructor() {
-    super();
-    this.state = { code: '' }
-  }
-  getInitialState() {
-		this.setState({ code: '// Code' })
-	}
-  updateCode(newCode) {
-	  this.setState({
-		  code: newCode,
-	  })
-  }
+class CodeEditor extends Component {
+
   render() {
     const options = { lineNumbers: true, mode: 'javascript' }
-    return <CodeMirror value={this.state.code} onChange={this.updateCode} options={options} />
+    return (
+      <div id="code-editor-wrapper">
+        <div>
+          <CodeMirror
+            value={this.props.fitnessFunc}
+            onBeforeChange={(editor, data, value) => {
+              this.props.setFitnessFunc(value)
+            }}
+            options={options}
+          />
+        </div>
+        <div>
+          <Button
+            bsStyle="success"
+            onClick={this.props.saveFitnessFunc}
+          >Save</Button>
+        </div>
+      </div>
+    )
   }
 }
 
-export default codeEditor
+export default CodeEditor
