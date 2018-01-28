@@ -6,6 +6,9 @@ const Room = db.define('room', {
     type: Sequelize.STRING,
     unique: true
   },
+  fitnessFunc: {
+    type: Sequelize.TEXT
+  },
   roomName: {
     type: Sequelize.STRING,
     unique: true

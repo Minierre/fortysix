@@ -1,10 +1,11 @@
 const chalk = require('chalk')
 const {
   History,
-  Fitness,
+  Room,
   Selections,
   Mutations
 } = require('../db/models')
+
 const { generateTasks } = require('../modules/tasks')
 
 // constants for job names
@@ -56,11 +57,11 @@ function registerMultithreaded(socket) {
 }
 
 function registerJobError(socket, io) {
-  socket.on('JOB_ERROR', (room) => {
-    rooms[room].nodes[socket.id].running = false
-    rooms[room].nodes[socket.id].error = true
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-    console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}`)
+  socket.on('JOB_ERROR', ({ roomHash, error }) => {
+    rooms[roomHash].nodes[socket.id].running = false
+    rooms[roomHash].nodes[socket.id].error = true
+    io.sockets.emit('UPDATE_' + roomHash, getRoom(rooms[roomHash]))
+    console.log(chalk.red('JOB_ERROR: ') + `${roomHash} for socket: ${socket.id}, `, error)
   })
 }
 
@@ -137,7 +138,7 @@ function registerLeave(socket, io) {
 
 function registerStart(socket) {
   socket.on('start', (room) => {
-    console.log(chalk.green('STARTING: ') + room, socket.id, room)
+    console.log(chalk.green('STARTING: ') + room, socket.id)
   })
 }
 
@@ -182,7 +183,7 @@ function doneCallback(args, socket, io) {
         multiThreaded: rooms[args.room].multiThreaded
       }
     )
-    
+
     // console.log('AFTER: ' + rooms[args.room].tasks)
 
   }
@@ -248,14 +249,14 @@ function jobInit(room, socket, io) {
         params.currentSelectionFunc,
         { attributes: ['function'] }
       ),
-      Fitness.findById(
-        params.fitnessFunc,
-        { attributes: ['function'] }
+      Room.findOne({ where: { roomHash: room } },
+        { attributes: ['fitnessFunc'] }
       )
-    ]).then(([mutations, selection, fitness]) => {
+    ]).then(([mutations, selection, roomObj]) => {
       rooms[room].mutations = mutations
       rooms[room].selection = selection
-      rooms[room].fitness = fitness
+      // Hack to make front end still work because it expects {function}
+      rooms[room].fitness = { function: roomObj.fitnessFunc }
       rooms[room].start = Date.now()
       rooms[room].jobRunning = true
       rooms[room].maxGen = args.params.generations
@@ -275,9 +276,10 @@ function jobInit(room, socket, io) {
             args.params.population,
             room,
             Object.keys(rooms[room].nodes).length * 4,
-            fitness,
+            rooms[room].fitness,
             mutations,
             selection,
+            args.params.chromosomeLength
           )
 
           Object.keys(rooms[room].nodes).forEach((id, i) => {
