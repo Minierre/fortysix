@@ -6,8 +6,6 @@ const {
   Mutations
 } = require('../db/models')
 const { generateTasks } = require('../modules/tasks')
-const remove = require('lodash/remove')
-const travellingSalesman = require('../modules/travellingSalesman')
 
 // constants for job names
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
@@ -31,9 +29,7 @@ function registerJoinAdmin(socket, io) {
     jobInit(
       room,
       socket,
-      io,
-      // This is where you put the magic
-      generateTasks
+      io
     )
   })
 }
@@ -70,7 +66,6 @@ function registerJobError(socket, io) {
 
 function registerAbort(socket, io) {
   socket.on('ABORT', (room) => {
-
     rooms[room] = {
       start: null,
       tasks: [],
@@ -163,7 +158,6 @@ function doneCallback(args, socket, io) {
     }
   }
 
-  // TODO: Change moderately
   const maxFitness = Math.max(...args.fitnesses)
 
   if (rooms[args.room].lastResult.maxGeneration <= args.gen || rooms[args.room].lastResult.maxFitness <= maxFitness) {
@@ -171,34 +165,13 @@ function doneCallback(args, socket, io) {
     rooms[args.room].lastResult.maxFitness = maxFitness
   }
 
-  console.log('result: ', args.result)
-  console.log('running best: ', rooms[args.room].lastResult)
+  // console.log('result: ', args.result)
+  // console.log('running best: ', rooms[args.room].lastResult)
+  // console.log('room: ', rooms[args.room])
 
-  const {
-    tasks
-  } = rooms[args.room]
-
-  // TODO: Needs to be changed moderately
-  // if (rooms[args.room].tasks.length > 0) {
-  //   rooms[args.room].nodes[socket.id].running = true
-  //   io.sockets.sockets[socket.id].emit(
-  //     'CALL_' + args.room,
-  //     rooms[args.room].tasks[0],
-  //     args.graph, {
-  //       multiThreaded: rooms[args.room].multiThreaded
-  //     }
-  //   )
-
-  //   rooms[args.room].tasks = rooms[args.room].tasks.concat(rooms[args.room].tasks[0])
-  //   rooms[args.room].tasks = rooms[args.room].tasks.slice(1)
-
-  //   // console.log('AFTER: ' + rooms[args.room].tasks)
-  // }
-
-  // TODO: Needs to be changed DRAMATTICALLY
   const allDone = args.gen >= rooms[args.room].maxGen;
 
-  dispatchTask(args)
+  createNewTasks(args)
 
   if (rooms[args.room].tasks.length > 0) {
     rooms[args.room].nodes[socket.id].running = true
@@ -212,7 +185,6 @@ function doneCallback(args, socket, io) {
     // console.log('AFTER: ' + rooms[args.room].tasks)
   }
 
-  // TODO: Needs to be changed moderately
   if (allDone && rooms[args.room].jobRunning) {
     algorithmDone(args.room, io)
   }
@@ -234,7 +206,6 @@ function algorithmDone(room, io) {
   io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
   rooms[room].jobRunning = false
 
-  // TODO: DRAMATIC CHANGE
   History.create({
     nodes: Object.keys(rooms[room].nodes).length,
     result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
@@ -259,7 +230,7 @@ function algorithmDone(room, io) {
     })
 }
 
-function jobInit(room, socket, io, generateTasks) {
+function jobInit(room, socket, io) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
 
@@ -267,15 +238,18 @@ function jobInit(room, socket, io, generateTasks) {
     if (!rooms[room]) return
     const { params } = args
     Promise.all([
-      Mutations.findById(params.currentMutationFunc, {
-        attributes: ['function']
-      }),
-      Selections.findById(params.currentSelectionFunc,
-        { attributes: ['function']
-      }),
-      Fitness.findById(params.fitnessFunc,
-        { attributes: ['function']
-      })
+      Mutations.findById(
+        params.currentMutationFunc,
+        { attributes: ['function'] }
+      ),
+      Selections.findById(
+        params.currentSelectionFunc,
+        { attributes: ['function'] }
+      ),
+      Fitness.findById(
+        params.fitnessFunc,
+        { attributes: ['function'] }
+      )
     ]).then(([mutations, selection, fitness]) => {
       rooms[room].mutations = mutations
       rooms[room].selection = selection
@@ -283,7 +257,7 @@ function jobInit(room, socket, io, generateTasks) {
       rooms[room].start = Date.now()
       rooms[room].jobRunning = true
       rooms[room].maxGen = args.params.generations
-      rooms[room].population = args.params.population
+      rooms[room].populationSize = args.params.population
       rooms[room].chromosomeLength = args.params.chromosomeLength
       Object.keys(rooms[room].nodes).forEach((socketId) => {
         rooms[room].nodes[socketId].running = true
@@ -295,7 +269,8 @@ function jobInit(room, socket, io, generateTasks) {
         if (!rooms[room].running) {
           rooms[room].running = true
           // generates 4X tasks for each node in the system
-          rooms[room].tasks = generateTasks(args,
+          rooms[room].tasks = generateTasks(
+            args.params.population,
             room,
             Object.keys(rooms[room].nodes).length * 4,
             fitness,
@@ -313,7 +288,7 @@ function jobInit(room, socket, io, generateTasks) {
                 }
               )
           })
-            rooms[room].running = false
+          rooms[room].running = false
         } else {
           console.log(chalk.red(`${startName} already running!`))
         }
@@ -324,28 +299,31 @@ function jobInit(room, socket, io, generateTasks) {
   })
 }
 
-function dispatchTask(finishedTask) {
-  if (finishedTask.gen === rooms[finishedTask.room].maxGen) return;
-
-  // mutate the bucket since Object.assign is O(n) time complexity
-  // updates the population of each task in progress
+function createNewTasks(finishedTask) {
+  if (finishedTask.gen === rooms[finishedTask.room].maxGen) return
 
   if (rooms[finishedTask.room].bucket[finishedTask.gen]) {
     rooms[finishedTask.room].bucket[finishedTask.gen].population =
-      rooms[finishedTask.room].bucket[finishedTask.gen].population.concat(finishedTask.population);
+      rooms[finishedTask.room].bucket[finishedTask.gen].population.concat(finishedTask.population)
   } else {
-    rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask;
+    rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
   }
 
-  //dispatches either a finished new gen task obj or a gen 1
-  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length === rooms[finishedTask.room].population) {
-    rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen]);
-    rooms[finishedTask.room].bucket[finishedTask.gen] = null;
+  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length === rooms[finishedTask.room].populationSize) {
+    rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen])
+    rooms[finishedTask.room].bucket[finishedTask.gen] = null
   } else {
-    // is there a better way to generate a new task here? Security flaw
-    const params = { ...finishedTask,
-      population: rooms[finishedTask.room].population }
-      const newTask = generateTasks({ params }, finishedTask.room, 1, rooms[finishedTask.room].fitness, rooms[finishedTask.room].mutations, rooms[finishedTask.room].selection, rooms[finishedTask.room].chromosomeLength)
-      rooms[finishedTask.room].tasks = rooms[finishedTask.room].tasks.concat(newTask);
+    const newTask = generateTasks(
+      rooms[finishedTask.room].populationSize,
+      finishedTask.room,
+      1,
+      rooms[finishedTask.room].fitness,
+      rooms[finishedTask.room].mutations,
+      rooms[finishedTask.room].selection,
+      rooms[finishedTask.room].chromosomeLength
+    )
+
+    rooms[finishedTask.room].tasks =
+      rooms[finishedTask.room].tasks.concat(newTask)
   }
 }
