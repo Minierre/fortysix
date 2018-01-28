@@ -25,7 +25,7 @@ class CreateRoom extends Component {
   }
 
   componentDidMount() {
-    axios.get('/api/room')
+    axios.get('/api/room/all')
       .then(res => res.data)
       .then((rooms) => {
         this.setState({ rooms })
