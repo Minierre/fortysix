@@ -221,10 +221,12 @@ class ContributorView extends Component {
   }
 
   componentWillUnmount() {
-    this.props.socket.emit(LEAVE_GENETIC_ALG)
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit("LEAVE_" + roomHash)
   }
 
   runMultiThreaded(task) {
+    const roomHash = this.props.match.params.roomHash
     let Selection = eval('(' + task.selection + ')')
     let Mutations = task.mutations.map(v=>eval('(' + v + ')'))
     let Fitness = task.fitness

@@ -4,11 +4,8 @@ import {
   Tabs,
   Tab
 } from 'react-bootstrap'
-
 import axios from 'axios'
-
-import TravelingSalesmanAdminInputs from '../components/TravelingSalesmanAdminInputs/TravelingSalesmanAdminInputs';
-
+import AdminInputs from '../components/AdminInputs/AdminInputs'
 import {
   StatusBulbs,
   LastExecutionInfo,
@@ -17,14 +14,9 @@ import {
   Toolbar
 } from '../components'
 
-const GENETIC_ALG = 'GENETIC_ALG'
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
-const UPDATE_GENETIC_ALG = 'UPDATE_GENETIC_ALG'
-const UPDATE_HISTORY_GENETIC_ALG = 'UPDATE_HISTORY_GENETIC_ALG'
-const START_GENETIC_ALG = 'START_GENETIC_ALG'
-
 
 class ScientistView extends Component {
   constructor(props) {
@@ -151,12 +143,12 @@ class ScientistView extends Component {
     return (
       <div>
         <div className="algo-name-header-wrapper">
-          <h2>Travelling Salesman Demo</h2>
+          <h2>Genetic Algorithm Demo</h2>
           <p>
-            For each task node for this algorithim finds a subset of the permutations neccesary to determine the shortest tour and send the results back to the root node.
+            Enter a Fitness Function in the Code Editor Below.
           </p>
         </div>
-        <TravelingSalesmanAdminInputs
+        <AdminInputs
           setFitnessFunc={this.setFitnessFunc}
           setMutationFuncs={this.setMutationFuncs}
           setSelectionFunc={this.setSelectionFunc}

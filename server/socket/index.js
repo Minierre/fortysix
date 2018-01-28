@@ -6,7 +6,6 @@ const {
 const { generateTasks } = require('../modules/tasks')
 const remove = require('lodash/remove')
 
-const travellingSalesman = require('../modules/travellingSalesman')
 
 // constants for job names
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
@@ -197,7 +196,6 @@ function doneCallback(args, socket, io) {
     rooms[args.room].tasks = rooms[args.room].tasks.concat(rooms[args.room].tasks[0])
     rooms[args.room].tasks = rooms[args.room].tasks.slice(1)
 
-    // console.log('AFTER: ' + rooms[args.room].tasks)
   }
 
   // TODO: Needs to be changed DRAMATTICALLY
@@ -253,7 +251,6 @@ function algorithmDone(room, io) {
 function jobInit(room, socket, io, generateTasks) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
-  console.log('START NAME', startName)
 
   socket.on(startName, (args) => {
 
