@@ -9,3 +9,9 @@ router.post('/', (req, res, next) => {
     .then(newRoom => res.json(newRoom))
     .catch(next)
 })
+
+router.get('/', (req, res, next) => {
+  Room.findAll()
+    .then(rooms => res.json(rooms))
+    .catch(next)
+})
