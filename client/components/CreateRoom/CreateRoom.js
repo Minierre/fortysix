@@ -8,7 +8,7 @@ const crypto = require('crypto')
 
 // need a better way to create hashes but this will do for now
 function createHash() {
-  const secret = (Math.random() * Math.random() * 10000000000).toString();
+  const secret = (Math.random() * Math.random() * 10000000000).toString()
   const hash = crypto.createHmac('sha256', secret)
     .update('ExtraSecret')
     .digest('hex')
@@ -24,26 +24,23 @@ class CreateRoom extends Component {
     this.createRoom = this.createRoom.bind(this)
   }
 
-  componentWillMount() {
+  componentDidMount() {
     axios.get('/api/room')
-    .then(res => res.data)
-    .then(rooms => {
-      this.setState({rooms});
-    })
-    .catch()
+      .then(res => res.data)
+      .then((rooms) => {
+        this.setState({ rooms })
+      })
   }
 
-  createRoom() {
+  createRoom(e) {
+    e.preventDefault()
     const hash = createHash()
-    console.log(this.state)
     axios.post('/api/room', { roomName: this.state.roomName, roomHash: hash })
-    .then(res => history.push(`/admin/${res.data.roomHash}`))
-    console.log(this.state);
-    console.log(hash);
+      .then(res => history.push(`/admin/${res.data.roomHash}`))
   }
 
   handleChange(e) {
-    this.setState({roomName: e.target.value})
+    this.setState({ roomName: e.target.value })
   }
 
   render() {
@@ -53,23 +50,23 @@ class CreateRoom extends Component {
         <Form>
           <div className="form-group">
             <label htmlFor="createRoom">Enter Room Name</label>
-            <input type="text" onChange={this.handleChange} className="form-control" id="roomName" placeholder="Room Name"></input>
+            <input type="text" onChange={this.handleChange} className="form-control" id="roomName" placeholder="Room Name" />
+          </div>
+          <div>
+            <Button type="submit" className="btn btn-primary" onClick={this.createRoom}>Create Room</Button>
           </div>
         </Form>
         <div>
-          <Button className='btn btn-primary' onClick={this.createRoom}>Create Room</Button>
+          <h4>Join an Existing Room</h4>
+          <ul className="list-group">
+            {rooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/contributor/${room.roomHash}`}>{room.roomName}</Link></li>)}</ul>
         </div>
         <div>
-        <h4>Join an Existing Room</h4>
-        <ul className="list-group">
-        {rooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/contributor/${room.roomHash}`}>{room.roomName}</Link></li>)}</ul>
+          <h4>Join an Existing Room as an Admin</h4>
+          <ul className="list-group">
+            {rooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/admin/${room.roomHash}`}>{room.roomName}</Link></li>)}</ul>
         </div>
-        <div>
-        <h4>Join an Existing Room as an Admin</h4>
-        <ul className="list-group">
-        {rooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/admin/${room.roomHash}`}>{room.roomName}</Link></li>)}</ul>
-        </div>
-        </div>
+      </div>
     )
   }
 }
