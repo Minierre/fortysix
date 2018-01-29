@@ -3,17 +3,16 @@ import { withRouter } from 'react-router-dom'
 import {
   Tabs,
   Tab,
-  Button
 } from 'react-bootstrap'
+import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import axios from 'axios'
-import AdminInputs from '../components/AdminInputs/AdminInputs'
+import Status from './Status'
+import History from './History'
+import './style.css'
+
 import {
-  StatusBulbs,
-  LastExecutionInfo,
-  ConsoleOutput,
-  HistoryTable,
-  Toolbar
-} from '../components'
+  AdminInputs,
+} from '../../components'
 
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
@@ -39,13 +38,15 @@ class ScientistView extends Component {
       currentMutationFunc: {},
       chromosomeLength: 100
     }
-    this.setMutationFuncs = this.setMutationFuncs.bind(this);
-    this.setSelectionFunc = this.setSelectionFunc.bind(this);
-    this.setPopulationSize = this.setPopulationSize.bind(this);
-    this.setGenerations = this.setGenerations.bind(this);
-    this.setChromLength = this.setChromLength.bind(this);
-    this.saveFitnessFunc = this.saveFitnessFunc.bind(this);
-    this.setFitnessFunc = this.setFitnessFunc.bind(this);
+    this.setMutationFuncs = this.setMutationFuncs.bind(this)
+    this.setSelectionFunc = this.setSelectionFunc.bind(this)
+    this.setPopulationSize = this.setPopulationSize.bind(this)
+    this.setGenerations = this.setGenerations.bind(this)
+    this.setChromLength = this.setChromLength.bind(this)
+    this.saveFitnessFunc = this.saveFitnessFunc.bind(this)
+    this.setFitnessFunc = this.setFitnessFunc.bind(this)
+    this.startJob = this.startJob.bind(this)
+    this.abortJob = this.abortJob.bind(this)
   }
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash;
@@ -143,17 +144,14 @@ class ScientistView extends Component {
   }
 
   render() {
-    // this sorts the table as a side effect
-    const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
-    const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
     return (
-      <div className="algo-name-header-wrapper">
+      <div id="scientist-view-wrapper">
         <h2>{this.state.roomPersisted.roomName}</h2>
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="Edit">
-            <p>
+            <h3>
               Enter a Fitness Function in the Code Editor Below.
-          </p>
+          </h3>
             <AdminInputs
               fitnessFunc={this.state.roomPersisted.fitnessFunc}
               setFitnessFunc={this.setFitnessFunc}
@@ -168,34 +166,21 @@ class ScientistView extends Component {
               generations={this.state.generations}
               chromosomeLength={this.state.chromosomeLength}
             />
-            <div>
-              <Button
-                bsStyle="success"
-                onClick={this.saveFitnessFunc}
-              >Save</Button>
-            </div>
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Status">
-            <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
-            <StatusBulbs nodes={this.state.room.nodes} />
-            <h4><strong>Chromosomes Processed:</strong> <em>{this.state.room.chromesomesReturned}</em></h4>
-            <h4><strong>Total Fitness:</strong> <em>{this.state.room.totalFitness}</em></h4>
-            <h4><strong>Average Fitness:</strong> <em>{this.state.room.totalFitness / this.state.room.chromesomesReturned}</em></h4>
-            <Toolbar
-              startJob={this.startJob.bind(this)}
-              abortJob={this.abortJob.bind(this)}
-              toggleMultiThreaded={this.toggleMultiThreaded.bind(this)}
+            <Status
+              nodes={this.state.room.nodes}
+              chromesomesReturned={this.state.room.chromesomesReturned}
+              totalFitness={this.state.room.totalFitness}
               jobRunning={this.state.room.jobRunning}
-              multiThreaded={this.state.room.multiThreaded || false}
-              nodesInRoom={Object.keys(this.state.room.nodes || {}).length > 0}
+              abortJob={this.abortJob}
+              startJob={this.startJob}
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Visualize">
-
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="History">
-            <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
-            <HistoryTable data={this.state.history} />
+            <History history={this.state.history} />
           </Tab>
         </Tabs>
       </div>

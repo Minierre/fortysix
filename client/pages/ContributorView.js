@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
-import './style.css'
 
 class ContributorView extends Component {
 
@@ -41,7 +40,7 @@ class ContributorView extends Component {
   runMultiThreaded(task) {
     const roomHash = this.props.match.params.roomHash
     let Selection = eval('(' + task.selection.function + ')')
-    let Mutations = task.mutations.map(v=>eval('(' + v.function + ')'))
+    let Mutations = task.mutations.map(v => eval('(' + v.function + ')'))
     let Fitness = task.fitness
     let population = task.population
     let fittest = []

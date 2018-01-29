@@ -29,3 +29,7 @@
   display: flex;
   flex-direction: row;
 }
+
+.mutation-func-table-wrapper {
+  margin: 1em 1em;
+}

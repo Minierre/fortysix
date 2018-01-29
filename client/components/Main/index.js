@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import './style.css'
 
 const Main = ({ children }) => (
-  <div id="content-wrapper">
+  <div className="container">
     {children}
   </div>
 )
