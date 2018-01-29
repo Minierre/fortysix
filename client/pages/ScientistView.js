@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import {
   Tabs,
-  Tab
+  Tab,
+  Button
 } from 'react-bootstrap'
 import axios from 'axios'
 import AdminInputs from '../components/AdminInputs/AdminInputs'
@@ -146,48 +147,55 @@ class ScientistView extends Component {
     const mostRecent = this.state.history.length && this.state.history.sort((a, b) => new Date(b.endTime) - new Date(a.endTime))[0]
     const runTime = (new Date(mostRecent.endTime) - new Date(mostRecent.startTime)) / 1000
     return (
-      <div>
-        <div className="algo-name-header-wrapper">
-          <h2>{this.state.roomPersisted.roomName}</h2>
-          <p>
-            Enter a Fitness Function in the Code Editor Below.
-          </p>
-        </div>
-        <AdminInputs
-          fitnessFunc={this.state.roomPersisted.fitnessFunc}
-          saveFitnessFunc={this.saveFitnessFunc}
-          setFitnessFunc={this.setFitnessFunc}
-          setMutationFuncs={this.setMutationFuncs}
-          setSelectionFunc={this.setSelectionFunc}
-          setPopulationSize={this.setPopulationSize}
-          setGenerations={this.setGenerations}
-          setChromLength={this.setChromLength}
-          currentSelectionFunc={this.state.currentSelectionFunc}
-          currentMutationFunc={this.state.currentMutationFunc}
-          population={this.state.population}
-          generations={this.state.generations}
-          chromosomeLength={this.state.chromosomeLength}
-        />
-        <Toolbar
-          startJob={this.startJob.bind(this)}
-          abortJob={this.abortJob.bind(this)}
-          toggleMultiThreaded={this.toggleMultiThreaded.bind(this)}
-          jobRunning={this.state.room.jobRunning}
-          multiThreaded={this.state.room.multiThreaded || false}
-          nodesInRoom={Object.keys(this.state.room.nodes || {}).length > 0}
-        />
-        <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
-        <StatusBulbs nodes={this.state.room.nodes} />
-        <h4><strong>Chromosomes Processed:</strong> <em>{this.state.room.chromesomesReturned}</em></h4>
-        <h4><strong>Total Fitness:</strong> <em>{this.state.room.totalFitness}</em></h4>
-        <h4><strong>Average Fitness:</strong> <em>{this.state.room.totalFitness / this.state.room.chromesomesReturned}</em></h4>
-        <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
+      <div className="algo-name-header-wrapper">
+        <h2>{this.state.roomPersisted.roomName}</h2>
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
-          <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
-            <HistoryTable data={this.state.history} />
+          <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="Edit">
+            <p>
+              Enter a Fitness Function in the Code Editor Below.
+          </p>
+            <AdminInputs
+              fitnessFunc={this.state.roomPersisted.fitnessFunc}
+              setFitnessFunc={this.setFitnessFunc}
+              setMutationFuncs={this.setMutationFuncs}
+              setSelectionFunc={this.setSelectionFunc}
+              setPopulationSize={this.setPopulationSize}
+              setGenerations={this.setGenerations}
+              setChromLength={this.setChromLength}
+              currentSelectionFunc={this.state.currentSelectionFunc}
+              currentMutationFunc={this.state.currentMutationFunc}
+              population={this.state.population}
+              generations={this.state.generations}
+              chromosomeLength={this.state.chromosomeLength}
+            />
+            <div>
+              <Button
+                bsStyle="success"
+                onClick={this.saveFitnessFunc}
+              >Save</Button>
+            </div>
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Output">
-            <ConsoleOutput />
+          <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Status">
+            <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
+            <StatusBulbs nodes={this.state.room.nodes} />
+            <h4><strong>Chromosomes Processed:</strong> <em>{this.state.room.chromesomesReturned}</em></h4>
+            <h4><strong>Total Fitness:</strong> <em>{this.state.room.totalFitness}</em></h4>
+            <h4><strong>Average Fitness:</strong> <em>{this.state.room.totalFitness / this.state.room.chromesomesReturned}</em></h4>
+            <Toolbar
+              startJob={this.startJob.bind(this)}
+              abortJob={this.abortJob.bind(this)}
+              toggleMultiThreaded={this.toggleMultiThreaded.bind(this)}
+              jobRunning={this.state.room.jobRunning}
+              multiThreaded={this.state.room.multiThreaded || false}
+              nodesInRoom={Object.keys(this.state.room.nodes || {}).length > 0}
+            />
+          </Tab>
+          <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Visualize">
+
+          </Tab>
+          <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="History">
+            <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
+            <HistoryTable data={this.state.history} />
           </Tab>
         </Tabs>
       </div>

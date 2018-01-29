@@ -4,7 +4,11 @@ import axios from 'axios'
 import {
   DropdownButton,
   MenuItem,
-  Well
+  Well,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  Form
 } from 'react-bootstrap'
 import CodeEditor from '../CodeEditor/CodeEditor'
 import './style.css'
@@ -37,7 +41,6 @@ class AdminInputs extends Component {
           <CodeEditor
             fitnessFunc={this.props.fitnessFunc}
             setFitnessFunc={this.props.setFitnessFunc}
-            saveFitnessFunc={this.props.saveFitnessFunc}
           />
         </div>
         <div>
@@ -62,50 +65,44 @@ class AdminInputs extends Component {
           </DropdownButton>
 
           <div className="sliders">
-            <div className="slider">
-              <h5>Population Size</h5>
-              <Well className="input-information-well">{this.props.population}</Well>
-              <Slider
-                className="scientist-input-sliders"
-                onChange={(e, pop) => this.props.setPopulationSize(pop)}
-                value={this.props.population}
-                style={{ width: 200 }}
-                defaultValue={this.props.population}
-                min={100}
-                max={1000}
-                step={2}
-              />
-            </div>
-
-            <div className="slider">
-              <h5>Number of Generations</h5>
-              <Well className="input-information-well">{this.props.generations}</Well>
-              <Slider
-                className="scientist-input-sliders"
-                onChange={(e, pop) => this.props.setGenerations(pop)}
-                value={this.props.generations}
-                style={{ width: 200 }}
-                defaultValue={this.props.generations}
-                min={5}
-                max={50}
-                step={1}
-              />
-            </div>
-
-            <div className="slider">
-              <h5>Chromosome Length</h5>
-              <Well className="input-information-well">{this.props.chromosomeLength}</Well>
-              <Slider
-                className="scientist-input-sliders"
-                onChange={(e, pop) => this.props.setChromLength(pop)}
-                value={this.props.chromosomeLength}
-                style={{ width: 200 }}
-                defaultValue={this.props.chromosomeLength}
-                min={8}
-                max={500}
-                step={1}
-              />
-            </div>
+            <Form>
+              <FormGroup
+                controlId="formBasicText"
+              >
+                <ControlLabel>Population Size</ControlLabel>
+                <FormControl
+                  type="number"
+                  value={this.props.population}
+                  placeholder="Enter text"
+                  onChange={(e, pop) => this.props.setPopulationSize(pop)}
+                />
+                <FormControl.Feedback />
+              </FormGroup>
+              <FormGroup
+                controlId="formBasicText"
+              >
+                <ControlLabel>Number of Generations</ControlLabel>
+                <FormControl
+                  type="number"
+                  value={this.props.generations}
+                  placeholder="Enter text"
+                  onChange={(e, pop) => this.props.setGenerations(pop)}
+                />
+                <FormControl.Feedback />
+              </FormGroup>
+              <FormGroup
+                controlId="formBasicText"
+              >
+                <ControlLabel>Chromosome Length</ControlLabel>
+                <FormControl
+                  type="number"
+                  value={this.props.chromosomeLength}
+                  placeholder="Enter text"
+                  onChange={(e, pop) => this.props.setChromLength(pop)}
+                />
+                <FormControl.Feedback />
+              </FormGroup>
+            </Form>
           </div>
         </div>
       </div>
