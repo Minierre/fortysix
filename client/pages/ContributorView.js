@@ -77,9 +77,9 @@ class ContributorView extends Component {
 
         const returnTaskObj = {
           fitnesses,
+          population: fittest,
           room: this.props.match.params.roomHash,
           id: task.id,
-          population: fittest,
           gen: task.gen + 1,
           fitness: task.fitness,
           selection: task.selection,

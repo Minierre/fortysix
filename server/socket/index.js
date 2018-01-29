@@ -304,6 +304,7 @@ function jobInit(room, socket, io) {
 }
 
 function createNewTasks(finishedTask) {
+  // return what?
   if (finishedTask.gen === rooms[finishedTask.room].maxGen) return
 
   if (rooms[finishedTask.room].bucket[finishedTask.gen]) {
@@ -320,6 +321,7 @@ function createNewTasks(finishedTask) {
     const newTask = generateTasks(
       rooms[finishedTask.room].populationSize,
       finishedTask.room,
+      // what is this '1'?
       1,
       rooms[finishedTask.room].fitness,
       rooms[finishedTask.room].mutations,
