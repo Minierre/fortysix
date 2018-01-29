@@ -70,6 +70,7 @@ function registerAbort(socket, io) {
     rooms[room] = {
       start: null,
       tasks: [],
+      bucket: {},
       jobRunning: false,
       multiThreaded: false,
       bucket: {},
