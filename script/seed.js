@@ -56,7 +56,7 @@ const GoLFitness = ((c, w) => {
     testingChromosome = iterate(testingChromosome, 3)
     fitness += fitness.toString().length
   }
-  return Math.pow(fitness, 2)
+  return Math.pow(fitness, fitness.toString().length)
 }).toString()
 
 let crossOver = ((pop, p = 0.2) => {
