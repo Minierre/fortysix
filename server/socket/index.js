@@ -166,6 +166,11 @@ function doneCallback(args, socket, io) {
     rooms[args.room].lastResult.maxFitness = maxFitness
   }
 
+  if(args.fitnesses && args.fitnesses.length < 1) throw Error()
+
+  rooms[args.room].totalFitness += (args.fitnesses[0] + args.fitnesses[1])
+  rooms[args.room].chromesomesReturned += args.population.length
+
   // console.log('result: ', args.result)
   // console.log('running best: ', rooms[args.room].lastResult)
   // console.log('room: ', rooms[args.room])
@@ -264,6 +269,8 @@ function jobInit(room, socket, io) {
       rooms[room].fitness = { function: roomObj.fitnessFunc }
       rooms[room].start = Date.now()
       rooms[room].jobRunning = true
+      rooms[room].totalFitness = 0
+      rooms[room].chromesomesReturned = 0
       rooms[room].maxGen = args.params.generations
       rooms[room].populationSize = args.params.population
       rooms[room].chromosomeLength = args.params.chromosomeLength
@@ -328,7 +335,6 @@ function createMoreTasks(finishedTask) {
     const newTask = generateTasks(
       rooms[finishedTask.room].populationSize,
       finishedTask.room,
-      // what is this '1'?
       1,
       rooms[finishedTask.room].fitness,
       rooms[finishedTask.room].mutations,

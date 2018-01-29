@@ -178,6 +178,9 @@ class ScientistView extends Component {
         />
         <div><em>Node count: {(this.state.room.nodes) ? Object.keys(this.state.room.nodes).length : 0}</em></div>
         <StatusBulbs nodes={this.state.room.nodes} />
+        <h4><strong>Chromosomes Processed:</strong> <em>{this.state.room.chromesomesReturned}</em></h4>
+        <h4><strong>Total Fitness:</strong> <em>{this.state.room.totalFitness}</em></h4>
+        <h4><strong>Average Fitness:</strong> <em>{this.state.room.totalFitness / this.state.room.chromesomesReturned}</em></h4>
         <LastExecutionInfo result={mostRecent.result} runTime={runTime} />
         <Tabs defaultActiveKey={1} animation={false} id="noanim-tab-example">
           <Tab style={{ marginTop: '0.5em' }} eventKey={1} title="History">
