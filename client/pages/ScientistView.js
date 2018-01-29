@@ -33,11 +33,11 @@ class ScientistView extends Component {
       },
       history: [],
       population: 100,
-      generations: 4,
+      generations: 3,
       currentSelectionFunc: {},
-      currentMutationFuncs: [], // array of objects with id keys and probability keys
+      currentMutationFuncs: [ { id: 1, P: .05 }, { id: 2, P: .02 } ], // array of objects with id keys and probability keys
       chromosomeLength: 100,
-      elitism: false,
+      elitism: 0,
       maxFitness: 0
     }
     this.setMutationFuncs = this.setMutationFuncs.bind(this);
@@ -126,7 +126,8 @@ class ScientistView extends Component {
   }
 
   setMutationFuncs(currentMutationFunc) {
-    if (!this.state.currentMutationFuncs.map(v => v.id).includes(currentMutationFunc)) {
+    if (!this.state.currentMutationFuncs.map(v => v.id).includes(currentMutationFunc.id)) {
+      console.log(this.state.currentMutationFuncs.concat({ id: currentMutationFunc.id, P: currentMutationFunc.P }))
       this.setState(this.state.currentMutationFuncs.concat({ id: currentMutationFunc.id, P: currentMutationFunc.P }))
     }
   }
@@ -177,9 +178,11 @@ class ScientistView extends Component {
           setGenerations={this.setGenerations}
           setChromLength={this.setChromLength}
           currentSelectionFunc={this.state.currentSelectionFunc}
-          currentMutationFunc={this.state.currentMutationFunc}
+          currentMutationFunc={this.state.currentMutationFuncs}
           population={this.state.population}
           generations={this.state.generations}
+          maxFitness={this.state.maxFitness}
+          elitism={this.state.elitism}
           chromosomeLength={this.state.chromosomeLength}
         />
         <Toolbar

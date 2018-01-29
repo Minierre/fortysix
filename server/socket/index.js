@@ -98,7 +98,9 @@ function registerJoin(socket, io) {
         bucket: {},
         lastResult: null,
         maxGen: null,
+        maxFitness: null,
         population: null,
+        elitism: 0
       }
     } else {
       rooms[room] = {
@@ -176,7 +178,7 @@ function doneCallback(args, socket, io) {
   // console.log('running best: ', rooms[args.room].lastResult)
   // console.log('room: ', rooms[args.room])
 
-  const allDone = (args.gen >= rooms[args.room].maxGen)
+  const allDone = (args.gen >= rooms[args.room].maxGen || args.maxFitness >= rooms[args.room].maxFitness)
 
   // Avoid pushing history multiple times by checking jobRunning
   if (allDone && rooms[args.room].jobRunning) {
@@ -252,8 +254,12 @@ function jobInit(room, socket, io) {
     if (!rooms[room]) return
     const { params } = args
     Promise.all([
-      Mutations.findById(
-        params.currentMutationFunc,
+      Mutations.findAll(
+        {
+          where: {
+            id: params.currentMutationFuncs.map(v => v.id)
+          }
+        },
         { attributes: ['function'] }
       ),
       Selections.findById(
@@ -264,7 +270,11 @@ function jobInit(room, socket, io) {
         { attributes: ['fitnessFunc'] }
       )
     ]).then(([mutations, selection, roomObj]) => {
-      rooms[room].mutations = mutations
+      const muts = mutations.map(v => v.dataValues)
+      rooms[room].mutations = params.currentMutationFuncs.map(v => ({ func: muts.filter(m => m.id === v.id)[0].function, P: v.P }))
+
+      console.log('indexJS elitism: ', params.elitism)
+
       rooms[room].selection = selection
       // Hack to make front end still work because it expects {function}
       rooms[room].fitness = { function: roomObj.fitnessFunc }
@@ -273,6 +283,7 @@ function jobInit(room, socket, io) {
       rooms[room].totalFitness = 0
       rooms[room].chromesomesReturned = 0
       rooms[room].maxGen = args.params.generations
+      rooms[room].elitism = args.params.elitism
       rooms[room].populationSize = args.params.population
       rooms[room].chromosomeLength = args.params.chromosomeLength
       Object.keys(rooms[room].nodes).forEach((socketId) => {
@@ -290,9 +301,10 @@ function jobInit(room, socket, io) {
             room,
             Object.keys(rooms[room].nodes).length * 4,
             rooms[room].fitness,
-            mutations,
+            rooms[room].mutations,
             selection,
-            args.params.chromosomeLength
+            args.params.chromosomeLength,
+            rooms[room].elitism
           )
 
           Object.keys(rooms[room].nodes).forEach((id, i) => {
@@ -329,7 +341,7 @@ function createMoreTasks(finishedTask) {
     rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
   }
 
-  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length === rooms[finishedTask.room].populationSize) {
+  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length >= rooms[finishedTask.room].populationSize) {
     rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen])
     rooms[finishedTask.room].bucket[finishedTask.gen] = null
   } else {
@@ -340,9 +352,9 @@ function createMoreTasks(finishedTask) {
       rooms[finishedTask.room].fitness,
       rooms[finishedTask.room].mutations,
       rooms[finishedTask.room].selection,
-      rooms[finishedTask.room].chromosomeLength
+      rooms[finishedTask.room].chromosomeLength,
+      rooms[finishedTask.room].elitism
     )
-
     rooms[finishedTask.room].tasks =
       rooms[finishedTask.room].tasks.concat(newTask)
   }

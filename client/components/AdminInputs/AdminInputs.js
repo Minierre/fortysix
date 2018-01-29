@@ -52,8 +52,8 @@ class AdminInputs extends Component {
           </DropdownButton>
 
           <DropdownButton onSelect={(e => this.props.setMutationFuncs(
-            { currentMutationFunc: this.state.mutationFuncs[e] }))}
-            title={(this.props.currentMutationFunc && this.props.currentMutationFunc.name) || 'Select a Mutation Algorithm'}
+            { id: this.state.mutationFuncs[e] }))}
+            title={(this.props.currentMutationFuncs && this.props.currentMutationFuncs.name) || 'Select a Mutation Algorithm'}
             id="mutations-algorithm-dropdown"
           >
             {this.state.mutationFuncs.map((func, idx) =>

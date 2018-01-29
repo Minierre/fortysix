@@ -7,7 +7,8 @@ function generateTasks(
   fitness,
   mutations,
   selection,
-  chromosomeLength
+  chromosomeLength,
+  elitism
 ) {
   const tasks = []
 
@@ -20,6 +21,7 @@ function generateTasks(
       fitness,
       mutations: [mutations],
       selection,
+      elitism
     }
     tasks.push(task)
   }

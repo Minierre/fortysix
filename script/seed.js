@@ -53,10 +53,10 @@ const GoLFitness = ((c, w) => {
     return newC
   }
   while (testingChromosome !== ('0').repeat(c.length)) {
-    testingChromosome = iterate(testingChromosome, 3)
+    testingChromosome = iterate(testingChromosome, 10)
     fitness += fitness.toString().length
   }
-  return Math.pow(fitness, 2)
+  return Math.pow(fitness, (fitness).toString().length)
 }).toString()
 
 let crossOver = ((pop, p = 0.2) => {
@@ -79,7 +79,9 @@ let spontaneousMutation = ((pop, p = 0.02) => {
   return pop.map(v => v.split('').map(v => (Math.random() < p) ? (v === '0') ? '1' : '0' : v).join(''))
 }).toString()
 
-let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
+let rouletteWheel = ((pop, fitpop, n = 1) => {
+  let population = pop.slice()
+  let arrayOfFitnesses = fitpop.slice()
   let numSelectionsLeft = n;
   let selections = [];
   let totalFit = arrayOfFitnesses.reduce((a, b) => a + b, 0);
@@ -91,7 +93,8 @@ let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
       if (randomFitnessLvl <= 0) {
         selections.push(population[i]);
         totalFit -= arrayOfFitnesses[i];
-        arrayOfFitnesses[i] = 0;
+        arrayOfFitnesses.splice(i);
+        population.splice(i);
         numSelectionsLeft -= 1;
         break;
       }
