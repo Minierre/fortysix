@@ -13,7 +13,7 @@ import {
   ScientistView,
   ContributorView,
   Home,
-  LoginSignup
+  Login
 } from './pages'
 
 import './style.css'
@@ -38,7 +38,7 @@ class App extends Component {
                   />
                   <Route
                     path="/login"
-                    component={() => <LoginSignup socket={this.props.socket} />}
+                    component={() => <Login socket={this.props.socket} />}
                   />
                   <Route
                     path="/"
