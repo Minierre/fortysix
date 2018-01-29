@@ -46,6 +46,8 @@ class ContributorView extends Component {
     let population = task.population
     let fittest = []
 
+    const FF = eval('(' + task.fitness.function + ')')
+
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
       const F = eval('(' + fitnessfunc.function + ')')
       const fitnessess = chromosomes.map(v => F(v))
@@ -62,18 +64,12 @@ class ContributorView extends Component {
         const pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
         const fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
         fittest = Selection(pop, fitpop, 2)
-        const memo = []
-        const fitnesses = pop.reduce((a, b, i) => {
-          if (fittest.includes(b) && !memo.includes(b)) {
-            memo.push(b)
-            a.push(fitpop[i])
-          }
-          return a
-        }, [])
 
         Mutations.forEach((m) => {
           fittest = m(fittest)
         })
+
+        const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {
           fitnesses,
