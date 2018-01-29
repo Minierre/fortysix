@@ -72,6 +72,7 @@ function registerAbort(socket, io) {
       tasks: [],
       jobRunning: false,
       multiThreaded: false,
+      bucket: {},
       nodes: {}
     }
 

@@ -61,6 +61,7 @@ class ContributorView extends Component {
       thread.send({ chromosomes: population.slice(Math.floor(population.length / 4) * 3), fitnessfunc: Fitness }).promise()
     ])
       .then((all) => {
+        thread.kill()
         const pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
         const fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
         fittest = Selection(pop, fitpop, 2)
