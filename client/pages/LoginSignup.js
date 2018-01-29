@@ -1,29 +1,28 @@
 import React, { Component } from 'react'
 import { Form, FormGroup, Col, FormControl, Checkbox, ControlLabel, Button } from 'react-bootstrap'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { auth } from '../store'
 
-class LoginSignup extends Component {
+class Auth extends Component {
   constructor(props) {
     super(props);
-    this.state = { email: '', password: '' }
-  }
-
-  handleTextChange(e) {
-    console.log(e.target.value)
   }
 
   render() {
+    const method = this.props.location.pathname.slice(1).toLowerCase()
+    const isSigningIn = method === "login"
+
     return (
       <div>
-        <Form horizontal>
-          <h2>Login</h2>
+        <Form horizontal onSubmit={e => this.props.handleSubmit.call(this, e, method)}>
+          <h2>{isSigningIn ? 'Login' : 'Sign Up'}</h2>
           <FormGroup controlId="formHorizontalEmail">
             <Col componentClass={ControlLabel} sm={2}>
               Email
             </Col>
             <Col sm={3}>
-              <FormControl type="email" placeholder="Email" />
+              <FormControl name="email" type="email" placeholder="Email" />
             </Col>
           </FormGroup>
 
@@ -44,9 +43,16 @@ class LoginSignup extends Component {
 
           <FormGroup>
             <Col smOffset={2} sm={10}>
-              <Button bsStyle="primary" type="submit">Sign in</Button>
-              <span> or </span>
-              <Button bsStyle="primary">Sign Up</Button>
+              <Button
+                bsStyle="primary"
+                type="submit"
+              >{isSigningIn ? 'Login' : 'Sign Up'}
+              </Button>
+              <span>{isSigningIn ? '   Don\'t have an account yet?' : '   Already have an account?'}</span>
+              <span>{isSigningIn ?
+                <a href="/signup"> Sign Up</a> :
+                <a href="/login"> Login</a>}
+              </span>
             </Col>
           </FormGroup>
         </Form>
@@ -55,33 +61,21 @@ class LoginSignup extends Component {
   }
 }
 
-const mapLogin = (state) => {
+const mapState = (state) => {
   return {
-    name: 'login',
-    displayName: 'Login',
-    error: state.user.error
-  }
-}
-
-const mapSignup = (state) => {
-  return {
-    name: 'signup',
-    displayName: 'Sign Up',
     error: state.user.error
   }
 }
 
 const mapDispatch = (dispatch) => {
   return {
-    handleSubmit(evt) {
+    handleSubmit(evt, method) {
       evt.preventDefault()
-      const formName = evt.target.name
-      const email = evt.target.email.value
-      const password = evt.target.password.value
-      dispatch(auth(email, password, formName))
+      const email = evt.target.formHorizontalEmail.value
+      const password = evt.target.formHorizontalPassword.value
+      dispatch(auth(email, password, method))
     }
   }
 }
 
-export const Login = connect(mapLogin, mapDispatch)(LoginSignup)
-export const Signup = connect(mapSignup, mapDispatch)(LoginSignup)
+export const LoginSignup = withRouter(connect(mapState, mapDispatch)(Auth))
