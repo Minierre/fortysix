@@ -35,8 +35,10 @@ class ScientistView extends Component {
       population: 100,
       generations: 4,
       currentSelectionFunc: {},
-      currentMutationFunc: {},
-      chromosomeLength: 100
+      currentMutationFuncs: [], // array of objects with id keys and probability keys
+      chromosomeLength: 100,
+      elitism: false,
+      maxFitness: 0
     }
     this.setMutationFuncs = this.setMutationFuncs.bind(this);
     this.setSelectionFunc = this.setSelectionFunc.bind(this);
@@ -82,8 +84,10 @@ class ScientistView extends Component {
         population: this.state.population,
         generations: this.state.generations,
         currentSelectionFunc: this.state.currentSelectionFunc.id,
-        currentMutationFunc: this.state.currentMutationFunc.id,
-        chromosomeLength: this.state.chromosomeLength
+        currentMutationFuncs: this.state.currentMutationFuncs,
+        chromosomeLength: this.state.chromosomeLength,
+        maxFitness: this.state.maxFitness,
+        elitism: this.state.elitism
       },
       room: this.state.room
     }
@@ -122,7 +126,9 @@ class ScientistView extends Component {
   }
 
   setMutationFuncs(currentMutationFunc) {
-    this.setState(currentMutationFunc)
+    if (!this.state.currentMutationFuncs.map(v => v.id).includes(currentMutationFunc)) {
+      this.setState(this.state.currentMutationFuncs.concat({ id: currentMutationFunc.id, P: currentMutationFunc.P }))
+    }
   }
 
   setSelectionFunc(currentSelectionFunc) {
@@ -135,6 +141,14 @@ class ScientistView extends Component {
 
   setGenerations(generations) {
     this.setState({ generations })
+  }
+
+  setMaxFitness(maxFitness) {
+    this.setState({ maxFitness })
+  }
+
+  setElitism(elitism) {
+    this.setState({ elitism })
   }
 
   setChromLength(chromosomeLength) {
