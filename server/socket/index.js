@@ -308,12 +308,7 @@ function jobInit(room, socket, io) {
   })
 }
 
-<<<<<<< HEAD
-function createNewTasks(finishedTask) {
-  // return what?
-=======
 function createMoreTasks(finishedTask) {
->>>>>>> e3ec173f780bb49c7a6359a81d12c5cb1dc2f673
   if (finishedTask.gen === rooms[finishedTask.room].maxGen) return
   console.log('POPULATION: ', finishedTask.population)
   console.log('FITNESSES: ', finishedTask.fitnesses)

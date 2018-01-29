@@ -54,7 +54,7 @@ const GoLFitness = ((c, w) => {
   }
   while (testingChromosome !== ('0').repeat(c.length)) {
     testingChromosome = iterate(testingChromosome, 3)
-    fitness++
+    fitness += fitness.toString().length
   }
   return Math.pow(fitness, 2)
 }).toString()
