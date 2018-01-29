@@ -170,40 +170,43 @@ function doneCallback(args, socket, io) {
   // console.log('running best: ', rooms[args.room].lastResult)
   // console.log('room: ', rooms[args.room])
 
-  const allDone = args.gen >= rooms[args.room].maxGen;
+  const allDone = (args.gen >= rooms[args.room].maxGen)
 
-  createNewTasks(args)
-
-  if (rooms[args.room].tasks.length > 0) {
-    rooms[args.room].nodes[socket.id].running = true
-    io.sockets.sockets[socket.id].emit(
-      'CALL_' + args.room,
-      rooms[args.room].tasks.shift(),
-      args.graph, {
-        multiThreaded: rooms[args.room].multiThreaded
-      }
-    )
-
-    // console.log('AFTER: ' + rooms[args.room].tasks)
-
-  }
-
+  // Avoid pushing history multiple times by checking jobRunning
   if (allDone && rooms[args.room].jobRunning) {
-    algorithmDone(args.room, io)
+    algorithmDone(args.room, args.population, args.fitnesses, io)
+    rooms[args.room].tasks = []
+  } else if (rooms[args.room].jobRunning) {
+    if (rooms[args.room].tasks.length > 0) {
+      rooms[args.room].nodes[socket.id].running = true
+      io.sockets.sockets[socket.id].emit(
+        'CALL_' + args.room,
+        rooms[args.room].tasks.shift(),
+        args.graph, {
+          multiThreaded: rooms[args.room].multiThreaded
+        }
+      )
+      // console.log('AFTER: ' + rooms[args.room].tasks)
+    }
+    createMoreTasks(args)
   }
 
   io.sockets.emit('UPDATE_' + args.room, getRoom(rooms[args.room]))
   console.log(chalk.green('DONE: '), socket.id, args.room)
 }
 
-function algorithmDone(room, io) {
+function algorithmDone(room, population, fitnesses, io) {
   const endTime = Date.now()
   console.log(
     chalk.green(`DURATION OF ${room}: `, endTime - rooms[room].start)
   )
 
   console.log(
-    chalk.magenta(`FINAL RESULT ${rooms[room].lastResult.tour} ${rooms[room].lastResult.dist}`)
+    chalk.magenta(`FINAL POPULATION: ${population}`)
+  )
+
+  console.log(
+    chalk.magenta(`FINAL FITNESSES: ${fitnesses}`)
   )
 
   io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
@@ -226,9 +229,11 @@ function algorithmDone(room, io) {
         io.sockets.emit('UPDATE_HISTORY_' + room, history)
       })
       rooms[room].start = null
+      rooms[room].maxGen = null
+      // rooms[room].populationSize = null
       rooms[room].lastResult = {
-        tour: '',
-        dist: Infinity
+        maxGeneration: 0,
+        maxFitness: 0
       }
     })
 }
@@ -303,13 +308,20 @@ function jobInit(room, socket, io) {
   })
 }
 
+<<<<<<< HEAD
 function createNewTasks(finishedTask) {
   // return what?
+=======
+function createMoreTasks(finishedTask) {
+>>>>>>> e3ec173f780bb49c7a6359a81d12c5cb1dc2f673
   if (finishedTask.gen === rooms[finishedTask.room].maxGen) return
-
+  console.log('POPULATION: ', finishedTask.population)
+  console.log('FITNESSES: ', finishedTask.fitnesses)
+  console.log('GENERATION: ', finishedTask.gen)
   if (rooms[finishedTask.room].bucket[finishedTask.gen]) {
     rooms[finishedTask.room].bucket[finishedTask.gen].population =
       rooms[finishedTask.room].bucket[finishedTask.gen].population.concat(finishedTask.population)
+   rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses = rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses.concat(finishedTask.fitnesses)
   } else {
     rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
   }
@@ -333,3 +345,4 @@ function createNewTasks(finishedTask) {
       rooms[finishedTask.room].tasks.concat(newTask)
   }
 }
+

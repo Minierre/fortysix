@@ -26,11 +26,15 @@ function generateTasks(
   return tasks
 }
 
-function genPop(l, s) {
+function genPop(length, populationSize, probability = 0.5) {
   const pop = []
-  for (let i = 0; i < s; i++) {
-    const c = (parseInt(Math.pow(2, l - 1) * Math.random())).toString(2)
-    pop.push(('0').repeat(l - c.length) + c)
+  for (let i = 0; i < populationSize; i++) {
+    let c = ''
+    for (let j = 0; j < length; j++) {
+      // Randomly generate binary string
+      c += (Math.random() > probability) ? '1' : '0'
+    }
+    pop.push(c)
   }
   return pop
 }

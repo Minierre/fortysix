@@ -56,10 +56,10 @@ const GoLFitness = ((c, w) => {
     testingChromosome = iterate(testingChromosome, 3)
     fitness++
   }
-  return fitness
+  return Math.pow(fitness, 2)
 }).toString()
 
-let crossOver = ((pop, p = .2) => {
+let crossOver = ((pop, p = 0.2) => {
   for (var j = 1; j < pop.length; j++) {
     let c1 = pop[j]
     let c2 = pop[j - 1]
@@ -75,7 +75,7 @@ let crossOver = ((pop, p = .2) => {
   return pop
 }).toString()
 
-let spontaneousMutation = ((pop, p = .02) => {
+let spontaneousMutation = ((pop, p = 0.02) => {
   return pop.map(v => v.split('').map(v => (Math.random() < p) ? (v === '0') ? '1' : '0' : v).join(''))
 }).toString()
 
