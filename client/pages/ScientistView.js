@@ -32,8 +32,8 @@ class ScientistView extends Component {
         fitnessFunc: null
       },
       history: [],
-      population: 6,
-      generations: 6,
+      population: 100,
+      generations: 4,
       currentSelectionFunc: {},
       currentMutationFunc: {},
       chromosomeLength: 100
