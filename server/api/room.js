@@ -22,7 +22,7 @@ router.post('/', (req, res, next) => {
   //run fitnessFunc in sandbox before adding to db
   s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
    return fitFunc()})()`, function(output){
-    console.log(output.result)
+    console.log('req.body: ' + req.body + 'result: ' + output.result)
   })
   Room.create(req.body)
     .then(newRoom => res.json(newRoom))
