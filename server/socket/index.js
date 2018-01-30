@@ -15,6 +15,7 @@ const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 const rooms = {}
 
+//you don't need both
 const getRoom = (object = {}) => {
   return object || {}
 }
@@ -34,6 +35,8 @@ function registerJoinAdmin(socket, io) {
       socket,
       io
     )
+    //dont be passing io around.
+    //you can socket.broadcast.to(roomIdString)
   })
 }
 
@@ -82,9 +85,11 @@ function registerAbort(socket, io) {
   })
 }
 
+//why is there no documentation or comments
 function registerJoin(socket, io) {
   socket.on('join', (room) => {
     socket.join(room)
+    //i don't think you need to create a room on every socket join event.
     if (!rooms[room]) {
       rooms[room] = {
         start: null,
@@ -107,6 +112,7 @@ function registerJoin(socket, io) {
         fitness: null
       }
     } else {
+      //rooms utility for pushing in a single node.
       rooms[room] = {
         ...rooms[room],
         nodes: {
@@ -129,7 +135,9 @@ function registerJoin(socket, io) {
   })
 }
 
+//
 function registerRequestRoom(socket) {
+  //idk, remember you can use event emitters if something is isolated on either FE or BE
   socket.on('REQUEST_ROOM', (room) => {
     socket.emit('UPDATE_' + room, getRoom(rooms[room]))
   })
@@ -139,6 +147,7 @@ function registerLeave(socket, io) {
   socket.on('leave', (room) => {
     socket.leave(room)
     delete rooms[room].nodes[socket.id]
+    //socket.broadcast.to 
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
   })
 }

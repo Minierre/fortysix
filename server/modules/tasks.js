@@ -1,8 +1,9 @@
 const uuid = require('uuid/v1')
 
-function generateTasks(
+//reorganizing params based of usage and need.
+function generateTasks( //name this function better. 
   populationSize,
-  room,
+  room, //hash of a room. move this hashing to models. 
   numTasks,
   fitness,
   mutations,
@@ -28,13 +29,16 @@ function generateTasks(
   return tasks
 }
 
+//order of params. 
 function genPop(length, populationSize, probability = 0.5) {
   const pop = []
   for (let i = 0; i < populationSize; i++) {
+    //maybe not call this 'c'
     let c = ''
     for (let j = 0; j < length; j++) {
       // Randomly generate binary string
-      c += (Math.random() > probability) ? '1' : '0'
+      //this should be less than.
+      c += (Math.random() < probability) ? '1' : '0'
     }
     pop.push(c)
   }
