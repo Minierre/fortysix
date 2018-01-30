@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 import { Route, Switch, Router } from 'react-router-dom'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import history from './history'
+import { me } from './store'
 
 import {
   Navbar,
@@ -12,12 +13,21 @@ import {
 import {
   ScientistView,
   ContributorView,
-  Home
+  Home,
+  LoginSignup
 } from './pages'
 
 import './style.css'
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidMount() {
+    this.props.loadInitialData()
+  }
+
   render() {
     return (
       <div id="app-wrapper">
@@ -36,6 +46,14 @@ class App extends Component {
                     component={() => <ContributorView socket={this.props.socket} />}
                   />
                   <Route
+                    path="/login"
+                    component={() => <LoginSignup socket={this.props.socket} />}
+                  />
+                  <Route
+                    path="/signup"
+                    component={() => <LoginSignup socket={this.props.socket} />}
+                  />
+                  <Route
                     path="/"
                     component={() => <Home socket={this.props.socket} />}
                   />
@@ -49,6 +67,13 @@ class App extends Component {
   }
 }
 
-App.propTypes = {}
+const mapDispatch = (dispatch) => {
+  return {
+    loadInitialData() {
+      dispatch(me())
+    }
+  }
+}
 
-export default App
+export default connect(null, mapDispatch)(App)
+

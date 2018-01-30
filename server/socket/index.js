@@ -71,7 +71,6 @@ function registerAbort(socket, io) {
     rooms[room] = {
       start: null,
       tasks: [],
-      bucket: {},
       jobRunning: false,
       multiThreaded: false,
       bucket: {},
@@ -104,7 +103,7 @@ function registerJoin(socket, io) {
         chromosomeLength: null,
         fitnessGoal: null,
         elitism: null,
-        fitness: null,
+        fitness: null
       }
     } else {
       rooms[room] = {
@@ -156,14 +155,6 @@ function registerDone(socket, io) {
 function doneCallback(args, socket, io) {
   if (rooms[args.room].nodes[socket.id]) {
     rooms[args.room].nodes[socket.id].running = false
-  }
-
-  // TODO: Needs to be changed dramatically
-  if (!rooms[args.room].lastResult) {
-    rooms[args.room].lastResult = {
-      maxGeneration: 0,
-      maxFitness: 0
-    }
   }
 
   const maxFitness = Math.max(...args.fitnesses)
@@ -354,7 +345,7 @@ function createMoreTasks(finishedTask) {
     rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
   }
 
-  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length === rooms[finishedTask.room].populationSize) {
+  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length >= rooms[finishedTask.room].populationSize) {
     rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen])
     rooms[finishedTask.room].bucket[finishedTask.gen] = null
   } else {
