@@ -9,13 +9,13 @@ const {
   RoomParameters
 } = require('../server/db/models')
 
-const GoLFitness = ((c, w) => {
+const GoLFitness = ((c, w=10) => {
   let memo = {}
-  let fitness = 0
+  let fitness = 1
   let testingChromosome = c
   function iterate(C, w) {
     if (memo[C]) {
-      fitness--
+      fitness /= 1.1
       return ('0').repeat(C.length)
     }
     memo[C] = true
@@ -43,10 +43,10 @@ const GoLFitness = ((c, w) => {
     return newC
   }
   while (testingChromosome !== ('0').repeat(c.length)) {
-    testingChromosome = iterate(testingChromosome, 3)
-    fitness += fitness.toString().length
+    testingChromosome = iterate(testingChromosome, w)
+    fitness *= 1.1
   }
-  return Math.pow(fitness, 2)
+  return fitness
 }).toString()
 
 let crossOver = ((pop, p = 0.2) => {
@@ -123,7 +123,7 @@ async function seed() {
   const parameters = await Promise.all([
     Parameters.create({
       chromosomeLength: 100,
-      generations: 100,
+      generations: 5,
       elitism: 0,
       populationSize: 100,
       fitnessGoal: 100
@@ -141,12 +141,12 @@ async function seed() {
     RoomMutations.create({
       mutationId: 1,
       roomId: 1,
-      chanceOfMutation: 0.20
+      chanceOfMutation: 0
     }),
     RoomMutations.create({
       mutationId: 2,
       roomId: 1,
-      chanceOfMutation: 0.20
+      chanceOfMutation: 0
     })
   ])
 

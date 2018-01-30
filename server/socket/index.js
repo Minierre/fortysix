@@ -3,6 +3,7 @@ const {
   History,
   Room,
   Selections,
+  Parameters,
   Mutations
 } = require('../db/models')
 
@@ -99,7 +100,11 @@ function registerJoin(socket, io) {
         bucket: {},
         lastResult: null,
         maxGen: null,
-        population: null,
+        populationSize: null,
+        chromosomeLength: null,
+        fitnessGoal: null,
+        elitism: null,
+        fitness: null,
       }
     } else {
       rooms[room] = {
@@ -248,72 +253,91 @@ function algorithmDone(room, population, fitnesses, io) {
 function jobInit(room, socket, io) {
   const startName = 'START_' + room
   const callName = 'CALL_' + room
-
   socket.on(startName, async (args) => {
     if (!rooms[room]) return
-    const { params } = args
-    Promise.all([
-      Mutations.findById(
-        params.currentMutationFunc,
-        { attributes: ['function'] }
-      ),
-      Selections.findById(
-        params.currentSelectionFunc,
-        { attributes: ['function'] }
-      ),
-      Room.findOne({ where: { roomHash: room } },
-        { attributes: ['fitnessFunc'] }
-      )
-    ]).then(([mutations, selection, roomObj]) => {
-      rooms[room].mutations = mutations
-      rooms[room].selection = selection
-      // Hack to make front end still work because it expects {function}
-      rooms[room].fitness = { function: roomObj.fitnessFunc }
-      rooms[room].start = Date.now()
-      rooms[room].jobRunning = true
-      rooms[room].totalFitness = 0
-      rooms[room].chromesomesReturned = 0
-      rooms[room].maxGen = args.params.generations
-      rooms[room].populationSize = args.params.population
-      rooms[room].chromosomeLength = args.params.chromosomeLength
-      Object.keys(rooms[room].nodes).forEach((socketId) => {
-        rooms[room].nodes[socketId].running = true
-        rooms[room].nodes[socketId].error = false
-      })
-
-      io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-      if (rooms[room]) {
-        if (!rooms[room].running) {
-          rooms[room].running = true
-          // generates 4X tasks for each node in the system
-          rooms[room].tasks = generateTasks(
-            args.params.population,
-            room,
-            Object.keys(rooms[room].nodes).length * 4,
-            rooms[room].fitness,
-            mutations,
-            selection,
-            args.params.chromosomeLength
-          )
-
-          Object.keys(rooms[room].nodes).forEach((id, i) => {
-            io.sockets.sockets[id]
-              .emit(
-                callName,
-                rooms[room].tasks.shift(),
-                args, {
-                  multiThreaded: rooms[room].multiThreaded
-                }
-              )
-          })
-          rooms[room].running = false
-        } else {
-          console.log(chalk.red(`${startName} already running!`))
+    Room.findOne({
+      where: { roomHash: room || null },
+      include: [{
+        model: Parameters,
+        through: {
+          attributes: []
         }
-      } else {
-        console.log(chalk.red(`${startName} attempted without nodes`))
-      }
+      },
+      {
+        model: Selections,
+        attributes: ['name', 'function']
+      },
+      {
+        model: Mutations,
+        attributes: ['function'],
+        through: {
+          attributes: ['chanceOfMutation']
+        }
+      }]
     })
+      .then((room) => {
+        // Decycle and reshape mutations array because Sequelize isn't perfect
+        const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+        const newMutations = mutations.map((mutation) => {
+          mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+          delete mutation.room_mutations
+          return mutation
+        })
+        return { ...rest, mutations: newMutations }
+      })
+      .then(({ mutations, selection, parameters, fitnessFunc }) => {
+        rooms[room].mutations = mutations
+        rooms[room].selection = selection
+        // Hack to make front end still work because it expects {function}
+        rooms[room].fitness = { function: fitnessFunc }
+        rooms[room].start = Date.now()
+        rooms[room].jobRunning = true
+        rooms[room].totalFitness = 0
+        rooms[room].chromesomesReturned = 0
+        rooms[room].maxGen = parameters[0].generations
+        rooms[room].populationSize = parameters[0].populationSize
+        rooms[room].chromosomeLength = parameters[0].chromosomeLength
+        rooms[room].elitism = parameters[0].elitism
+        rooms[room].fitnessGoal = parameters[0].fitnessGoal
+        Object.keys(rooms[room].nodes).forEach((socketId) => {
+          rooms[room].nodes[socketId].running = true
+          rooms[room].nodes[socketId].error = false
+        })
+
+        io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+        if (rooms[room]) {
+          if (!rooms[room].running) {
+            rooms[room].running = true
+            // generates 4X tasks for each node in the system
+            rooms[room].tasks = generateTasks(
+              rooms[room].populationSize,
+              room,
+              Object.keys(rooms[room].nodes).length * 4,
+              rooms[room].fitness,
+              mutations,
+              selection,
+              rooms[room].chromosomeLength,
+              rooms[room].elitism
+            )
+
+            Object.keys(rooms[room].nodes).forEach((id, i) => {
+              io.sockets.sockets[id]
+                .emit(
+                  callName,
+                  rooms[room].tasks.shift(),
+                  args, {
+                    multiThreaded: rooms[room].multiThreaded
+                  }
+                )
+            })
+            rooms[room].running = false
+          } else {
+            console.log(chalk.red(`${startName} already running!`))
+          }
+        } else {
+          console.log(chalk.red(`${startName} attempted without nodes`))
+        }
+      })
   })
 }
 
