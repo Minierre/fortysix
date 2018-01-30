@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
-import Slider from 'material-ui/Slider'
 import axios from 'axios'
 import {
   Col,
-  FormGroup,
-  ControlLabel,
-  FormControl,
   Form
 } from 'react-bootstrap'
+import {
+  Input,
+  Select
+} from '../'
 import CodeEditor from '../CodeEditor/CodeEditor'
 import MutationFuncTable from './MutationFuncTable'
 import './style.css'
@@ -18,7 +18,6 @@ class AdminInputs extends Component {
     this.state = {
       selectionFuncs: [],
       mutationFuncs: [],
-      mutationFunctions: [{ id: 1, function: 'test', probability: 10 }]
     }
     this.jobTypes = [{ id: 1, value: 'hello' }]
   }
@@ -35,7 +34,6 @@ class AdminInputs extends Component {
       .then(funcs => this.setState({ selectionFuncs: funcs.data }))
   }
 
-
   render() {
     return (
       <div id="scientist-inputs">
@@ -50,84 +48,56 @@ class AdminInputs extends Component {
           <div className="sliders">
             <Form>
               <Col sm={6}>
-                <FormGroup
-                  controlId="formBasicText"
-                >
-                  <ControlLabel>Population Size</ControlLabel>
-                  <FormControl
-                    type="number"
-                    value={this.props.population}
-                    placeholder="Enter text"
-                    onChange={(e, pop) => this.props.setPopulationSize(pop)}
-                  />
-                  <FormControl.Feedback />
-                </FormGroup>
-                <FormGroup
-                  controlId="formBasicText"
-                >
-                  <ControlLabel>Number of Generations</ControlLabel>
-                  <FormControl
-                    type="number"
-                    value={this.props.generations}
-                    placeholder="Enter text"
-                    onChange={(e, pop) => this.props.setGenerations(pop)}
-                  />
-                  <FormControl.Feedback />
-                </FormGroup>
-                <FormGroup
-                  controlId="formBasicText"
-                >
-                  <ControlLabel>Chromosome Length</ControlLabel>
-                  <FormControl
-                    type="number"
-                    value={this.props.chromosomeLength}
-                    placeholder="Enter text"
-                    onChange={(e, pop) => this.props.setChromLength(pop)}
-                  />
-                  <FormControl.Feedback />
-                </FormGroup>
-
+                <Input
+                  controlId="populationSize"
+                  label="Population Size"
+                  value={this.props.population}
+                  placeholder="Enter population size"
+                  type="number"
+                  onChange={(e, pop) => this.props.setPopulationSize(pop)}
+                />
+                <Input
+                  controlId="generations"
+                  label="Number of generations"
+                  type="number"
+                  value={this.props.generations}
+                  placeholder="Enter generations"
+                  onChange={(e, pop) => this.props.setGenerations(pop)}
+                />
+                <Input
+                  controlId="chromosomeLength"
+                  label="Chromosome Length"
+                  type="number"
+                  value={this.props.chromosomeLength}
+                  placeholder="Enter chromosome length"
+                  onChange={(e, pop) => this.props.setChromLength(pop)}
+                />
               </Col>
               <Col sm={6}>
-                  <FormGroup
-                    controlId="formBasicText"
-                  >
-                  <ControlLabel>Fitness Goal</ControlLabel>
-                  <FormControl
-                    type="number"
-                    value={this.props.chromosomeLength}
-                    placeholder="Enter text"
-                    onChange={(e, pop) => this.props.setChromLength(pop)}
-                  />
-                  <FormControl.Feedback />
-              </FormGroup>
-                <FormGroup
-                  controlId="formBasicText"
-                >
-                  <ControlLabel>Elitism</ControlLabel>
-                  <FormControl
-                    type="number"
-                    value={this.props.chromosomeLength}
-                    placeholder="Enter text"
-                    onChange={(e, pop) => this.props.setChromLength(pop)}
-                  />
-                  <FormControl.Feedback />
-                </FormGroup>
-                <FormGroup
-                  controlId="formBasicText"
-                >
-                  <ControlLabel>Selection Algorithm</ControlLabel>
-                  <FormControl
-                    componentClass="select"
-                    placeholder="select"
-                    onSelect={(e) => this.props.setSelectionFunc({ currentSelectionFunc: this.state.selectionFuncs[e] })}
-                  >
-                    {this.state.selectionFuncs.map((func, idx) =>
-                      <option key={func.id} value={idx}>{func.name}</option>
-                    )}
-                  </FormControl>
-                  <FormControl.Feedback />
-                </FormGroup>
+                <Input
+                  controlId="fitnessGoal"
+                  label="Fitness Goal"
+                  type="number"
+                  value={this.props.fitnessGoal}
+                  placeholder="Enter fitness goal"
+                  onChange={(e, pop) => this.props.setFitnessGoal(pop)}
+                />
+                <Input
+                  controlId="elitism"
+                  label="Elitism"
+                  type="number"
+                  value={this.props.elitism}
+                  placeholder="Enter elitism"
+                  onChange={(e, pop) => this.props.setElitism(pop)}
+                />
+                <Select
+                  controlId="selectionFunc"
+                  label="Selection Algorithm"
+                  type="number"
+                  options={this.state.selectionFuncs}
+                  placeholder="Enter selection Function"
+                  onChange={(e, pop) => this.props.setSelectionFunc(pop)}
+                />
               </Col>
               <div className="mutation-func-table-wrapper">
                 <MutationFuncTable />

@@ -1,5 +1,10 @@
 const router = require('express').Router()
-const { Room } = require('../db/models')
+const {
+  Room,
+  Parameters,
+  Mutations,
+  Selections
+} = require('../db/models')
 
 module.exports = router
 
@@ -10,7 +15,35 @@ router.get('/all', (req, res, next) => {
 })
 
 router.get('/:roomHash', (req, res, next) => {
-  Room.findOne({ where: { roomHash: req.params.roomHash  || null } })
+  Room.findOne({
+    where: { roomHash: req.params.roomHash || null },
+    include: [{
+      model: Parameters,
+      through: {
+        attributes: []
+      }
+    },
+    {
+      model: Selections,
+      attributes: ['name', 'function', 'id']
+    },
+    {
+      model: Mutations,
+      through: {
+        attributes: ['chanceOfMutation']
+      }
+    }]
+  })
+    .then((room) => {
+      // Decycle and reshape mutations array because Sequelize isn't perfect
+      const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+      const newMutations = mutations.map((mutation) => {
+        mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+        delete mutation.room_mutations
+        return mutation
+      })
+      return { ...rest, mutations: newMutations }
+    })
     .then(room => res.json(room))
     .catch(next)
 })

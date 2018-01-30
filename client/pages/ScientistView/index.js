@@ -4,8 +4,9 @@ import {
   Tabs,
   Tab,
 } from 'react-bootstrap'
-import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
+import { Formik } from 'formik'
 import axios from 'axios'
+import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import Status from './Status'
 import History from './History'
 import './style.css'
@@ -31,12 +32,7 @@ class ScientistView extends Component {
         roomName: '',
         fitnessFunc: null
       },
-      history: [],
-      population: 100,
-      generations: 4,
-      currentSelectionFunc: {},
-      currentMutationFunc: {},
-      chromosomeLength: 100
+      history: []
     }
     this.setMutationFuncs = this.setMutationFuncs.bind(this)
     this.setSelectionFunc = this.setSelectionFunc.bind(this)
@@ -45,6 +41,7 @@ class ScientistView extends Component {
     this.setChromLength = this.setChromLength.bind(this)
     this.saveFitnessFunc = this.saveFitnessFunc.bind(this)
     this.setFitnessFunc = this.setFitnessFunc.bind(this)
+    this.updateParameters = this.updateParameters.bind(this)
     this.startJob = this.startJob.bind(this)
     this.abortJob = this.abortJob.bind(this)
   }
@@ -81,11 +78,11 @@ class ScientistView extends Component {
     const roomHash = this.props.match.params.roomHash
     let parameters = {
       params: {
-        population: this.state.population,
-        generations: this.state.generations,
-        currentSelectionFunc: this.state.currentSelectionFunc.id,
-        currentMutationFunc: this.state.currentMutationFunc.id,
-        chromosomeLength: this.state.chromosomeLength
+        population: this.state.roomPersisted.population,
+        generations: this.state.roomPersisted.generations,
+        currentSelectionFunc: this.state.roomPersisted.selection,
+        currentMutationFunc: this.state.roomPersisted.mutations[0],
+        chromosomeLength: this.state.roomPersisted.chromosomeLength
       },
       room: this.state.room
     }
@@ -143,6 +140,10 @@ class ScientistView extends Component {
     this.setState({ chromosomeLength })
   }
 
+  updateParameters(evt) {
+    evt.preventDefault()
+  }
+
   render() {
     return (
       <div id="scientist-view-wrapper">
@@ -152,8 +153,19 @@ class ScientistView extends Component {
             <h3>
               Enter a Fitness Function in the Code Editor Below.
           </h3>
-            <AdminInputs
+            <Formik
+              enableReinitialize
+              initialValues={this.state.roomPersisted.parameters}
+              render={({ values, errors, touched }) => (
+                <AdminInputs
+                  values={values}
+                  setParameters={this.updateParameters}
+                />
+              )}
+            />
+            {/* <AdminInputs
               fitnessFunc={this.state.roomPersisted.fitnessFunc}
+              updateRoom={this.updateRoom}
               setFitnessFunc={this.setFitnessFunc}
               setMutationFuncs={this.setMutationFuncs}
               setSelectionFunc={this.setSelectionFunc}
@@ -165,9 +177,9 @@ class ScientistView extends Component {
               population={this.state.population}
               generations={this.state.generations}
               chromosomeLength={this.state.chromosomeLength}
-            />
+            /> */}
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Status">
+          <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Run">
             <Status
               nodes={this.state.room.nodes}
               chromesomesReturned={this.state.room.chromesomesReturned}
