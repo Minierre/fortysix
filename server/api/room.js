@@ -5,6 +5,10 @@ const {
   Mutations,
   Selections
 } = require('../db/models')
+const Sandbox = require('sandbox')
+
+const s = new Sandbox()
+
 
 module.exports = router
 
@@ -49,12 +53,24 @@ router.get('/:roomHash', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
+  const f = req.body.fitnessFunc
+  //run fitnessFunc in sandbox before adding to db
+  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
+   return fitFunc()})()`, function(output){
+    console.log(output.result)
+  })
   Room.create(req.body)
     .then(newRoom => res.json(newRoom))
     .catch(next)
 })
 
 router.put('/:roomHash', (req, res, next) => {
+  const f = req.body.fitnessFunc
+  //run fitnessFunc in sandbox before adding to db
+  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
+   return fitFunc()})()`, function(output){
+    console.log(output.result)
+  })
   Room.update(
     { fitnessFunc: req.body.fitnessFunc },
     {
