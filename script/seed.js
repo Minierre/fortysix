@@ -1,31 +1,21 @@
-/**
- * Welcome to the seed file! This seed file uses a newer language feature called...
- *
- *                  -=-= ASYNC...AWAIT -=-=
- *
- * Async-await is a joy to use! Read more about it in the MDN docs:
- *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
- *
- * Now that you've got the main idea, check it out in practice below!
- */
 const db = require('../server/db')
 const {
   User,
-  History,
   Room,
   Mutations,
   Selections,
-  Fitness
+  RoomMutations,
+  Parameters,
+  RoomParameters
 } = require('../server/db/models')
 
-const GoLFitness = ((c, w) => {
+const GoLFitness = ((c, w=10) => {
   let memo = {}
-  let fitness = 0
+  let fitness = 1
   let testingChromosome = c
   function iterate(C, w) {
     if (memo[C]) {
-      fitness--
+      fitness /= 1.1
       return ('0').repeat(C.length)
     }
     memo[C] = true
@@ -53,10 +43,10 @@ const GoLFitness = ((c, w) => {
     return newC
   }
   while (testingChromosome !== ('0').repeat(c.length)) {
-    testingChromosome = iterate(testingChromosome, 3)
-    fitness += fitness.toString().length
+    testingChromosome = iterate(testingChromosome, w)
+    fitness *= 1.1
   }
-  return Math.pow(fitness, 2)
+  return fitness
 }).toString()
 
 let crossOver = ((pop, p = 0.2) => {
@@ -112,14 +102,6 @@ async function seed() {
     User.create({ email: 'murphy@email.com', password: '123' })
   ])
 
-  const rooms = await Promise.all([
-    Room.create({
-      roomHash: '456',
-      roomName: 'Game of Life',
-      fitnessFunc: GoLFitness
-    })
-  ])
-
   const mutations = await Promise.all([
     Mutations.create({ function: crossOver, name: 'Cross Over' }),
     Mutations.create({ function: spontaneousMutation, name: 'Standard Mutation' }),
@@ -127,6 +109,45 @@ async function seed() {
 
   const selections = await Promise.all([
     Selections.create({ function: rouletteWheel, name: 'Roulette Wheel' })
+  ])
+
+  const rooms = await Promise.all([
+    Room.create({
+      roomHash: '456',
+      roomName: 'Game of Life',
+      fitnessFunc: GoLFitness,
+      selectionId: 1
+    })
+  ])
+
+  const parameters = await Promise.all([
+    Parameters.create({
+      chromosomeLength: 100,
+      generations: 5,
+      elitism: 0,
+      populationSize: 100,
+      fitnessGoal: 100
+    })
+  ])
+
+  const roomParameters = await Promise.all([
+    RoomParameters.create({
+      roomId: 1,
+      parameterId: 1
+    })
+  ])
+
+  const roomMutations = await Promise.all([
+    RoomMutations.create({
+      mutationId: 1,
+      roomId: 1,
+      chanceOfMutation: 0
+    }),
+    RoomMutations.create({
+      mutationId: 2,
+      roomId: 1,
+      chanceOfMutation: 0
+    })
   ])
 
   // Wowzers! We can even `await` on the right-hand side of the assignment operator
