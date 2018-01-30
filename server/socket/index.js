@@ -348,4 +348,3 @@ function createMoreTasks(finishedTask) {
       rooms[finishedTask.room].tasks.concat(newTask)
   }
 }
-
