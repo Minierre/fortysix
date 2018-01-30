@@ -32,11 +32,11 @@ class ScientistView extends Component {
         fitnessFunc: null
       },
       history: [],
-      population: 100,
-      generations: 4,
+      population: 50,
+      generations: 2,
       currentSelectionFunc: {},
       currentMutationFunc: {},
-      chromosomeLength: 100
+      chromosomeLength: 50
     }
     this.setMutationFuncs = this.setMutationFuncs.bind(this);
     this.setSelectionFunc = this.setSelectionFunc.bind(this);

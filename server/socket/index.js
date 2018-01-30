@@ -7,6 +7,7 @@ const {
 } = require('../db/models')
 
 const { generateTasks } = require('../modules/tasks')
+const { finalSelection } = require('../modules/finalSelection')
 
 // constants for job names
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
@@ -152,6 +153,13 @@ function doneCallback(args, socket, io) {
     rooms[args.room].nodes[socket.id].running = false
   }
 
+  if (!rooms[args.room].lastResult) {
+    rooms[args.room].lastResult = {
+      maxGeneration: 0,
+      maxFitness: 0
+    }
+  }
+
   const maxFitness = Math.max(...args.fitnesses)
 
   if (rooms[args.room].lastResult.maxGeneration <= args.gen || rooms[args.room].lastResult.maxFitness <= maxFitness) {
@@ -164,15 +172,29 @@ function doneCallback(args, socket, io) {
   rooms[args.room].totalFitness += (args.fitnesses[0] + args.fitnesses[1])
   rooms[args.room].chromesomesReturned += args.population.length
 
-  // console.log('result: ', args.result)
-  // console.log('running best: ', rooms[args.room].lastResult)
-  // console.log('room: ', rooms[args.room])
+  /*
+  updated control flow:
+  1. Update bucket
+  2. check all done
+    all done === (a) the bucket at the max generation exists
+                 (b) the bucket at the max generation is greater than or equal to full
+                 -- v2 --
+                 (c) the incoming finishedTask has a chrom with a fitness that's at above the
+                  satisfactory level
+    2.1 if all done and jobRunning --> finalSelection --> algorithmDone
+    2.2 if not all done and jobRunning --> createTask
 
-  const allDone = (args.gen >= rooms[args.room].maxGen)
+    see below:
+  */
+
+  updateBucket(args);
+  const allDone = shouldTerminate(args);
+
 
   // Avoid pushing history multiple times by checking jobRunning
   if (allDone && rooms[args.room].jobRunning) {
-    algorithmDone(args.room, args.population, args.fitnesses, io)
+    const results = finalSelection(args, rooms[args.room])
+    algorithmDone(results.room, results.winningChromosome, results.fitness, io)
     rooms[args.room].tasks = []
   } else if (rooms[args.room].jobRunning) {
     if (rooms[args.room].tasks.length > 0) {
@@ -193,47 +215,52 @@ function doneCallback(args, socket, io) {
   console.log(chalk.green('DONE: '), socket.id, args.room)
 }
 
-function algorithmDone(room, population, fitnesses, io) {
+function algorithmDone(room, winningChromosome, fitness, io) {
   const endTime = Date.now()
   console.log(
-    chalk.green(`DURATION OF ${room}: `, endTime - rooms[room].start)
+    chalk.green(`DURATION OF ${room}: `, endTime - room.start)
   )
 
   console.log(
-    chalk.magenta(`FINAL POPULATION: ${population}`)
+    chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`)
   )
 
   console.log(
-    chalk.magenta(`FINAL FITNESSES: ${fitnesses}`)
+    chalk.magenta(`BEST FITNESS: ${fitness}`)
   )
 
-  io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-  rooms[room].jobRunning = false
-
-  History.create({
-    nodes: Object.keys(rooms[room].nodes).length,
-    result: rooms[room].lastResult.tour + ' ' + rooms[room].lastResult.dist,
-    startTime: rooms[room].start,
-    multiThreaded: rooms[room].multiThreaded,
-    endTime,
-    room
-  })
-    .then(() => {
-      History.findAll({
-        where: {
-          room
-        }
-      }).then((history) => {
-        io.sockets.emit('UPDATE_HISTORY_' + room, history)
-      })
-      rooms[room].start = null
-      rooms[room].maxGen = null
-      // rooms[room].populationSize = null
-      rooms[room].lastResult = {
-        maxGeneration: 0,
-        maxFitness: 0
-      }
-    })
+  io.sockets.emit('UPDATE_' + room, getRoom(room))
+  room.jobRunning = false
+  // History.create({
+  //   nodes: Object.keys(room.nodes).length,
+  //   result: room.lastResult.tour + ' ' + room.lastResult.dist,
+  //   startTime: room.start,
+  //   multiThreaded: room.multiThreaded,
+  //   endTime,
+  //   room
+  // })
+  //   .then(() => {
+  //     History.findAll({
+  //       where: {
+  //         room
+  //       }
+  //     }).then((history) => {
+  //       io.sockets.emit('UPDATE_HISTORY_' + room, history)
+  //     })
+  //     rooms[room].start = null
+  //     rooms[room].maxGen = null
+  //     // rooms[room].populationSize = null
+  //     rooms[room].lastResult = {
+  //       maxGeneration: 0,
+  //       maxFitness: 0
+  //     }
+  //   })
+  room.start = null
+  room.maxGen = null
+  room.lastResult = {
+    maxGeneration: 0,
+    maxFitness: 0
+  }
 }
 
 function jobInit(room, socket, io) {
@@ -308,19 +335,27 @@ function jobInit(room, socket, io) {
   })
 }
 
-function createMoreTasks(finishedTask) {
-  if (finishedTask.gen === rooms[finishedTask.room].maxGen) return
-  console.log('POPULATION: ', finishedTask.population)
-  console.log('FITNESSES: ', finishedTask.fitnesses)
-  console.log('GENERATION: ', finishedTask.gen)
+function updateBucket(finishedTask) {
+  // if the room's bucket contains a task with the current incoming generation...
   if (rooms[finishedTask.room].bucket[finishedTask.gen]) {
     rooms[finishedTask.room].bucket[finishedTask.gen].population =
       rooms[finishedTask.room].bucket[finishedTask.gen].population.concat(finishedTask.population)
    rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses = rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses.concat(finishedTask.fitnesses)
-  } else {
+  }
+  // if not, make a new key in the bucket for the new incoming generation
+  else {
     rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
   }
+}
 
+function shouldTerminate(finishedTask) {
+  // right now this function doesn't do anything with the finishedTask,
+  // but it will when we use elitism or a maxFitness
+  const room = rooms[finishedTask.room]
+  return room.bucket[room.maxGen] && room.bucket[room.maxGen].population.length >= room.populationSize
+}
+
+function createMoreTasks(finishedTask) {
   if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length >= rooms[finishedTask.room].populationSize) {
     rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen])
     rooms[finishedTask.room].bucket[finishedTask.gen] = null
