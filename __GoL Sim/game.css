@@ -1,0 +1,29 @@
+body {
+  padding: 10px;
+}
+
+h1, h2 {
+  text-align: center;
+}
+#board{
+  margin: 0 auto;
+}
+
+#board td{
+  border: 1px solid #ddd;
+  width: 40px;
+  height: 40px;
+}
+
+td.alive {
+  background-color: #8CC8DD;
+}
+
+td.dead {
+  background-color: #fff;
+}
+
+#control_panel {
+  margin: 10px auto;
+  text-align: center;
+}
