@@ -12,7 +12,7 @@
   border: 2px solid silver;
   border-radius: 4px;
   margin-bottom: 1em;
-  width: 45vw;
+  width: 100%;
 }
 
 #scientist-inputs{
@@ -28,4 +28,8 @@
 .sliders{
   display: flex;
   flex-direction: row;
+}
+
+.mutation-func-table-wrapper {
+  margin: 1em 1em;
 }
