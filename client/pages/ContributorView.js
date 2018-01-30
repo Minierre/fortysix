@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { Panel } from 'react-bootstrap'
 import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
-import './style.css'
 
 class ContributorView extends Component {
 
@@ -41,7 +40,9 @@ class ContributorView extends Component {
   runMultiThreaded(task) {
     const roomHash = this.props.match.params.roomHash
     let Selection = eval('(' + task.selection.function + ')')
-    let Mutations = task.mutations.map(v=>eval('(' + v.function + ')'))
+    let Mutations = task.mutations.map( (mutation) => {
+      return ({ function: eval('(' + mutation.function + ')'), chanceOfMutation: mutation.chanceOfMutation })
+    })
     let Fitness = task.fitness
     let population = task.population
     let fittest = []
@@ -66,8 +67,12 @@ class ContributorView extends Component {
         const fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
         fittest = Selection(pop, fitpop, 2)
 
+        if (task.elitism && task.elitism <= Math.max(...fitpop)) {
+          fittest.push(pop[fitpop.indexOf(Math.max(...fitpop))])
+        }
+
         Mutations.forEach((m) => {
-          fittest = m(fittest)
+          fittest = m.function(fittest,m.chanceOfMutation)
         })
 
         const fitnesses = fittest.map(chromo => FF(chromo))
@@ -80,7 +85,8 @@ class ContributorView extends Component {
           gen: task.gen + 1,
           fitness: task.fitness,
           selection: task.selection,
-          mutations: task.mutations
+          mutations: task.mutations,
+          elitism: task.elitism
         }
         this.props.socket.emit('done', returnTaskObj)
       })

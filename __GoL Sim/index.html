@@ -1,0 +1,35 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Game of Life - Fullstack Academy</title>
+  <link rel="stylesheet" href="libraries/bootstrap.min.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+
+<body>
+  <h2 id="turn">Game of Life</h2>
+
+  <table id='board'></table>
+
+  <div id='control_panel'>
+    <button id='step_btn' class='btn btn-success'>Step</button>
+    <button id='play_btn' class='btn btn-primary'>Play</button>
+    <button id='clear_btn' class='btn btn-info'>Clear</button>
+    <button id='set_up_btn' class='btn btn-warning'>Render Input:</button>
+    <input id="input">
+  </div>
+
+  <br><br>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted">Built by [me] at <a href="http://www.fullstackacademy.com/">Fullstack Academy</a></p>
+    </div>
+  </footer>
+
+  <script src="game.js"></script>
+
+</body>
+</html>

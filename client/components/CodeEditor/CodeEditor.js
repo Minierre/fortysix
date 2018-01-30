@@ -23,12 +23,6 @@ class CodeEditor extends Component {
             options={options}
           />
         </div>
-        <div>
-          <Button
-            bsStyle="success"
-            onClick={this.props.saveFitnessFunc}
-          >Save</Button>
-        </div>
       </div>
     )
   }
