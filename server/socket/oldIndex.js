@@ -6,9 +6,9 @@ const {
   Parameters,
   Mutations
 } = require('../db/models')
-const { InMemoryRoomManager } = require('../utils/room')
-const { generateTasks } = require('../utils/tasks')
-const { finalSelection } = require('../utils/finalSelection')
+
+const { generateTasks } = require('../modules/tasks')
+const { finalSelection } = require('../modules/finalSelection')
 
 // constants for job names
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
@@ -37,37 +37,6 @@ function registerJoinAdmin(socket, io) {
   })
 }
 
-function jobInit(room, socket, io) {
-  const startName = 'START_' + room
-  const callName = 'CALL_' + room
-  socket.on(startName, async (args) => {
-    if (!rooms[room]) return
-    rooms[room].mapDatabaseToMemory(room)
-      .then((updatedRoom) => {
-        io.sockets.emit('UPDATE_' + updatedRoom.room, getRoom(rooms[room]))
-        if (rooms[room]) {
-          if (rooms[room].isJobRunning()) {
-            rooms[room].startJob()
-            Object.keys(rooms[room].nodes).forEach((id, i) => {
-              io.sockets.sockets[id]
-                .emit(
-                  callName,
-                  rooms[room].tasks.shift(),
-                  args, {
-                    multiThreaded: rooms[room].multiThreaded
-                  }
-                )
-            })
-          } else {
-            console.log(chalk.red(`${startName} already running!`))
-          }
-        } else {
-          console.log(chalk.red(`${startName} attempted without nodes`))
-        }
-      })
-  })
-}
-
 function registerEvents(socket, io) {
   registerJoin(socket, io)
   registerLeave(socket, io)
@@ -89,32 +58,71 @@ function registerMultithreaded(socket) {
   })
 }
 
-// when a specific client gets an error
 function registerJobError(socket, io) {
-  socket.on('JOB_ERROR', ({ room, error }) => {
-    rooms[room].jobError(socket)
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-    console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}, `, error)
+  socket.on('JOB_ERROR', ({ roomHash, error }) => {
+    rooms[roomHash].nodes[socket.id].running = false
+    rooms[roomHash].nodes[socket.id].error = true
+    io.sockets.emit('UPDATE_' + roomHash, getRoom(rooms[roomHash]))
+    console.log(chalk.red('JOB_ERROR: ') + `${roomHash} for socket: ${socket.id}, `, error)
   })
 }
 
-// abort event gets triggered when when the client side reset button is hit
 function registerAbort(socket, io) {
   socket.on('ABORT', (room) => {
-    rooms[room].abort()
+    rooms[room] = {
+      start: null,
+      tasks: [],
+      jobRunning: false,
+      multiThreaded: false,
+      bucket: {},
+      nodes: {}
+    }
+
     io.sockets.emit('ABORT_' + room)
   })
 }
 
-// when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
 function registerJoin(socket, io) {
   socket.on('join', (room) => {
-    if (!rooms[room]) rooms[room] = new InMemoryRoomManager(room, socket)
-    rooms[room].join(socket)
+    socket.join(room)
+    if (!rooms[room]) {
+      rooms[room] = {
+        start: null,
+        tasks: [],
+        jobRunning: false,
+        multiThreaded: false,
+        nodes: {
+          [socket.id]: {
+            running: false,
+            error: false
+          }
+        },
+        bucket: {},
+        lastResult: null,
+        maxGen: null,
+        populationSize: null,
+        chromosomeLength: null,
+        fitnessGoal: null,
+        elitism: null,
+        fitness: null
+      }
+    } else {
+      rooms[room] = {
+        ...rooms[room],
+        nodes: {
+          ...rooms[room].nodes,
+          [socket.id]: {
+            running: false,
+            error: false
+          }
+        },
+      }
+    }
 
-    // if a socket disconnects, we take that node off the room's list of nodes
+    // General purpose
     socket.once('disconnect', () => {
-      rooms[room].disconnect(socket)
+      delete rooms[room].nodes[socket.id]
+      socket.leave(room)
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
@@ -129,7 +137,8 @@ function registerRequestRoom(socket) {
 
 function registerLeave(socket, io) {
   socket.on('leave', (room) => {
-    rooms[room].disconnect(socket)
+    socket.leave(room)
+    delete rooms[room].nodes[socket.id]
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
   })
 }
@@ -253,6 +262,97 @@ function algorithmDone(room, winningChromosome, fitness, io) {
     maxGeneration: 0,
     maxFitness: 0
   }
+}
+
+function jobInit(room, socket, io) {
+  const startName = 'START_' + room
+  const callName = 'CALL_' + room
+  socket.on(startName, async (args) => {
+    if (!rooms[room]) return
+    Room.findOne({
+      where: { roomHash: room || null },
+      include: [{
+        model: Parameters,
+        through: {
+          attributes: []
+        }
+      },
+      {
+        model: Selections,
+        attributes: ['name', 'function']
+      },
+      {
+        model: Mutations,
+        attributes: ['function'],
+        through: {
+          attributes: ['chanceOfMutation']
+        }
+      }]
+    })
+      .then((room) => {
+        // Decycle and reshape mutations array because Sequelize isn't perfect
+        const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+        const newMutations = mutations.map((mutation) => {
+          mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+          delete mutation.room_mutations
+          return mutation
+        })
+        return { ...rest, mutations: newMutations }
+      })
+      .then(({ mutations, selection, parameters, fitnessFunc }) => {
+        rooms[room].mutations = mutations
+        rooms[room].selection = selection
+        // Hack to make front end still work because it expects {function}
+        rooms[room].fitness = { function: fitnessFunc }
+        rooms[room].start = Date.now()
+        rooms[room].jobRunning = true
+        rooms[room].totalFitness = 0
+        rooms[room].chromesomesReturned = 0
+        rooms[room].maxGen = parameters[0].generations
+        rooms[room].populationSize = parameters[0].populationSize
+        rooms[room].chromosomeLength = parameters[0].chromosomeLength
+        rooms[room].elitism = parameters[0].elitism
+        rooms[room].fitnessGoal = parameters[0].fitnessGoal
+        Object.keys(rooms[room].nodes).forEach((socketId) => {
+          rooms[room].nodes[socketId].running = true
+          rooms[room].nodes[socketId].error = false
+        })
+
+        io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+        if (rooms[room]) {
+          if (!rooms[room].running) {
+            rooms[room].running = true
+            // generates 4X tasks for each node in the system
+            rooms[room].tasks = generateTasks(
+              rooms[room].populationSize,
+              room,
+              Object.keys(rooms[room].nodes).length * 4,
+              rooms[room].fitness,
+              mutations,
+              selection,
+              rooms[room].chromosomeLength,
+              rooms[room].elitism
+            )
+
+            Object.keys(rooms[room].nodes).forEach((id, i) => {
+              io.sockets.sockets[id]
+                .emit(
+                  callName,
+                  rooms[room].tasks.shift(),
+                  args, {
+                    multiThreaded: rooms[room].multiThreaded
+                  }
+                )
+            })
+            rooms[room].running = false
+          } else {
+            console.log(chalk.red(`${startName} already running!`))
+          }
+        } else {
+          console.log(chalk.red(`${startName} attempted without nodes`))
+        }
+      })
+  })
 }
 
 function updateBucket(finishedTask) {
