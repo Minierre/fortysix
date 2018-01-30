@@ -309,6 +309,9 @@ function jobInit(room, socket, io) {
         return { ...rest, mutations: newMutations }
       })
       .then(({ mutations, selection, parameters, fitnessFunc }) => {
+        // rooms[room] = {
+
+        // } maybe?
         rooms[room].mutations = mutations
         rooms[room].selection = selection
         // Hack to make front end still work because it expects {function}
