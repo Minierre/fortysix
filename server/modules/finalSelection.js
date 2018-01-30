@@ -1,7 +1,6 @@
 const chalk = require('chalk')
 
-// grabs the last generation from the room's bucket, and runs the fitness function
-// on all the chromosomes, returning the chromosome with the highest fitness
+// grabs the last generation from the room's bucket, and returns the chromosome with the highest fitness
 function finalSelection(finalResult, room) {
   const finalGeneration = room.bucket[room.maxGen]
   const results = {}

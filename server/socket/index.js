@@ -183,18 +183,14 @@ function doneCallback(args, socket, io) {
   2. check all done
     all done === (a) the bucket at the max generation exists
                  (b) the bucket at the max generation is greater than or equal to full
-                 -- v2 --
-                 (c) the incoming finishedTask has a chrom with a fitness that's at above the
-                  satisfactory level
-    2.1 if all done and jobRunning --> finalSelection --> algorithmDone
-    2.2 if not all done and jobRunning --> createTask
+    2.1 if all done and jobRunning, call finalSelection, call algorithmDone w/ results
+    2.2 if not all done and jobRunning, call createTask
 
     see below:
   */
 
   updateBucket(args);
   const allDone = shouldTerminate(args);
-
 
   // Avoid pushing history multiple times by checking jobRunning
   if (allDone && rooms[args.room].jobRunning) {
