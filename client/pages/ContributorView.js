@@ -78,7 +78,6 @@ class ContributorView extends Component {
           fittest = m.function(fittest, m.chanceOfMutation, task.pool)
         })
 
-        console.log(fittest,pop.length,fitpop.length)
         const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {

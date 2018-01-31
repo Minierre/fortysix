@@ -164,19 +164,21 @@ let swapMutation = ((pop, p = 0.02) => {
 
 // sudo randomly chooses 'n' chromosomes with fitness-weighted probability of choosing any given chromosome
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
-  let selections = [];
+  const pop = population.slice()
+  const fit = arrayOfFitnesses.slice()
+  const selections = [];
   while (n > 0) {
-    let TF = arrayOfFitnesses.reduce((a, b) => a + b, 0)
+    let TF = fit.reduce((a, b) => a + b, 0)
     let pick = Math.random() * TF
     let fitnessThusFar = 0
     let chosen = 0
-    for (let i = 0; i < arrayOfFitnesses.length && fitnessThusFar < pick; i++) {
+    for (var i = 0; i < fit.length && fitnessThusFar < pick; i++) {
       chosen = i
-      fitnessThusFar += arrayOfFitnesses[i]
+      fitnessThusFar += fit[i]
     }
-    selections.push(population[chosen])
-    population.pop(chosen)
-    arrayOfFitnesses.pop(chosen)
+    selections.push(pop[chosen])
+    pop.pop(chosen)
+    fit.pop(chosen)
     n--
   }
   return selections;
@@ -185,13 +187,15 @@ let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
 
 // chooses 'n' best chromosomes
 let fittest = ((population, arrayOfFitnesses, n = 1) => {
-  const pop = []
+  const pop = population.slice()
+  const fit = arrayOfFitnesses.slice()
+  const selections = []
   for (let i = 0; i < n; i++) {
-    pop.push(population[arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses))])
-    population.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
-    arrayOfFitnesses.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
+    selections.push(pop[fit.indexOf(Math.max(...fit))])
+    pop.pop(fit.indexOf(Math.max(...fit)))
+    fit.pop(fit.indexOf(Math.max(...fit)))
   }
-  return pop
+  return selections
 }).toString()
 
 module.exports = {
