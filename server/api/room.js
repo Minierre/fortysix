@@ -55,14 +55,71 @@ router.post('/', (req, res, next) => {
 })
 
 router.put('/:roomHash', (req, res, next) => {
+  // Update Parameters
+  // Update Selections
+  // Update Mutations
+  const {
+    chromosomeLength,
+    generations,
+    elitism,
+    populationSize,
+    fitnessGoal,
+    fitnessFunc,
+    mutations,
+    selection
+  } = req.body
   Room.update(
-    { fitnessFunc: req.body.fitnessFunc },
+    { fitnessFunc },
     {
       where: { roomHash: req.params.roomHash },
       returning: true, // needed for affectedRows to be populated
       plain: true // makes sure that the returned instances are just plain objects
     },
   )
-    .spread((numberOfAffectedRows, affectedRows) => res.send(affectedRows))
+    .spread((numberOfAffectedRows, room) => {
+        room.setParameters({
+          chromosomeLength: 1,
+          generations: 1,
+          elitism: 1,
+          populationSize: 1,
+          fitnessGoal: 1
+        }, { id: 1 })
+
+      // room.setMutations(mutations)
+      // room.setSelect(selection)
+      return room
+    }).then(() => {
+      return Room.findOne({
+        where: { roomHash: req.params.roomHash || null },
+        include: [{
+          model: Parameters,
+          through: {
+            attributes: []
+          }
+        },
+        {
+          model: Selections,
+          attributes: ['name', 'function', 'id']
+        },
+        {
+          model: Mutations,
+          through: {
+            attributes: ['chanceOfMutation']
+          }
+        }]
+      })
+        .then((room) => {
+          // Decycle and reshape mutations array because Sequelize isn't perfect
+          const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+          const newMutations = mutations.map((mutation) => {
+            mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+            delete mutation.room_mutations
+            return mutation
+          })
+          return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
+        })
+        .then(room => res.json(room))
+        .catch(next)
+    })
     .catch(next)
 })
