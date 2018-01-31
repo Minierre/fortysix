@@ -129,7 +129,8 @@ let crossOver = ((pop, p = 0.2) => {
 }).toString()
 
 let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
-  let type = typeof pop
+  // population pools all contain the same data type, so we check the first data type to see what it is
+  let type = typeof pop[0]
   return (type === 'string')
     ?
     pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v).join())
@@ -138,7 +139,8 @@ let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
 }).toString()
 
 let SwapMutation = ((pop, p = 0.02) => {
-  let type = typeof pop
+  // population pools all contain the same data type, so we check the first data type to see what it is
+  let type = typeof pop[0]
   function swap(c) {
     let i = Math.floor(Math.random() * c.length)
     let j = Math.floor(Math.random() * c.length)
@@ -219,13 +221,13 @@ async function seed() {
       roomHash: '457',
       roomName: 'Game of Life Loopers',
       fitnessFunc: GoLFitnessLoopers,
-      selectionId: 2
+      selectionId: 1
     }),
     Room.create({
       roomHash: '458',
       roomName: 'String Matcher',
       fitnessFunc: FindString,
-      selectionId: 3
+      selectionId: 2
     })
   ])
 
