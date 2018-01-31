@@ -29,6 +29,7 @@ class RoomManager {
     this.fitness = null
     this.mutuations = null
     this.selection = null
+    this.genePool = ['1', '0']
   }
   join(socket) {
     socket.join(this.room)
@@ -38,17 +39,20 @@ class RoomManager {
     delete this.nodes[socket.id]
     socket.leave(this.room)
   }
-  abort() {
+  abort(io) {
     this.start = null
     this.tasks = []
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
+    io.to(this.room).emit('ABORT_' + this.room)
   }
-  jobError(socket) {
+  jobError(socket, io, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
+    io.to(this.room).emit('UPDATE_' + this.room, this)
+    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -66,7 +70,7 @@ class RoomManager {
       mutations,
       selection,
       this.chromosomeLength,
-      this.elitism
+      this.genePool
     )
   }
   mapPersistedToMemory(room) {
@@ -225,7 +229,8 @@ class RoomManager {
         this.fitness,
         this.mutations,
         this.selection,
-        this.chromosomeLength
+        this.chromosomeLength,
+        this.genePool
       )
       this.tasks =
         this.tasks.concat(newTask)
@@ -250,6 +255,21 @@ class RoomManager {
   //     this.createMoreTasks(finishedTask)
   //   }
   // }
+  async jobInit(socket, io, args) {
+    const callName = 'CALL_' + this.room
+    // takes the room stored in the database, and maps it to the in memory room
+    const updatedRoom = await this.mapPersistedToMemory(this.room)
+    io.to(this.room).emit('UPDATE_' + updatedRoom.room, this)
+    // checks to see if the job is running already and if not, starts the job
+    if (!this.isJobRunning()) {
+      this.startJob()
+      Object.keys(this.nodes).forEach((id, i) => {
+        socket.broadcast.to(id).emit(callName, this.tasks.shift(), args)
+      })
+    } else {
+      console.log(chalk.red(`${startName} already running!`))
+    }
+  }
 }
 
 module.exports = { RoomManager }

@@ -38,29 +38,10 @@ function registerJoinAdmin(socket, io) {
 
 function jobInit(room, socket, io) {
   const startName = 'START_' + room
-  const callName = 'CALL_' + room
-  socket.on(startName, async (args) => {
-    if (!rooms[room]) return
-    // takes the room stored in the database, and maps it to the in memory room
-    const updatedRoom = await rooms[room].mapPersistedToMemory(room)
-    io.sockets.emit('UPDATE_' + updatedRoom.room, getRoom(rooms[room]))
-    // checks to see if the job is running already and if not, starts the job
-    if (!rooms[room].isJobRunning()) {
-      rooms[room].startJob()
-      Object.keys(rooms[room].nodes).forEach((id, i) => {
-        io.sockets.sockets[id]
-          .emit(
-            callName,
-            rooms[room].tasks.shift(),
-            args
-          )
-      })
-    }
-    // could be refactored to include the new node in the running job process
-      else {
-        console.log(chalk.red(`${startName} already running!`))
-      }
-    })
+  socket.on(startName, (args) => {
+    if (!rooms[room]) throw new Error(chalk.red(`${room} doesn't exist!`))
+    rooms[room].jobInit(socket, io, args)
+  })
 }
 
 function registerEvents(socket, io) {
@@ -75,19 +56,14 @@ function registerEvents(socket, io) {
 
 // when a specific client gets an error
 function registerJobError(socket, io) {
-  socket.on('JOB_ERROR', ({ room, error }) => {
-    rooms[room].jobError(socket)
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-    console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}, `, error)
+  socket.on('JOB_ERROR', ({ roomHash, error }) => {
+    rooms[roomHash].jobError(socket, io, error)
   })
 }
 
 // abort event gets triggered when when the client side reset button is hit
 function registerAbort(socket, io) {
-  socket.on('ABORT', (room) => {
-    rooms[room].abort()
-    io.sockets.emit('ABORT_' + room)
-  })
+  socket.on('ABORT', room => rooms[room].abort(io))
 }
 
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
