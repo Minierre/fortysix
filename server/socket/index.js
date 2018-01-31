@@ -56,8 +56,8 @@ function registerEvents(socket, io) {
 
 // when a specific client gets an error
 function registerJobError(socket, io) {
-  socket.on('JOB_ERROR', ({ room, error }) => {
-    rooms[room].jobError(socket, io, error)
+  socket.on('JOB_ERROR', ({ roomHash, error }) => {
+    rooms[roomHash].jobError(socket, io, error)
   })
 }
 

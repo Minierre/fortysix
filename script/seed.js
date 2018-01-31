@@ -212,22 +212,23 @@ async function seed() {
 
   const rooms = await Promise.all([
     Room.create({
-      roomHash: '456',
       roomName: 'Game of Life',
       fitnessFunc: GoLFitness,
       selectionId: 1
     }),
     Room.create({
-      roomHash: '457',
       roomName: 'Game of Life Loopers',
       fitnessFunc: GoLFitnessLoopers,
       selectionId: 1
     }),
     Room.create({
-      roomHash: '458',
       roomName: 'String Matcher',
       fitnessFunc: FindString,
+<<<<<<< HEAD
       selectionId: 2
+=======
+      selectionId: 1
+>>>>>>> 69a63da2a64bf9ff3d6b991f36304bd8453a88df
     })
   ])
 
@@ -288,4 +289,3 @@ seed()
  * of the async function
  */
 console.log('seeding...')
-

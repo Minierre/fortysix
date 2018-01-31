@@ -51,7 +51,7 @@ class RoomManager {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     io.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}, `, error)
+    throw new Error(`JOB_ERROR: ${room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -69,7 +69,7 @@ class RoomManager {
       mutations,
       selection,
       this.chromosomeLength,
-      this.elitism
+      this.genePool
     )
   }
   mapPersistedToMemory(room) {
