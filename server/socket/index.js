@@ -145,7 +145,7 @@ function registerLeave(socket, io) {
 
 function registerStart(socket) {
   socket.on('start', (room) => {
-    console.log(chalk.green('STARTING: ') + room, socket.id)
+    console.log(chalk.green('STARTING: '), socket.id, room)
   })
 }
 

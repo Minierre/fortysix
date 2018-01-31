@@ -17,17 +17,10 @@ class AdminInputs extends Component {
     super(props)
     this.state = {
       selectionFuncs: [],
-      mutationFuncs: [],
     }
-    this.jobTypes = [{ id: 1, value: 'hello' }]
   }
   componentDidMount() {
-    this.fetchMutuationAlgorithms()
     this.fetchSelectionAlgorithms()
-  }
-  fetchMutuationAlgorithms() {
-    axios.get('/api/mutation-algs')
-      .then(funcs => this.setState({ mutationFuncs: funcs.data }))
   }
   fetchSelectionAlgorithms() {
     axios.get('/api/selection-algs')
@@ -35,12 +28,15 @@ class AdminInputs extends Component {
   }
 
   render() {
+    const { values } = this.props
+
     return (
       <div id="scientist-inputs">
         <div id="code-editor">
           <CodeEditor
-            fitnessFunc={this.props.fitnessFunc}
-            setFitnessFunc={this.props.setFitnessFunc}
+            fitnessFunc={values.fitnessFunc}
+            submit={this.props.submit}
+            onChange={this.props.onChange}
           />
         </div>
         <div>
@@ -51,26 +47,29 @@ class AdminInputs extends Component {
                 <Input
                   controlId="populationSize"
                   label="Population Size"
-                  value={this.props.population}
+                  value={values.populationSize}
                   placeholder="Enter population size"
                   type="number"
-                  onChange={(e, pop) => this.props.setPopulationSize(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
                 <Input
                   controlId="generations"
                   label="Number of generations"
                   type="number"
-                  value={this.props.generations}
+                  value={values.generations}
                   placeholder="Enter generations"
-                  onChange={(e, pop) => this.props.setGenerations(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
                 <Input
                   controlId="chromosomeLength"
                   label="Chromosome Length"
                   type="number"
-                  value={this.props.chromosomeLength}
+                  value={values.chromosomeLength}
                   placeholder="Enter chromosome length"
-                  onChange={(e, pop) => this.props.setChromLength(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
               </Col>
               <Col sm={6}>
@@ -78,35 +77,49 @@ class AdminInputs extends Component {
                   controlId="fitnessGoal"
                   label="Fitness Goal"
                   type="number"
-                  value={this.props.fitnessGoal}
+                  value={values.fitnessGoal}
                   placeholder="Enter fitness goal"
-                  onChange={(e, pop) => this.props.setFitnessGoal(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
                 <Input
                   controlId="elitism"
                   label="Elitism"
                   type="number"
-                  value={this.props.elitism}
+                  value={values.elitism}
                   placeholder="Enter elitism"
-                  onChange={(e, pop) => this.props.setElitism(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
                 <Select
                   controlId="selectionFunc"
                   label="Selection Algorithm"
                   type="number"
+                  value={values.selection && values.selection.id}
                   options={this.state.selectionFuncs}
                   placeholder="Enter selection Function"
-                  onChange={(e, pop) => this.props.setSelectionFunc(pop)}
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
                 />
               </Col>
               <div className="mutation-func-table-wrapper">
-                <MutationFuncTable />
+                <MutationFuncTable
+                  submit={this.props.submit}
+                  onChange={this.props.onChange}
+                  functions={values.mutations}
+                />
               </div>
             </Form>
           </div>
         </div>
       </div>
     )
+  }
+}
+
+AdminInputs.defaultProps = {
+  values: {
+    parameters: []
   }
 }
 

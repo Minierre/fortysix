@@ -11,7 +11,8 @@ const Input = ({
   value,
   placeholder,
   type,
-  onChange
+  onChange,
+  onBlur
  }) => (
     <FormGroup
       controlId={controlId}
@@ -25,6 +26,7 @@ const Input = ({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
+        onBlur={onBlur}
       />
       <FormControl.Feedback />
     </FormGroup>
