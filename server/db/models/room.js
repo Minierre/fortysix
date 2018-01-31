@@ -10,11 +10,17 @@ const Room = db.define(
       unique: true
     },
     fitnessFunc: {
-      type: Sequelize.TEXT
+      type: Sequelize.TEXT,
+      defaultValue: "() => console.log('Hello, Darwin')"
     },
     roomName: {
       type: Sequelize.STRING,
       unique: true
+    },
+    selectionId: {
+      type: Sequelize.INTEGER,
+      // By default choose the first selection function
+      defaultValue: 1
     }
   }
 )
