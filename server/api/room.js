@@ -1,14 +1,10 @@
 const router = require('express').Router()
 const {
-  Room,
-  Parameters,
-  Mutations,
-  Selections
+  Room, Parameters, Mutations, Selections
 } = require('../db/models')
 const Sandbox = require('sandbox')
 
 const s = new Sandbox()
-
 
 module.exports = router
 
@@ -21,22 +17,24 @@ router.get('/all', (req, res, next) => {
 router.get('/:roomHash', (req, res, next) => {
   Room.findOne({
     where: { roomHash: req.params.roomHash || null },
-    include: [{
-      model: Parameters,
-      through: {
-        attributes: []
+    include: [
+      {
+        model: Parameters,
+        through: {
+          attributes: []
+        }
+      },
+      {
+        model: Selections,
+        attributes: ['name', 'function', 'id']
+      },
+      {
+        model: Mutations,
+        through: {
+          attributes: ['chanceOfMutation']
+        }
       }
-    },
-    {
-      model: Selections,
-      attributes: ['name', 'function', 'id']
-    },
-    {
-      model: Mutations,
-      through: {
-        attributes: ['chanceOfMutation']
-      }
-    }]
+    ]
   })
     .then((room) => {
       // Decycle and reshape mutations array because Sequelize isn't perfect
@@ -54,31 +52,53 @@ router.get('/:roomHash', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
   const f = req.body.fitnessFunc
-  //run fitnessFunc in sandbox before adding to db
-  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
-   return fitFunc()})()`, function(output){
-    console.log('req.body: ' + req.body + 'result: ' + output.result)
-  })
-  Room.create(req.body)
+  if (!f) {
+    Room.create(req.body)
     .then(newRoom => res.json(newRoom))
     .catch(next)
+  } else {
+    s.run(
+      `(() => { let fitFunc = eval("(" + ${f} + ")")
+      return fitFunc()})()`,
+      (output) => {
+        const isNum = Number(output.result)
+        console.log(isNum)
+        if (!isNaN(isNum)) {
+          Room.create(req.body)
+          .then(newRoom => res.json(newRoom))
+          .catch(next)
+        } else {
+          res.status(400).send(output.result)
+        }
+      }
+    )
+  }
 })
 
 router.put('/:roomHash', (req, res, next) => {
   const f = req.body.fitnessFunc
-  //run fitnessFunc in sandbox before adding to db
-  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
-   return fitFunc()})()`, function(output){
-    console.log(output.result)
-  })
-  Room.update(
-    { fitnessFunc: req.body.fitnessFunc },
-    {
-      where: { roomHash: req.params.roomHash },
-      returning: true, // needed for affectedRows to be populated
-      plain: true // makes sure that the returned instances are just plain objects
-    },
+  console.log(f)
+  console.log(req.body)
+  s.run(
+    `(() => { let fitFunc = eval("(" + ${f} + ")")
+    return fitFunc()})()`,
+    (output) => {
+      const isNum = Number(output.result)
+      console.log(isNum)
+      if (!isNaN(isNum)) {
+        Room.update(
+          { fitnessFunc: req.body.fitnessFunc },
+          {
+            where: { roomHash: req.params.roomHash },
+            returning: true, // needed for affectedRows to be populated
+            plain: true // makes sure that the returned instances are just plain objects
+          }
+        )
+          .spread((numberOfAffectedRows, affectedRows) => res.status(201).send(affectedRows))
+          .catch(next)
+      } else {
+        res.status(400).send(output.result)
+      }
+    }
   )
-    .spread((numberOfAffectedRows, affectedRows) => res.send(affectedRows))
-    .catch(next)
 })
