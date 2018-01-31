@@ -7,6 +7,7 @@ const {
   Mutations
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
+const forEach = require('lodash/forEach')
 
 class RoomManager {
   constructor(roomHash, socket) {
@@ -33,17 +34,22 @@ class RoomManager {
     this.genePool = ['1', '0']
     this.admins = {}
   }
+
+  addAdmin(socket) {
+    this.admins[socket.id] = socket
+  }
   join(socket) {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
-    // this.admins.forEach(admin => admin.emit('UPDATE_' + this.room, this))
+    forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, { nodes: this.nodes }))
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
   }
   leave(socket) {
     delete this.nodes[socket.id]
     socket.leave(this.room)
-    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
+    forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, { nodes: this.nodes }))
   }
+
   abort(socket) {
     this.start = null
     this.tasks = []

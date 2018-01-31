@@ -76,11 +76,11 @@ function registerJoin(socket, io) {
   })
 }
 
-function registerRequestRoom(socket) {}
-//   socket.on('REQUEST_ROOM', (room) => {
-    // socket.emit('UPDATE_' + room, getRoom(rooms[room]))
-  // })
-
+function registerRequestRoom(socket) {
+  socket.on('REQUEST_ROOM', (room) => {
+    socket.emit('UPDATE_' + room, { nodes: getRoom(rooms[room]).nodes })
+  })
+}
 
 function registerLeave(socket, io) {
   socket.on('leave', room => rooms[room].leave(socket, io))

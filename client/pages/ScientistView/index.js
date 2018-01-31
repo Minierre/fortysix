@@ -48,7 +48,6 @@ class ScientistView extends Component {
     })
 
     this.props.socket.on("UPDATE_" + roomHash, (room) => {
-      console.log('room', room)
       this.setState({ room })
     })
 
@@ -58,7 +57,7 @@ class ScientistView extends Component {
 
     this.props.socket.emit(ADMIN_JOIN, roomHash)
 
-    this.props.socket.emit(REQUEST_ROOM, roomHash)
+    // this.props.socket.emit(REQUEST_ROOM, roomHash)
 
     this.props.socket.on('disconnect', () => {
       this.props.socket.on('connect', () => {
