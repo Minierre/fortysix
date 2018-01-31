@@ -237,7 +237,7 @@ class RoomManager {
       )
       this.tasks =
         this.tasks.concat(newTask)
-    }rs
+    }
   }
   addAdmin(socket) {
     this.admins[socket.id] = socket
