@@ -7,10 +7,6 @@ const {
   Mutations
 } = require('../db/models')
 const { RoomManager } = require('../utils/room')
-const { generateTasks } = require('../utils/tasks')
-
-// constants for job names
-const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 const rooms = {}
 
@@ -28,6 +24,8 @@ module.exports = (io) => {
 
 function registerJoinAdmin(socket, io) {
   socket.on('ADMIN_JOIN', (room) => {
+    if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
+    rooms[room].addAdmin(socket)
     jobInit(
       room,
       socket,
@@ -35,6 +33,8 @@ function registerJoinAdmin(socket, io) {
     )
   })
 }
+
+// todo: register leave admin
 
 function jobInit(room, socket, io) {
   const startName = 'START_' + room
@@ -62,36 +62,28 @@ function registerJobError(socket, io) {
 }
 
 // abort event gets triggered when when the client side reset button is hit
-function registerAbort(socket, io) {
-  socket.on('ABORT', room => rooms[room].abort(io))
+function registerAbort(socket) {
+  socket.on('ABORT', room => rooms[room].abort(socket))
 }
 
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
 function registerJoin(socket, io) {
   socket.on('join', (room) => {
     if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
-    rooms[room].join(socket)
-
+    rooms[room].join(socket, io)
     // if a socket disconnects, we take that node off the room's list of nodes
-    socket.once('disconnect', () => {
-      rooms[room].leave(socket)
-      io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-    })
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
+    socket.once('disconnect', () => rooms[room].leave(socket, io))
   })
 }
 
-function registerRequestRoom(socket) {
-  socket.on('REQUEST_ROOM', (room) => {
-    socket.emit('UPDATE_' + room, getRoom(rooms[room]))
-  })
-}
+function registerRequestRoom(socket) {}
+//   socket.on('REQUEST_ROOM', (room) => {
+    // socket.emit('UPDATE_' + room, getRoom(rooms[room]))
+  // })
+
 
 function registerLeave(socket, io) {
-  socket.on('leave', (room) => {
-    rooms[room].leave(socket)
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-  })
+  socket.on('leave', room => rooms[room].leave(socket, io))
 }
 
 function registerStart(socket) {
@@ -100,6 +92,7 @@ function registerStart(socket) {
   })
 }
 
+// When a client finishes its work, it calls 'done' socket event
 function registerDone(socket, io) {
   socket.on('done', finishedTask => doneCallback(finishedTask, socket, io))
 }
@@ -107,64 +100,11 @@ function registerDone(socket, io) {
 function doneCallback(finishedTask, socket, io) {
   // a bit of a security check --  might signal a malicious behavior
   if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
-
-  /*
-  updated control flow:
-  1. update room statistics (total fitnesses & chromosomes returned)
-  2. Update bucket
-  3. check all done
-    all done === (a) the bucket at the max generation exists AND
-                 (b) the bucket at the max generation is greater than or equal to full
-    3.1 if all done and jobRunning, call finalSelection, call algorithmDone w/ results
-    3.2 if not all done and jobRunning, call createTask
-
-    see below:
-  */
-
+  // update the room state
   rooms[finishedTask.room].updateRoomStats(finishedTask)
+  // update the bucket
   rooms[finishedTask.room].updateBucket(finishedTask)
-  const allDone = rooms[finishedTask.room].shouldTerminate()
-
-  // Avoid pushing history multiple times by checking jobRunning
-  // if termination condition is met and the alg is still running..
-
-  // the code below could be encapsulated in a direct traffic func on the instance
-  // rooms[finishedTask.room].directTraffic()
-
-  if (allDone) {
-    const results = rooms[finishedTask.room].finalSelection()
-    algorithmDone(results.room, results.winningChromosome, results.fitness, io)
-    rooms[finishedTask.room].emptyTaskQueue()
-  } else {
-    if (rooms[finishedTask.room].totalTasks() > 0) {
-      rooms[finishedTask.room].distributeWork(socket)
-      // the following code below needs to be refactored and placed into functions
-      io.sockets.sockets[socket.id].emit(
-        'CALL_' + finishedTask.room,
-        rooms[finishedTask.room].tasks.shift(),
-      )
-    }
-    rooms[finishedTask.room].createMoreTasks(finishedTask)
-  }
-
-  io.sockets.emit('UPDATE_' + finishedTask.room, getRoom(rooms[finishedTask.room]))
+  // checks if termination conditions are met and acts accordingly
+  rooms[finishedTask.room].terminateOrDistribute(finishedTask, socket, io)
   console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
-}
-
-function algorithmDone(room, winningChromosome, fitness, io) {
-  const endTime = Date.now()
-  console.log(
-    chalk.green(`DURATION OF ${room}: `, endTime - room.start)
-  )
-
-  console.log(
-    chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`)
-  )
-
-  console.log(
-    chalk.magenta(`BEST FITNESS: ${fitness}`)
-  )
-
-  io.sockets.emit('UPDATE_' + room, getRoom(room))
-  rooms[room].stopJob()
 }

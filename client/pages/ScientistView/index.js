@@ -48,6 +48,7 @@ class ScientistView extends Component {
     })
 
     this.props.socket.on("UPDATE_" + roomHash, (room) => {
+      console.log('room', room)
       this.setState({ room })
     })
 

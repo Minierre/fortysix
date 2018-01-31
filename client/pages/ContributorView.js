@@ -9,6 +9,7 @@ class ContributorView extends Component {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
+      console.log('WE JUST GOT CALED!', roomHash, task)
       this.props.socket.emit('start', roomHash)
       try {
         console.log('running: ', task)

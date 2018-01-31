@@ -1,3 +1,4 @@
+const chalk = require('chalk')
 const {
   History,
   Room,
@@ -30,28 +31,32 @@ class RoomManager {
     this.mutuations = null
     this.selection = null
     this.genePool = ['1', '0']
+    this.admins = {}
   }
   join(socket) {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
+    // this.admins.forEach(admin => admin.emit('UPDATE_' + this.room, this))
+    // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
   }
   leave(socket) {
     delete this.nodes[socket.id]
     socket.leave(this.room)
+    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
   }
-  abort(io) {
+  abort(socket) {
     this.start = null
     this.tasks = []
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
-    io.to(this.room).emit('ABORT_' + this.room)
+    socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
-  jobError(socket, io, error) {
+  jobError(socket, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
-    io.to(this.room).emit('UPDATE_' + this.room, this)
+    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
     throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
@@ -210,12 +215,10 @@ class RoomManager {
     return this.tasks.length
   }
   // NEEDS TO GET RID OF ANY IO SOCKET CALLING
-  distributeWork(socket,io) {
+  distributeWork(socket) {
+    console.log('SOCKET ABOUT TO GET WORK', socket.id, this.room, this.tasks)
     this.nodes[socket.id].running = true
-    // io.sockets.sockets[socket.id].emit(
-    //   'CALL_' + finishedTask.room,
-    //   rooms[finishedTask.room].tasks.shift(),
-    // )
+    socket.to(socket.id).emit('CALL_' + this.room, this.tasks.shift())
   }
   createMoreTasks(finishedTask) {
     if (this.bucket[finishedTask.gen].population.length >= this.populationSize) {
@@ -234,41 +237,63 @@ class RoomManager {
       )
       this.tasks =
         this.tasks.concat(newTask)
-    }
+    }rs
   }
-  // directTraffic(finishedTask) {
-  //   const allDone = this.shouldTerminate()
-  //   const isJobRunning = this.isJobRunning()
-  //   if (allDone && isJobRunning) {
-  //     const results = this.finalSelection()
-  //     algorithmDone(results.room, results.winningChromosome, results.fitness, io)
-  //     this.emptyTaskQueue()
-  //   } else if (isJobRunning) {
-  //     if (this.totalTasks() > 0) {
-  //       this.distributeWork(socket)
-  //       // the following code below needs to be refactored and placed into functions
-  //       io.sockets.sockets[socket.id].emit(
-  //         'CALL_' + this.room,
-  //         this.tasks.shift(),
-  //       )
-  //     }
-  //     this.createMoreTasks(finishedTask)
-  //   }
-  // }
-  async jobInit(socket, io, args) {
+  addAdmin(socket) {
+    this.admins[socket.id] = socket
+    // this.admins.push(socket)
+  }
+  async jobInit(socket, io) {
     const callName = 'CALL_' + this.room
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
-    io.to(this.room).emit('UPDATE_' + updatedRoom.room, this)
+    socket.broadcast.to(this.room).emit('UPDATE_' + updatedRoom.room, this)
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
       this.startJob()
       Object.keys(this.nodes).forEach((id, i) => {
-        socket.broadcast.to(id).emit(callName, this.tasks.shift(), args)
+        console.log('NODE ID', id)
+        socket.to(id).emit(callName, this.tasks.shift())
       })
     } else {
       console.log(chalk.red(`${startName} already running!`))
     }
+  }
+  terminateOrDistribute(finishedTask, socket, io) {
+    // decides whether to hand off the final generation to the final selection function OR distributes the next task on queue to the worker node
+
+    // Avoid pushing history multiple times by checking jobRunning
+    // if termination condition is met and the alg is still running..
+    console.log('CLIENT SENT BACK WORK, WERE FIGURING IT OUT', finishedTask)
+    const allDone = this.shouldTerminate()
+    if (allDone) {
+      // terminate
+      const results = this.finalSelection()
+      this.algorithmDone(results.room, results.winningChromosome, results.fitness, io)
+      this.emptyTaskQueue()
+    } else {
+      // distribute
+      if (this.totalTasks() > 0) this.distributeWork(socket)
+      this.createMoreTasks(finishedTask)
+    }
+    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
+  }
+  algorithmDone(room, winningChromosome, fitness, io) {
+    const endTime = Date.now()
+    console.log(
+      chalk.green(`DURATION OF ${room}: `, endTime - room.start)
+    )
+
+    console.log(
+      chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`)
+    )
+
+    console.log(
+      chalk.magenta(`BEST FITNESS: ${fitness}`)
+    )
+
+    io.sockets.emit('UPDATE_' + room, getRoom(room))
+    this.stopJob()
   }
 }
 
