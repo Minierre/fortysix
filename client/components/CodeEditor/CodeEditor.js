@@ -18,7 +18,22 @@ class CodeEditor extends Component {
           <CodeMirror
             value={this.props.fitnessFunc}
             onBeforeChange={(editor, data, value) => {
-              this.props.setFitnessFunc(value)
+              this.props.onChange({
+                persist: () => {},
+                target: {
+                  value,
+                  name: 'fitnessFunc'
+                }
+              })
+
+              // Hack: debounce this later
+              this.props.submit({
+                preventDefault: () => { },
+                target: {
+                  value,
+                  name: 'fitnessFunc'
+                }
+              })
             }}
             options={options}
           />
