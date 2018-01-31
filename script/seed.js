@@ -33,17 +33,19 @@ const GoLFitness = ((c, w=10) => {
     let newC = ''
     for (var i = 0; i < C.length; i++) {
       let neighbors = 0
-      if (Math.floor((i - 1) / w) !== Math.floor(i / w) - 1) {
+      // if not wrapping to the left
+      if (Math.floor((i - 1) / w) === Math.floor(i / w) && i > 0) {
         if (C[i - 1] === '1') neighbors++
-        if (i - 1 - w > 0 && C[i - 1 - w] === '1') neighbors++
+        if (i - 1 - w > -1 && C[i - 1 - w] === '1') neighbors++
         if (i - 1 + w < C.length && C[i - 1 + w] === '1') neighbors++
       }
-      if (Math.floor((i + 1) / w) !== Math.floor(i / w) + 1) {
+      // if not wrapping to the right
+      if (Math.floor((i + 1) / w) === Math.floor(i / w) && i < C.length - 1) {
         if (C[i + 1] === '1') neighbors++
-        if (i + 1 - w > 0 && C[i + 1 - w] === '1') neighbors++
+        if (i + 1 - w > -1 && C[i + 1 - w] === '1') neighbors++
         if (i + 1 + w < C.length && C[i + 1 + w] === '1') neighbors++
       }
-      if (i - w > 0 && C[i - w] === '1') neighbors++
+      if (i - w > -1 && C[i - w] === '1') neighbors++
       if (i + w < C.length && C[i + w] === '1') neighbors++
 
       if (neighbors === 3 && C[i] === '0') newC += '1'
@@ -73,17 +75,19 @@ const GoLFitnessLoopers = ((c, w = 10) => {
     let newC = ''
     for (var i = 0; i < C.length; i++) {
       let neighbors = 0
-      if (Math.floor((i - 1) / w) !== Math.floor(i / w) - 1) {
+      // if not wrapping to the left
+      if (Math.floor((i - 1) / w) === Math.floor(i / w) && i > 0) {
         if (C[i - 1] === '1') neighbors++
-        if (i - 1 - w > 0 && C[i - 1 - w] === '1') neighbors++
+        if (i - 1 - w > -1 && C[i - 1 - w] === '1') neighbors++
         if (i - 1 + w < C.length && C[i - 1 + w] === '1') neighbors++
       }
-      if (Math.floor((i + 1) / w) !== Math.floor(i / w) + 1) {
+      // if not wrapping to the right
+      if (Math.floor((i + 1) / w) === Math.floor(i / w) && i < C.length - 1) {
         if (C[i + 1] === '1') neighbors++
-        if (i + 1 - w > 0 && C[i + 1 - w] === '1') neighbors++
+        if (i + 1 - w > -1 && C[i + 1 - w] === '1') neighbors++
         if (i + 1 + w < C.length && C[i + 1 + w] === '1') neighbors++
       }
-      if (i - w > 0 && C[i - w] === '1') neighbors++
+      if (i - w > -1 && C[i - w] === '1') neighbors++
       if (i + w < C.length && C[i + w] === '1') neighbors++
 
       if (neighbors === 3 && C[i] === '0') newC += '1'
@@ -172,11 +176,11 @@ let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
 }).toString()
 
 let Fittest = ((population, arrayOfFitnesses, n = 1) => {
-  let pop = []
-  for (var i = 0; i<n; i++) {
+  const pop = []
+  for (let i = 0; i < n; i++) {
     pop.push(population[arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses))])
-    pop.splice(population.indexOf(Math.max(...arrayOfFitnesses)))
-    pop.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
+    population.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
+    arrayOfFitnesses.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
   }
   return pop
 }).toString()
