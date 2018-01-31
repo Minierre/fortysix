@@ -111,7 +111,29 @@ class ScientistView extends Component {
                 { setSubmitting, setErrors }
               ) => {
                 const roomHash = this.props.match.params.roomHash
-                axios.put('/api/room/' + roomHash, values)
+                const {
+                  chromosomeLength,
+                  generations,
+                  elitism,
+                  populationSize,
+                  fitnessGoal,
+                  fitnessFunc,
+                  mutations,
+                  selection
+                } = values
+                axios.put('/api/room/' + roomHash, {
+                  parameters: {
+                    id: this.state.roomPersisted.parameters.id,
+                    chromosomeLength,
+                    generations,
+                    elitism,
+                    populationSize,
+                    fitnessGoal
+                  },
+                  fitnessFunc,
+                  mutations,
+                  selection
+                })
                   .then((roomPersisted) => {
                     this.setState({ roomPersisted: roomPersisted.data })
                   })

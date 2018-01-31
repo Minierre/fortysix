@@ -3,7 +3,8 @@ const {
   Room,
   Parameters,
   Mutations,
-  Selections
+  Selections,
+  RoomMutations
 } = require('../db/models')
 
 module.exports = router
@@ -55,39 +56,35 @@ router.post('/', (req, res, next) => {
 })
 
 router.put('/:roomHash', (req, res, next) => {
-  // Update Parameters
-  // Update Selections
-  // Update Mutations
-  const {
-    chromosomeLength,
-    generations,
-    elitism,
-    populationSize,
-    fitnessGoal,
-    fitnessFunc,
-    mutations,
-    selection
-  } = req.body
-  Room.update(
-    { fitnessFunc },
-    {
-      where: { roomHash: req.params.roomHash },
-      returning: true, // needed for affectedRows to be populated
-      plain: true // makes sure that the returned instances are just plain objects
-    },
-  )
-    .spread((numberOfAffectedRows, room) => {
-        room.setParameters({
-          chromosomeLength: 1,
-          generations: 1,
-          elitism: 1,
-          populationSize: 1,
-          fitnessGoal: 1
-        }, { id: 1 })
 
-      // room.setMutations(mutations)
-      // room.setSelect(selection)
-      return room
+  const {
+    parameters,
+    mutations,
+    selection,
+    fitnessFunc
+  } = req.body
+
+  return Room.update(
+    { fitnessFunc },
+    { where: { roomHash: req.params.roomHash } }
+  )
+    .spread(async () => {
+      await Parameters.update(parameters, {
+        where: { id: parameters.id }
+      })
+
+      await mutations.map(async (mutation) => {
+        await RoomMutations
+          .update(
+            { chanceOfMutation: mutation.chanceOfMutation },
+            { where: { mutationId: mutation.id } }
+          )
+      })
+
+      await Selections.update(selection, {
+        where: { id: selection.id }
+      })
+
     }).then(() => {
       return Room.findOne({
         where: { roomHash: req.params.roomHash || null },
