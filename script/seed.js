@@ -219,7 +219,7 @@ async function seed() {
       roomHash: '457',
       roomName: 'Game of Life Loopers',
       fitnessFunc: GoLFitnessLoopers,
-      selectionId: 1
+      selectionId: 2
     }),
     Room.create({
       roomHash: '458',
