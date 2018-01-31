@@ -38,7 +38,6 @@ function registerJoinAdmin(socket, io) {
 
 function jobInit(room, socket, io) {
   const startName = 'START_' + room
-  const callName = 'CALL_' + room
   socket.on(startName, (args) => {
     if (!rooms[room]) throw new Error(chalk.red(`${room} doesn't exist!`))
     rooms[room].jobInit(socket, io, args)
@@ -58,9 +57,7 @@ function registerEvents(socket, io) {
 // when a specific client gets an error
 function registerJobError(socket, io) {
   socket.on('JOB_ERROR', ({ room, error }) => {
-    rooms[room].jobError(socket)
-    io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
-    console.log(chalk.red('JOB_ERROR: ') + `${room} for socket: ${socket.id}, `, error)
+    rooms[room].jobError(socket, io, error)
   })
 }
 
