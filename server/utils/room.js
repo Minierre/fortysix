@@ -7,7 +7,7 @@ const {
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
 
-class InMemoryRoomManager {
+class RoomManager {
   constructor(roomHash, socket) {
     this.room = roomHash
     this.nodes = {
@@ -69,7 +69,7 @@ class InMemoryRoomManager {
       this.elitism
     )
   }
-  mapDatabaseToMemory(room) {
+  mapPersistedToMemory(room) {
     // takes the room in the database, and maps its properties to the in room memory that the sockets use
     return Room.findOne({
       where: { roomHash: room || null },
@@ -252,4 +252,4 @@ class InMemoryRoomManager {
   // }
 }
 
-module.exports = { InMemoryRoomManager }
+module.exports = { RoomManager }

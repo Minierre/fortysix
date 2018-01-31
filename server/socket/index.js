@@ -6,7 +6,7 @@ const {
   Parameters,
   Mutations
 } = require('../db/models')
-const { InMemoryRoomManager } = require('../utils/room')
+const { RoomManager } = require('../utils/room')
 const { generateTasks } = require('../utils/tasks')
 
 // constants for job names
@@ -42,29 +42,27 @@ function jobInit(room, socket, io) {
   socket.on(startName, async (args) => {
     if (!rooms[room]) return
     // takes the room stored in the database, and maps it to the in memory room
-    rooms[room].mapDatabaseToMemory(room)
-      .then((updatedRoom) => {
-        io.sockets.emit('UPDATE_' + updatedRoom.room, getRoom(rooms[room]))
-        // checks to see if the job is running already and if not, starts the job
-        if (!rooms[room].isJobRunning()) {
-          rooms[room].startJob()
-          Object.keys(rooms[room].nodes).forEach((id, i) => {
-            io.sockets.sockets[id]
-              .emit(
-                callName,
-                rooms[room].tasks.shift(),
-                args, {
-                  multiThreaded: rooms[room].multiThreaded
-                }
-              )
-          })
-        }
-        // could be refactored to include the new node in the running job process
-        else {
-          console.log(chalk.red(`${startName} already running!`))
-        }
+    const updatedRoom = await rooms[room].mapPersistedToMemory(room)
+    io.sockets.emit('UPDATE_' + updatedRoom.room, getRoom(rooms[room]))
+    // checks to see if the job is running already and if not, starts the job
+    if (!rooms[room].isJobRunning()) {
+      rooms[room].startJob()
+      Object.keys(rooms[room].nodes).forEach((id, i) => {
+        io.sockets.sockets[id]
+          .emit(
+            callName,
+            rooms[room].tasks.shift(),
+            args, {
+              multiThreaded: rooms[room].multiThreaded
+            }
+          )
       })
-  })
+    }
+    // could be refactored to include the new node in the running job process
+      else {
+        console.log(chalk.red(`${startName} already running!`))
+      }
+    })
 }
 
 function registerEvents(socket, io) {
@@ -97,7 +95,7 @@ function registerAbort(socket, io) {
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
 function registerJoin(socket, io) {
   socket.on('join', (room) => {
-    if (!rooms[room]) rooms[room] = new InMemoryRoomManager(room, socket)
+    if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
     rooms[room].join(socket)
 
     // if a socket disconnects, we take that node off the room's list of nodes
