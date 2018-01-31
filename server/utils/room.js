@@ -39,19 +39,20 @@ class RoomManager {
     delete this.nodes[socket.id]
     socket.leave(this.room)
   }
-  abort() {
+  abort(io) {
     this.start = null
     this.tasks = []
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
+    io.to(this.room).emit('ABORT_' + this.room)
   }
   jobError(socket, io, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     io.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(`JOB_ERROR: ${room} for socket: ${socket.id}, `, error)
+    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning

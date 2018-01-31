@@ -10,10 +10,8 @@ class ContributorView extends Component {
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)
-      console.log('START', roomHash)
       try {
         console.log('running: ', task)
-        throw new Error('Test')
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)
