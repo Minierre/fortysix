@@ -74,18 +74,7 @@ function registerEvents(socket, io) {
   registerDone(socket, io)
   registerRequestRoom(socket, io)
   registerAbort(socket, io)
-  registerMultithreaded(socket)
   registerJobError(socket, io)
-}
-
-function registerMultithreaded(socket) {
-  socket.on(TOGGLE_MULTITHREADED, ({
-    room,
-    value
-  }) => {
-    rooms[room].multiThreaded = value
-    socket.emit('UPDATE_' + room, getRoom(rooms[room]))
-  })
 }
 
 // when a specific client gets an error
