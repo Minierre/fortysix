@@ -39,13 +39,14 @@ class RoomManager {
     delete this.nodes[socket.id]
     socket.leave(this.room)
   }
-  abort() {
+  abort(io) {
     this.start = null
     this.tasks = []
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
+    io.to(this.room).emit('ABORT_' + this.room)
   }
   jobError(socket, io, error) {
     this.nodes[socket.id].running = false
