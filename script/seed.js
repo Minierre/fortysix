@@ -146,9 +146,9 @@ let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
   })) ? typeof pop[0] : false
   return (type && type === 'string')
     ?
-    pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v).join(''))
+    pop.map(v => v.split('').map(w => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : w).join(''))
     :
-    pop.map(v => v.map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v))
+    pop.map(v => v.map(w => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : w))
 }).toString()
 
 
@@ -168,9 +168,9 @@ let SwapMutation = ((pop, p = 0.02) => {
   }
   return (type && type === 'string')
     ?
-    pop.map(v => v.split('').map(v => (Math.random() < p) ? swap(v) : v).join(''))
+    pop.map(v => v.split('').map(w => (Math.random() < p) ? swap(w) : w).join(''))
     :
-    pop.map(v => v.map(v => (Math.random() < p) ? swap(v) : v))
+    pop.map(v => v.map(w => (Math.random() < p) ? swap(w) : w))
 }).toString()
 
 

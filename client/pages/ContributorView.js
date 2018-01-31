@@ -87,7 +87,7 @@ class ContributorView extends Component {
           fitness: task.fitness,
           selection: task.selection,
           mutations: task.mutations,
-          pool: task.pool
+          genePool: task.genePool
         }
         this.props.socket.emit('done', returnTaskObj)
       })
