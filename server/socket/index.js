@@ -8,7 +8,6 @@ const {
 } = require('../db/models')
 const { InMemoryRoomManager } = require('../utils/room')
 const { generateTasks } = require('../utils/tasks')
-const { finalSelection } = require('../utils/finalSelection')
 
 // constants for job names
 const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
@@ -42,27 +41,27 @@ function jobInit(room, socket, io) {
   const callName = 'CALL_' + room
   socket.on(startName, async (args) => {
     if (!rooms[room]) return
+    // takes the room stored in the database, and maps it to the in memory room
     rooms[room].mapDatabaseToMemory(room)
       .then((updatedRoom) => {
         io.sockets.emit('UPDATE_' + updatedRoom.room, getRoom(rooms[room]))
-        if (rooms[room]) {
-          if (rooms[room].isJobRunning()) {
-            rooms[room].startJob()
-            Object.keys(rooms[room].nodes).forEach((id, i) => {
-              io.sockets.sockets[id]
-                .emit(
-                  callName,
-                  rooms[room].tasks.shift(),
-                  args, {
-                    multiThreaded: rooms[room].multiThreaded
-                  }
-                )
-            })
-          } else {
-            console.log(chalk.red(`${startName} already running!`))
-          }
-        } else {
-          console.log(chalk.red(`${startName} attempted without nodes`))
+        // checks to see if the job is running already and if not, starts the job
+        if (!rooms[room].isJobRunning()) {
+          rooms[room].startJob()
+          Object.keys(rooms[room].nodes).forEach((id, i) => {
+            io.sockets.sockets[id]
+              .emit(
+                callName,
+                rooms[room].tasks.shift(),
+                args, {
+                  multiThreaded: rooms[room].multiThreaded
+                }
+              )
+          })
+        }
+        // could be refactored to include the new node in the running job process
+        else {
+          console.log(chalk.red(`${startName} already running!`))
         }
       })
   })
@@ -141,70 +140,51 @@ function registerStart(socket) {
 }
 
 function registerDone(socket, io) {
-  socket.on('done', args => doneCallback(args, socket, io))
+  socket.on('done', finishedTask => doneCallback(finishedTask, socket, io))
 }
 
-function doneCallback(args, socket, io) {
-  if (rooms[args.room].nodes[socket.id]) {
-    rooms[args.room].nodes[socket.id].running = false
-  }
-
-  if (!rooms[args.room].lastResult) {
-    rooms[args.room].lastResult = {
-      maxGeneration: 0,
-      maxFitness: 0
-    }
-  }
-
-  const maxFitness = Math.max(...args.fitnesses)
-
-  if (rooms[args.room].lastResult.maxGeneration <= args.gen || rooms[args.room].lastResult.maxFitness <= maxFitness) {
-    rooms[args.room].lastResult.maxGeneration = args.gen
-    rooms[args.room].lastResult.maxFitness = maxFitness
-  }
-
-  if(args.fitnesses && args.fitnesses.length < 1) throw Error()
-
-  rooms[args.room].totalFitness += (args.fitnesses[0] + args.fitnesses[1])
-  rooms[args.room].chromesomesReturned += args.population.length
+function doneCallback(finishedTask, socket, io) {
+  // a bit of a security check --  might signal a malicious behavior
+  if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
 
   /*
   updated control flow:
-  1. Update bucket
-  2. check all done
-    all done === (a) the bucket at the max generation exists
+  1. update room statistics (total fitnesses & chromosomes returned)
+  2. Update bucket
+  3. check all done
+    all done === (a) the bucket at the max generation exists AND
                  (b) the bucket at the max generation is greater than or equal to full
-    2.1 if all done and jobRunning, call finalSelection, call algorithmDone w/ results
-    2.2 if not all done and jobRunning, call createTask
+    3.1 if all done and jobRunning, call finalSelection, call algorithmDone w/ results
+    3.2 if not all done and jobRunning, call createTask
 
     see below:
   */
 
-  updateBucket(args);
-  const allDone = shouldTerminate(args);
+  rooms[finishedTask.room].updateRoomStats(finishedTask)
+  rooms[finishedTask.room].updateBucket(finishedTask)
+  const allDone = rooms[finishedTask.room].shouldTerminate()
+  const isJobRunning = rooms[finishedTask.room].isJobRunning()
 
   // Avoid pushing history multiple times by checking jobRunning
-  if (allDone && rooms[args.room].jobRunning) {
-    const results = finalSelection(args, rooms[args.room])
+  // if termination condition is met and the alg is still running..
+  if (allDone && isJobRunning) {
+    const results = rooms[finishedTask.room].finalSelection()
     algorithmDone(results.room, results.winningChromosome, results.fitness, io)
-    rooms[args.room].tasks = []
-  } else if (rooms[args.room].jobRunning) {
-    if (rooms[args.room].tasks.length > 0) {
-      rooms[args.room].nodes[socket.id].running = true
+    rooms[finishedTask.room].emptyTaskQueue()
+  } else if (isJobRunning) {
+    if (rooms[finishedTask.room].totalTasks() > 0) {
+      rooms[finishedTask.room].distributeWork(socket)
+      // the following code below needs to be refactored and placed into functions
       io.sockets.sockets[socket.id].emit(
-        'CALL_' + args.room,
-        rooms[args.room].tasks.shift(),
-        args.graph, {
-          multiThreaded: rooms[args.room].multiThreaded
-        }
+        'CALL_' + finishedTask.room,
+        rooms[finishedTask.room].tasks.shift(),
       )
-      // console.log('AFTER: ' + rooms[args.room].tasks)
     }
-    createMoreTasks(args)
+    rooms[finishedTask.room].createMoreTasks(finishedTask)
   }
 
-  io.sockets.emit('UPDATE_' + args.room, getRoom(rooms[args.room]))
-  console.log(chalk.green('DONE: '), socket.id, args.room)
+  io.sockets.emit('UPDATE_' + finishedTask.room, getRoom(rooms[finishedTask.room]))
+  console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
 }
 
 function algorithmDone(room, winningChromosome, fitness, io) {
@@ -222,75 +202,5 @@ function algorithmDone(room, winningChromosome, fitness, io) {
   )
 
   io.sockets.emit('UPDATE_' + room, getRoom(room))
-  room.jobRunning = false
-  // History.create({
-  //   nodes: Object.keys(room.nodes).length,
-  //   result: room.lastResult.tour + ' ' + room.lastResult.dist,
-  //   startTime: room.start,
-  //   multiThreaded: room.multiThreaded,
-  //   endTime,
-  //   room
-  // })
-  //   .then(() => {
-  //     History.findAll({
-  //       where: {
-  //         room
-  //       }
-  //     }).then((history) => {
-  //       io.sockets.emit('UPDATE_HISTORY_' + room, history)
-  //     })
-  //     rooms[room].start = null
-  //     rooms[room].maxGen = null
-  //     // rooms[room].populationSize = null
-  //     rooms[room].lastResult = {
-  //       maxGeneration: 0,
-  //       maxFitness: 0
-  //     }
-  //   })
-  room.start = null
-  room.maxGen = null
-  room.lastResult = {
-    maxGeneration: 0,
-    maxFitness: 0
-  }
-}
-
-function updateBucket(finishedTask) {
-  // if the room's bucket contains a task with the current incoming generation...
-  if (rooms[finishedTask.room].bucket[finishedTask.gen]) {
-    rooms[finishedTask.room].bucket[finishedTask.gen].population =
-      rooms[finishedTask.room].bucket[finishedTask.gen].population.concat(finishedTask.population)
-   rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses = rooms[finishedTask.room].bucket[finishedTask.gen].fitnesses.concat(finishedTask.fitnesses)
-  }
-  // if not, make a new key in the bucket for the new incoming generation
-  else {
-    rooms[finishedTask.room].bucket[finishedTask.gen] = finishedTask
-  }
-}
-
-function shouldTerminate(finishedTask) {
-  // right now this function doesn't do anything with the finishedTask,
-  // but it will when we use elitism or a maxFitness
-  const room = rooms[finishedTask.room]
-  return room.bucket[room.maxGen] && room.bucket[room.maxGen].population.length >= room.populationSize
-}
-
-function createMoreTasks(finishedTask) {
-  if (rooms[finishedTask.room].bucket[finishedTask.gen].population.length >= rooms[finishedTask.room].populationSize) {
-    rooms[finishedTask.room].tasks.push(rooms[finishedTask.room].bucket[finishedTask.gen])
-    rooms[finishedTask.room].bucket[finishedTask.gen] = null
-  } else {
-    const newTask = generateTasks(
-      rooms[finishedTask.room].populationSize,
-      finishedTask.room,
-      1,
-      rooms[finishedTask.room].fitness,
-      rooms[finishedTask.room].mutations,
-      rooms[finishedTask.room].selection,
-      rooms[finishedTask.room].chromosomeLength
-    )
-
-    rooms[finishedTask.room].tasks =
-      rooms[finishedTask.room].tasks.concat(newTask)
-  }
+  rooms[room].stopJob()
 }
