@@ -58,7 +58,7 @@ let crossOver = ((pop, p = 0.2) => {
       i++
       let c1b
       let c2b
-      if (typeof c1a === 'string') {
+      if (typeof c1 === 'string') {
         c1b = c1.slice(0, i) + c2.slice(i)
         c2b = c2.slice(0, i) + c1.slice(i)
       }
@@ -73,10 +73,30 @@ let crossOver = ((pop, p = 0.2) => {
   return pop
 }).toString()
 
-let Mutation = ((pop, p = 0.02, pool = ['0', '1']) => {
+let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
   let type = typeof pop
-  pop = pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v))
-  return (type === 'string') ? pop.join(): pop
+  return (type === 'string')
+    ?
+    pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v).join())
+    :
+    pop.map(v => v.map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v))
+}).toString()
+
+let SwapMutation = ((pop, p = 0.02) => {
+  let type = typeof pop
+  function swap(c) {
+    let i = Math.floor(Math.random() * c.length)
+    let j = Math.floor(Math.random() * c.length)
+    let temp = c[i]
+    c[i] = c[j]
+    c[j] = temp
+    return c
+  }
+  return (type === 'string')
+    ?
+    pop.map(v => v.split('').map(v => (Math.random() < p) ? swap(v) : v).join())
+    :
+    pop.map(v => v.map(v => (Math.random() < p) ? swap(v) : v))
 }).toString()
 
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
@@ -100,6 +120,16 @@ let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
   return selections;
 }).toString()
 
+let Fittest = ((population, arrayOfFitnesses, n = 1) => {
+  let pop = []
+  for (var i = 0; i<n; i++) {
+    pop.push(population[arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses))])
+    pop.splice(population.indexOf(Math.max(...arrayOfFitnesses)))
+    pop.splice(arrayOfFitnesses.indexOf(Math.max(...arrayOfFitnesses)))
+  }
+  return pop
+}).toString()
+
 
 async function seed() {
   await db.sync({ force: true })
@@ -114,11 +144,13 @@ async function seed() {
 
   const mutations = await Promise.all([
     Mutations.create({ function: crossOver, name: 'Cross Over' }),
-    Mutations.create({ function: spontaneousMutation, name: 'Standard Mutation' }),
+    Mutations.create({ function: RandomSettingMutation, name: 'Random Setting Mutation' }),
+    Mutations.create({ function: SwapMutation, name: 'Swap Mutation' }),
   ])
 
   const selections = await Promise.all([
-    Selections.create({ function: rouletteWheel, name: 'Roulette Wheel' })
+    Selections.create({ function: rouletteWheel, name: 'Roulette Wheel' }),
+    Selections.create({ function: Fittest, name: 'Fittest' }),
   ])
 
   const rooms = await Promise.all([
