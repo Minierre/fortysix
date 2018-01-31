@@ -29,6 +29,7 @@ class RoomManager {
     this.fitness = null
     this.mutuations = null
     this.selection = null
+    this.genePool = []
   }
   join(socket) {
     socket.join(this.room)
@@ -225,7 +226,8 @@ class RoomManager {
         this.fitness,
         this.mutations,
         this.selection,
-        this.chromosomeLength
+        this.chromosomeLength,
+        this.genePool
       )
       this.tasks =
         this.tasks.concat(newTask)
