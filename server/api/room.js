@@ -77,15 +77,13 @@ router.post('/', (req, res, next) => {
 
 router.put('/:roomHash', (req, res, next) => {
   const f = req.body.fitnessFunc
-  console.log(f)
-  console.log(req.body)
   s.run(
     `(() => { let fitFunc = eval("(" + ${f} + ")")
     return fitFunc()})()`,
     (output) => {
-      const isNum = Number(output.result)
-      console.log(isNum)
-      if (!isNaN(isNum)) {
+      const isValid = !isNaN(Number(output.result))
+      console.log(isValid);
+      if (isValid) {
         Room.update(
           { fitnessFunc: req.body.fitnessFunc },
           {
@@ -97,7 +95,7 @@ router.put('/:roomHash', (req, res, next) => {
           .spread((numberOfAffectedRows, affectedRows) => res.status(201).send(affectedRows))
           .catch(next)
       } else {
-        res.status(400).send(output.result)
+        res.status(403).send(output.result)
       }
     }
   )

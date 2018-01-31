@@ -8,29 +8,24 @@ const {
 const app = require('../index.js')
 // let request = require('supertest')(app)
 
-describe('goodFunction', () => {
+describe('goodFitnessFunction', () => {
+  const body = { fitnessFunc: '"() => 5"' }
   it('should return 201', (done) => {
     request(app)
-      .put('/room/456')
-      .send({
-        fitnessFunc: '() => {return 5}'
-      })
+      .put('/api/room/456')
       .set('Accept', 'application/x-www-form-urlencoded')
-      .end((err, res) => {
-        console.log(res);
-        done()
-      })
+      .send(body)
+      .expect(201, done)
   })
 })
 
 describe('infiniteLoop', () => {
-  it('should return 400', (done) => {
+  const body = { fitnessFunc: '"() => {while(true){}}"' }
+  it('should return 403', (done) => {
     request(app)
-      .put('/room/456')
-      .send({
-        fitnessFunc: '() => {while(true){}}'
-      })
+      .put('/api/room/456')
+      .send(body)
       .set('Accept', 'application/x-www-form-urlencoded')
-      .expect(400, done)
+      .expect(403, done)
   })
 })
