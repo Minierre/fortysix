@@ -50,6 +50,24 @@ router.get('/:roomHash', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
+  // return Room.create({ fitnessFunc })
+  //   .then(async (room) => {
+  //     await Parameters.create({}, {
+  //       where: { id: parameters.id }
+  //     })
+
+  //     await mutations.map(async (mutation) => {
+  //       await RoomMutations
+  //         .update(
+  //         { chanceOfMutation: mutation.chanceOfMutation },
+  //         { where: { mutationId: mutation.id } }
+  //         )
+  //     })
+
+  //     await Selections.update(selection, {
+  //       where: { id: selection.id }
+  //     })
+  //   })
   Room.create(req.body)
     .then(newRoom => res.json(newRoom))
     .catch(next)
