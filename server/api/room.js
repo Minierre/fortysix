@@ -10,7 +10,7 @@ const {
 
 module.exports = router
 
-const s = new Sandbox()
+const sandbox = new Sandbox()
 
 router.get('/all', (req, res, next) => {
   Room.findAll()
@@ -97,13 +97,12 @@ router.put('/:roomHash', (req, res, next) => {
     selection,
     fitnessFunc
   } = req.body
-    
-  s.run(
+
+  sandbox.run(
     `(() => { let fitFunc = eval("(" + ${fitnessFunc} + ")")
     return fitFunc()})()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
-      console.log(isValid);
       if (isValid) {
     return Room.update(
     { fitnessFunc },
