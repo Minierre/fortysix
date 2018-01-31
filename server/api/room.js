@@ -3,12 +3,9 @@ const {
   Room,
   Parameters,
   Mutations,
-  Selections
+  Selections,
+  RoomMutations
 } = require('../db/models')
-const Sandbox = require('sandbox')
-
-const s = new Sandbox()
-
 
 module.exports = router
 
@@ -46,39 +43,97 @@ router.get('/:roomHash', (req, res, next) => {
         delete mutation.room_mutations
         return mutation
       })
-      return { ...rest, mutations: newMutations }
+      return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
     })
     .then(room => res.json(room))
     .catch(next)
 })
 
 router.post('/', (req, res, next) => {
-  const f = req.body.fitnessFunc
-  //run fitnessFunc in sandbox before adding to db
-  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
-   return fitFunc()})()`, function(output){
-    console.log(output.result)
-  })
+  // return Room.create({ fitnessFunc })
+  //   .then(async (room) => {
+  //     await Parameters.create({}, {
+  //       where: { id: parameters.id }
+  //     })
+
+  //     await mutations.map(async (mutation) => {
+  //       await RoomMutations
+  //         .update(
+  //         { chanceOfMutation: mutation.chanceOfMutation },
+  //         { where: { mutationId: mutation.id } }
+  //         )
+  //     })
+
+  //     await Selections.update(selection, {
+  //       where: { id: selection.id }
+  //     })
+  //   })
   Room.create(req.body)
     .then(newRoom => res.json(newRoom))
     .catch(next)
 })
 
 router.put('/:roomHash', (req, res, next) => {
-  const f = req.body.fitnessFunc
-  //run fitnessFunc in sandbox before adding to db
-  s.run(`(() => { let fitFunc = eval("(" + ${f} + ")")
-   return fitFunc()})()`, function(output){
-    console.log(output.result)
-  })
-  Room.update(
-    { fitnessFunc: req.body.fitnessFunc },
-    {
-      where: { roomHash: req.params.roomHash },
-      returning: true, // needed for affectedRows to be populated
-      plain: true // makes sure that the returned instances are just plain objects
-    },
+  const {
+    parameters,
+    mutations,
+    selection,
+    fitnessFunc
+  } = req.body
+
+  return Room.update(
+    { fitnessFunc },
+    { where: { roomHash: req.params.roomHash } }
   )
-    .spread((numberOfAffectedRows, affectedRows) => res.send(affectedRows))
+    .spread(async () => {
+      await Parameters.update(parameters, {
+        where: { id: parameters.id }
+      })
+
+      await mutations.map(async (mutation) => {
+        await RoomMutations
+          .update(
+            { chanceOfMutation: mutation.chanceOfMutation },
+            { where: { mutationId: mutation.id } }
+          )
+      })
+
+      await Selections.update(selection, {
+        where: { id: selection.id }
+      })
+
+    }).then(() => {
+      return Room.findOne({
+        where: { roomHash: req.params.roomHash || null },
+        include: [{
+          model: Parameters,
+          through: {
+            attributes: []
+          }
+        },
+        {
+          model: Selections,
+          attributes: ['name', 'function', 'id']
+        },
+        {
+          model: Mutations,
+          through: {
+            attributes: ['chanceOfMutation']
+          }
+        }]
+      })
+        .then((room) => {
+          // Decycle and reshape mutations array because Sequelize isn't perfect
+          const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+          const newMutations = mutations.map((mutation) => {
+            mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+            delete mutation.room_mutations
+            return mutation
+          })
+          return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
+        })
+        .then(room => res.json(room))
+        .catch(next)
+    })
     .catch(next)
 })
