@@ -42,7 +42,7 @@ router.get('/:roomHash', (req, res, next) => {
         delete mutation.room_mutations
         return mutation
       })
-      return { ...rest, mutations: newMutations }
+      return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
     })
     .then(room => res.json(room))
     .catch(next)
