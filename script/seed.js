@@ -231,10 +231,10 @@ async function seed() {
 
   const parameters = await Promise.all([
     Parameters.create({
-      chromosomeLength: 100,
-      generations: 5,
+      chromosomeLength: 50,
+      generations: 2,
       elitism: 0,
-      populationSize: 100,
+      populationSize: 50,
       fitnessGoal: 100
     })
   ])

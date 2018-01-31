@@ -10,6 +10,7 @@ const Select = ({
   label,
   placeholder,
   type,
+  value,
   onSelect,
   options
  }) => (
@@ -21,6 +22,7 @@ const Select = ({
         componentClass="select"
         placeholder={placeholder}
         onSelect={onSelect}
+        value
       >
         {options.map((option, idx) =>
           <option key={option.id} value={idx}>{option.name}</option>

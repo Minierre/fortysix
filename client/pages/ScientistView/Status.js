@@ -6,7 +6,7 @@ import {
 
 const Status = ({
   nodes,
-  chromesomesReturned,
+  chromosomesReturned,
   totalFitness,
   jobRunning,
   abortJob,
@@ -15,9 +15,9 @@ const Status = ({
     <div>
       <h4><strong>Node count:</strong> <em>{(nodes) ? Object.keys(nodes).length : 0}</em></h4>
       <StatusBulbs nodes={nodes} />
-      <h4><strong>Chromosomes Processed:</strong> <em>{chromesomesReturned || 0}</em></h4>
+      <h4><strong>Chromosomes Processed:</strong> <em>{chromosomesReturned || 0}</em></h4>
       <h4><strong>Total Fitness:</strong> <em>{totalFitness || 0}</em></h4>
-      <h4><strong>Average Fitness:</strong> <em>{(totalFitness / chromesomesReturned) || 0}</em></h4>
+      <h4><strong>Average Fitness:</strong> <em>{(totalFitness / chromosomesReturned) || 0}</em></h4>
       <Toolbar
         startJob={startJob}
         abortJob={abortJob}

@@ -1,74 +1,95 @@
-/* eslint max-len: 0 */
-/* eslint no-console: 0 */
 import React from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
-
-
-const jobs = [];
-const jobTypes = ['Cross-over', 'Selection-two', 'Selection-three', 'Selection-four'];
-
-function addJobs(quantity) {
-  const startId = jobs.length;
-  for (let i = 0; i < quantity; i++) {
-    const id = startId + i;
-    jobs.push({
-      id: id,
-      status: '20%',
-      type: 'Cross-over',
-    });
-  }
-}
-
-addJobs(5);
-
-const cellEditProp = {
-  mode: 'click',
-  blurToSave: true
-};
-
-// validator function pass the user input value and should return true|false.
-function jobNameValidator(value) {
-  const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
-  if (!value) {
-    response.isValid = false;
-    response.notification.type = 'error';
-    response.notification.msg = 'Value must be inserted';
-    response.notification.title = 'Requested Value';
-  } else if (value.length < 10) {
-    response.isValid = false;
-    response.notification.type = 'error';
-    response.notification.msg = 'Value must have 10+ characters';
-    response.notification.title = 'Invalid Value';
-  }
-  return response;
-}
-
-function jobStatusValidator(value) {
-  const nan = isNaN(parseInt(value, 10));
-  if (nan) {
-    return 'Job Status must be a integer!';
-  }
-  return true;
-}
+import axios from 'axios'
 
 export default class MutationFuncTable extends React.Component {
-
-  invalidJobStatus = (cell, row) => {
-    console.log(`${cell} at row id: ${row.id} fails on editing`);
-    return 'invalid-jobstatus-class';
+  constructor(props) {
+    super(props)
+    this.state = {
+      mutationFuncs: []
+    }
   }
 
-  editingJobStatus = (cell, row) => {
+  componentDidMount() {
+    this.fetchMutuationAlgorithms()
+  }
+
+  onAfterSaveCell(row, cellName, cellValue) {
+    const newMutations = this.props.functions.filter(func => row.id === func.id)
+    this.props.submit({
+      preventDefault: () => { },
+      target: {
+        value: [...newMutations, row]
+      }
+    })
+  }
+
+  fetchMutuationAlgorithms() {
+    axios.get('/api/mutation-algs')
+      .then(funcs => this.setState({ mutationFuncs: funcs.data }))
+  }
+
+  addMutationFuncsToDropDown() {
+    return this.state.mutationFuncs.map(mut => {
+      return mut.name
+    })
+  }
+
+  functionNameValidator(value) {
+    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
+    if (!value) {
+      response.isValid = false;
+      response.notification.type = 'error';
+      response.notification.msg = 'Value must be inserted';
+      response.notification.title = 'Requested Value';
+    } else if (value.length < 10) {
+      response.isValid = false;
+      response.notification.type = 'error';
+      response.notification.msg = 'Value must have 10+ characters';
+      response.notification.title = 'Invalid Value';
+    }
+    return response;
+}
+
+  chanceOfMutationValidator(value) {
+    const nan = isNaN(value);
+    if (nan) return 'Job Status must be a integer.'
+    else if (value > 1) return 'Chance of mutation must be less than one.'
+    else if (value < 0) return 'Chance of mutation must be more than zero.'
+    return true;
+  }
+
+  invalidChanceOfMutation = (cell, row) => {
+    console.log(`${cell} at row id: ${row.id} fails on editing`);
+  }
+
+  editingChanceOfMutation = (cell, row) => {
     console.log(`${cell} at row id: ${row.id} in current editing`);
-    return 'editing-jobstatus-class';
   }
 
   render() {
     return (
-      <BootstrapTable data={jobs} cellEdit={cellEditProp} insertRow={true}>
-        <TableHeaderColumn hidden dataField='id' isKey={true}>Job ID</TableHeaderColumn>
-        <TableHeaderColumn dataField='type' editable={{ type: 'select', options: { values: jobTypes } }}>Mutation Function</TableHeaderColumn>
-        <TableHeaderColumn dataField='status' editable={{ validator: jobStatusValidator }} editColumnClassName={this.editingJobStatus} invalidEditColumnClassName={this.invalidJobStatus}> Chance of Mutation</TableHeaderColumn>
+      <BootstrapTable data={this.props.functions} cellEdit={{
+        mode: 'click',
+        blurToSave: true,
+        afterSaveCell: this.onAfterSaveCell.bind(this)
+      }} insertRow={true}>
+        <TableHeaderColumn
+          hidden
+          dataField='id'
+          isKey={true}
+        >Job ID</TableHeaderColumn>
+        <TableHeaderColumn
+          dataField='name'
+          editable={{
+            type: 'select', options: {
+              values: this.addMutationFuncsToDropDown(),
+              validator: this.functionNameValidator
+            }
+          }}>Mutation Function</TableHeaderColumn>
+        <TableHeaderColumn
+          dataField='chanceOfMutation' editable={{ validator: this.chanceOfMutationValidator }} editColumnClassName={this.editingChanceOfMutation} invalidEditColumnClassName={this.invalidChanceOfMutation}
+        > Chance of Mutation</TableHeaderColumn>
       </BootstrapTable>
     );
   }
