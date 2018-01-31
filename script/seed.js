@@ -9,6 +9,17 @@ const {
   RoomParameters
 } = require('../server/db/models')
 
+const FindString = ((c, targetString = 'abcde') => {
+  let fitness = 0;
+  let i;
+  for (i = 0; i < c.length; ++i) {
+    if (c[i] === targetString[i])
+      fitness += 1;
+    fitness += (127 - Math.abs(c.charCodeAt(i) - targetString.charCodeAt(i))) / 50;
+  }
+  return fitness;
+}).toString()
+
 const GoLFitness = ((c, w=10) => {
   let memo = {}
   let fitness = 1
@@ -16,6 +27,46 @@ const GoLFitness = ((c, w=10) => {
   function iterate(C, w) {
     if (memo[C]) {
       fitness /= 1.1
+      return ('0').repeat(C.length)
+    }
+    memo[C] = true
+    let newC = ''
+    for (var i = 0; i < C.length; i++) {
+      let neighbors = 0
+      if (Math.floor((i - 1) / w) !== Math.floor(i / w) - 1) {
+        if (C[i - 1] === '1') neighbors++
+        if (i - 1 - w > 0 && C[i - 1 - w] === '1') neighbors++
+        if (i - 1 + w < C.length && C[i - 1 + w] === '1') neighbors++
+      }
+      if (Math.floor((i + 1) / w) !== Math.floor(i / w) + 1) {
+        if (C[i + 1] === '1') neighbors++
+        if (i + 1 - w > 0 && C[i + 1 - w] === '1') neighbors++
+        if (i + 1 + w < C.length && C[i + 1 + w] === '1') neighbors++
+      }
+      if (i - w > 0 && C[i - w] === '1') neighbors++
+      if (i + w < C.length && C[i + w] === '1') neighbors++
+
+      if (neighbors === 3 && C[i] === '0') newC += '1'
+      else if (neighbors < 2 && C[i] === '1') newC += '0'
+      else if (neighbors > 3 && C[i] === '1') newC += '0'
+      else newC += C[i]
+    }
+    return newC
+  }
+  while (testingChromosome !== ('0').repeat(c.length)) {
+    testingChromosome = iterate(testingChromosome, w)
+    fitness *= 1.1
+  }
+  return fitness
+}).toString()
+
+const GoLFitnessLoopers = ((c, w = 10) => {
+  let memo = {}
+  let fitness = 1
+  let testingChromosome = c
+  function iterate(C, w) {
+    if (memo[C]) {
+      fitness *= 4
       return ('0').repeat(C.length)
     }
     memo[C] = true
@@ -159,6 +210,18 @@ async function seed() {
       roomName: 'Game of Life',
       fitnessFunc: GoLFitness,
       selectionId: 1
+    }),
+    Room.create({
+      roomHash: '457',
+      roomName: 'Game of Life Loopers',
+      fitnessFunc: GoLFitnessLoopers,
+      selectionId: 1
+    }),
+    Room.create({
+      roomHash: '458',
+      roomName: 'String Matcher',
+      fitnessFunc: FindString,
+      selectionId: 3
     })
   ])
 
