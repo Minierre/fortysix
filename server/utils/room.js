@@ -34,7 +34,7 @@ class RoomManager {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
   }
-  disconnect(socket) {
+  leave(socket) {
     delete this.nodes[socket.id]
     socket.leave(this.room)
   }
@@ -108,7 +108,7 @@ class RoomManager {
         this.fitness = { function: fitnessFunc }
         this.start = Date.now()
         this.totalFitness = 0
-        this.chromesomesReturned = 0
+        this.chromosomesReturned = 0
         this.maxGen = parameters[0].generations
         this.populationSize = parameters[0].populationSize
         this.chromosomeLength = parameters[0].chromosomeLength
@@ -124,7 +124,7 @@ class RoomManager {
   }
   updateRoomStats(finishedTask) {
     this.totalFitness += finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
-    this.chromesomesReturned += finishedTask.population.length
+    this.chromosomesReturned += finishedTask.population.length
   }
   updateBucket(finishedTask) {
     // if the room's bucket contains a task with the current incoming generation...
@@ -142,7 +142,7 @@ class RoomManager {
   shouldTerminate() {
     // right now this function doesn't do anything with the finishedTask,
     // but it will when we use elitism or a maxFitness
-    return this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize
+    return this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize && this.isJobRunning()
   }
   finalSelection() {
     // takes the max generation and selects the most fit chromosome

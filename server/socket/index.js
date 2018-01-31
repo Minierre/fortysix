@@ -52,9 +52,7 @@ function jobInit(room, socket, io) {
           .emit(
             callName,
             rooms[room].tasks.shift(),
-            args, {
-              multiThreaded: rooms[room].multiThreaded
-            }
+            args
           )
       })
     }
@@ -100,7 +98,7 @@ function registerJoin(socket, io) {
 
     // if a socket disconnects, we take that node off the room's list of nodes
     socket.once('disconnect', () => {
-      rooms[room].disconnect(socket)
+      rooms[room].leave(socket)
       io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
     })
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
@@ -115,7 +113,7 @@ function registerRequestRoom(socket) {
 
 function registerLeave(socket, io) {
   socket.on('leave', (room) => {
-    rooms[room].disconnect(socket)
+    rooms[room].leave(socket)
     io.sockets.emit('UPDATE_' + room, getRoom(rooms[room]))
   })
 }
@@ -150,7 +148,6 @@ function doneCallback(finishedTask, socket, io) {
   rooms[finishedTask.room].updateRoomStats(finishedTask)
   rooms[finishedTask.room].updateBucket(finishedTask)
   const allDone = rooms[finishedTask.room].shouldTerminate()
-  const isJobRunning = rooms[finishedTask.room].isJobRunning()
 
   // Avoid pushing history multiple times by checking jobRunning
   // if termination condition is met and the alg is still running..
@@ -158,11 +155,11 @@ function doneCallback(finishedTask, socket, io) {
   // the code below could be encapsulated in a direct traffic func on the instance
   // rooms[finishedTask.room].directTraffic()
 
-  if (allDone && isJobRunning) {
+  if (allDone) {
     const results = rooms[finishedTask.room].finalSelection()
     algorithmDone(results.room, results.winningChromosome, results.fitness, io)
     rooms[finishedTask.room].emptyTaskQueue()
-  } else if (isJobRunning) {
+  } else {
     if (rooms[finishedTask.room].totalTasks() > 0) {
       rooms[finishedTask.room].distributeWork(socket)
       // the following code below needs to be refactored and placed into functions
