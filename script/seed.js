@@ -140,6 +140,7 @@ let crossOver = ((pop, p = 0.2) => {
 // randomly changes any gene in each chromosome to another gene in the gene pool ('pool') with probability of any gene being effected = 'p'
 let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
   // checks to be sure all types in the population are same and output what they are
+  console.log(pop,p,pool)
   const type = (pop.every((chromosome, _, ar) => {
     return typeof chromosome === typeof ar[0]
   })) ? typeof pop[0] : false
@@ -250,11 +251,11 @@ async function seed() {
 
   const parameters = await Promise.all([
     Parameters.create({
-      chromosomeLength: 50,
-      generations: 2,
+      chromosomeLength: 100,
+      generations: 3,
       elitism: 0,
-      populationSize: 50,
-      fitnessGoal: 100
+      populationSize: 100,
+      fitnessGoal: 1000000000
     })
   ])
 
