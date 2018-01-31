@@ -29,7 +29,7 @@ class RoomManager {
     this.fitness = null
     this.mutuations = null
     this.selection = null
-    this.genePool = []
+    this.genePool = ['1', '0']
   }
   join(socket) {
     socket.join(this.room)
