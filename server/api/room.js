@@ -68,9 +68,22 @@ router.post('/', (req, res, next) => {
   //       where: { id: selection.id }
   //     })
   //   })
-  Room.create(req.body)
-    .then(newRoom => res.json(newRoom))
-    .catch(next)
+
+  if (req.body.fitnessFunc) {
+    const err =
+      /*
+         It is considered malicious to create a Room with a fitness function
+         We want to avoid implementing sandbox here so we forbid the
+         The behavior completely.
+      */
+      new Error('You tried to create a Room with a fitness function.')
+    err.status = 401
+    next(err)
+  } else {
+    Room.create(req.body)
+      .then(newRoom => res.json(newRoom))
+      .catch(next)
+  }
 })
 
 router.put('/:roomHash', (req, res, next) => {
