@@ -11,7 +11,7 @@ class ContributorView extends Component {
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)
       try {
-        console.log('running: ', task)
+        // console.log('running: ', task)
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)
@@ -63,8 +63,10 @@ class ContributorView extends Component {
     ])
       .then((all) => {
         thread.kill()
+
         const pop = all[0].chromosomes.concat(all[1].chromosomes, all[2].chromosomes, all[3].chromosomes)
         const fitpop = all[0].fitnessess.concat(all[1].fitnessess, all[2].fitnessess, all[3].fitnessess)
+
         fittest = Selection(pop, fitpop, 2)
 
         if (task.elitism && task.elitism <= Math.max(...fitpop)) {
@@ -72,7 +74,8 @@ class ContributorView extends Component {
         }
 
         Mutations.forEach((m) => {
-          fittest = m.function(fittest,m.chanceOfMutation)
+          // some nutation functions take two perameters and some take three
+          fittest = m.function(fittest, m.chanceOfMutation, task.pool)
         })
 
         const fitnesses = fittest.map(chromo => FF(chromo))
@@ -86,7 +89,7 @@ class ContributorView extends Component {
           fitness: task.fitness,
           selection: task.selection,
           mutations: task.mutations,
-          elitism: task.elitism
+          genePool: task.genePool
         }
         this.props.socket.emit('done', returnTaskObj)
       })
