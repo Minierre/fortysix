@@ -224,11 +224,29 @@ class InMemoryRoomManager {
         this.selection,
         this.chromosomeLength
       )
-
       this.tasks =
         this.tasks.concat(newTask)
     }
   }
+  // directTraffic(finishedTask) {
+  //   const allDone = this.shouldTerminate()
+  //   const isJobRunning = this.isJobRunning()
+  //   if (allDone && isJobRunning) {
+  //     const results = this.finalSelection()
+  //     algorithmDone(results.room, results.winningChromosome, results.fitness, io)
+  //     this.emptyTaskQueue()
+  //   } else if (isJobRunning) {
+  //     if (this.totalTasks() > 0) {
+  //       this.distributeWork(socket)
+  //       // the following code below needs to be refactored and placed into functions
+  //       io.sockets.sockets[socket.id].emit(
+  //         'CALL_' + this.room,
+  //         this.tasks.shift(),
+  //       )
+  //     }
+  //     this.createMoreTasks(finishedTask)
+  //   }
+  // }
 }
 
 module.exports = { InMemoryRoomManager }

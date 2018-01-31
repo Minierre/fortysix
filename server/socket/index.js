@@ -156,6 +156,10 @@ function doneCallback(finishedTask, socket, io) {
 
   // Avoid pushing history multiple times by checking jobRunning
   // if termination condition is met and the alg is still running..
+
+  // the code below could be encapsulated in a direct traffic func on the instance
+  // rooms[finishedTask.room].directTraffic()
+
   if (allDone && isJobRunning) {
     const results = rooms[finishedTask.room].finalSelection()
     algorithmDone(results.room, results.winningChromosome, results.fitness, io)
