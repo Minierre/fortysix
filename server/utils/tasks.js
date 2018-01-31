@@ -8,7 +8,8 @@ function generateTasks(
   mutations,
   selection,
   chromosomeLength,
-  elitism
+  elitism,
+  pool
 ) {
   const tasks = []
 
@@ -17,24 +18,26 @@ function generateTasks(
       room,
       id: uuid(),
       gen: 1,
-      population: genPop(chromosomeLength, populationSize),
+      population: genPop(chromosomeLength, populationSize, pool),
       fitness,
       mutations,
       selection,
-      elitism
+      elitism,
+      pool
     }
     tasks.push(task)
   }
   return tasks
 }
 
-function genPop(length, populationSize, probability = 0.5) {
+// generates a randome population of size = 'populationSize', composed of chromosomes of length = 'length', composed of genes from the genepool = 'pool'
+function genPop(length, populationSize, pool = ['1','0'], probability = 0.5) {
   const pop = []
   for (let i = 0; i < populationSize; i++) {
     let c = ''
     for (let j = 0; j < length; j++) {
       // Randomly generate binary string
-      c += (Math.random() > probability) ? '1' : '0'
+      c += pool[Math.floor(Math.random() * pool.length)]
     }
     pop.push(c)
   }

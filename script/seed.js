@@ -9,7 +9,9 @@ const {
   RoomParameters
 } = require('../server/db/models')
 
-const FindString = ((c, targetString = 'abcde') => {
+
+// fitness function for matching an input string, default string = alphabet
+const FindString = ((c, targetString = 'abcdefghijklmnopqrstuvwxyz') => {
   let fitness = 0;
   let i;
   for (i = 0; i < c.length; ++i) {
@@ -20,6 +22,8 @@ const FindString = ((c, targetString = 'abcde') => {
   return fitness;
 }).toString()
 
+
+// fitness function for game of life, disincentivises loops
 const GoLFitness = ((c, w=10) => {
   let memo = {}
   let fitness = 1
@@ -62,6 +66,8 @@ const GoLFitness = ((c, w=10) => {
   return fitness
 }).toString()
 
+
+// fitness function for game of life, rewards loops
 const GoLFitnessLoopers = ((c, w = 10) => {
   let memo = {}
   let fitness = 1
@@ -104,6 +110,8 @@ const GoLFitnessLoopers = ((c, w = 10) => {
   return fitness
 }).toString()
 
+
+// pairs, splits, and splices every twosome of chromosomes in population ('pop') at some radom point in their gene sequence with probability = 'p'
 let crossOver = ((pop, p = 0.2) => {
   for (var j = 1; j < pop.length; j++) {
     let c1 = pop[j]
@@ -128,17 +136,27 @@ let crossOver = ((pop, p = 0.2) => {
   return pop
 }).toString()
 
+
+// randomly changes any gene in each chromosome to another gene in the gene pool ('pool') with probability of any gene being effected = 'p'
 let RandomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
-  let type = typeof pop
-  return (type === 'string')
+  // checks to be sure all types in the population are same and output what they are
+  const type = (pop.every((chromosome, _, ar) => {
+    return typeof chromosome === typeof ar[0]
+  })) ? typeof pop[0] : false
+  return (type && type === 'string')
     ?
     pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v).join())
     :
     pop.map(v => v.map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v))
 }).toString()
 
+
+// randomly swaps genes in two positions of each chromosome effected, 'p' is chance of any given chromosome being effected
 let SwapMutation = ((pop, p = 0.02) => {
-  let type = typeof pop
+  // checks to be sure all types in the population are same and output what they are
+  const type = (pop.every((chromosome, _, ar) => {
+    return typeof chromosome === typeof ar[0]
+  })) ? typeof pop[0] : false
   function swap(c) {
     let i = Math.floor(Math.random() * c.length)
     let j = Math.floor(Math.random() * c.length)
@@ -147,13 +165,15 @@ let SwapMutation = ((pop, p = 0.02) => {
     c[j] = temp
     return c
   }
-  return (type === 'string')
+  return (type && type === 'string')
     ?
     pop.map(v => v.split('').map(v => (Math.random() < p) ? swap(v) : v).join())
     :
     pop.map(v => v.map(v => (Math.random() < p) ? swap(v) : v))
 }).toString()
 
+
+// sudo randomly chooses 'n' chromosomes with fitness-weighted probability of choosing any given chromosome
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
   let numSelectionsLeft = n;
   let selections = [];
@@ -175,6 +195,8 @@ let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
   return selections;
 }).toString()
 
+
+// chooses 'n' best chromosomes
 let Fittest = ((population, arrayOfFitnesses, n = 1) => {
   const pop = []
   for (let i = 0; i < n; i++) {
@@ -215,18 +237,18 @@ async function seed() {
       fitnessFunc: GoLFitness,
       selectionId: 1
     }),
-    Room.create({
-      roomHash: '457',
-      roomName: 'Game of Life Loopers',
-      fitnessFunc: GoLFitnessLoopers,
-      selectionId: 2
-    }),
-    Room.create({
-      roomHash: '458',
-      roomName: 'String Matcher',
-      fitnessFunc: FindString,
-      selectionId: 3
-    })
+    // Room.create({
+    //   roomHash: '457',
+    //   roomName: 'Game of Life Loopers',
+    //   fitnessFunc: GoLFitnessLoopers,
+    //   selectionId: 2
+    // }),
+    // Room.create({
+    //   roomHash: '458',
+    //   roomName: 'String Matcher',
+    //   fitnessFunc: FindString,
+    //   selectionId: 3
+    // })
   ])
 
   const parameters = await Promise.all([
