@@ -74,7 +74,6 @@ router.post('/', (req, res, next) => {
 })
 
 router.put('/:roomHash', (req, res, next) => {
-
   const {
     parameters,
     mutations,
