@@ -6,7 +6,6 @@ const {
   Mutations
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
-const chalk = require('chalk')
 
 class InMemoryRoomManager {
   constructor(roomHash, socket) {
@@ -18,7 +17,7 @@ class InMemoryRoomManager {
       }
     }
     this.tasks = []
-    this.running = false
+    this.jobRunning = false
     this.start = null
     this.lastResult = null
     this.bucket = {}
@@ -52,10 +51,10 @@ class InMemoryRoomManager {
     this.nodes[socket.id].error = true
   }
   isJobRunning() {
-    return this.running
+    return this.jobRunning
   }
   startJob() {
-    this.running = true
+    this.jobRunning = true
     let mutations = this.mutations
     let selection = this.selection
     // generates 4X tasks for each node in the system
@@ -71,6 +70,7 @@ class InMemoryRoomManager {
     )
   }
   mapDatabaseToMemory(room) {
+    // takes the room in the database, and maps its properties to the in room memory that the sockets use
     return Room.findOne({
       where: { roomHash: room || null },
       include: [{
@@ -108,7 +108,7 @@ class InMemoryRoomManager {
         this.fitness = { function: fitnessFunc }
         this.start = Date.now()
         this.totalFitness = 0
-        this.chromosomesReturned = 0
+        this.chromesomesReturned = 0
         this.maxGen = parameters[0].generations
         this.populationSize = parameters[0].populationSize
         this.chromosomeLength = parameters[0].chromosomeLength
@@ -124,7 +124,7 @@ class InMemoryRoomManager {
   }
   updateRoomStats(finishedTask) {
     this.totalFitness += finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
-    this.chromosomesReturned += finishedTask.population.length
+    this.chromesomesReturned += finishedTask.population.length
   }
   updateBucket(finishedTask) {
     // if the room's bucket contains a task with the current incoming generation...
@@ -164,7 +164,10 @@ class InMemoryRoomManager {
     return results
   }
   stopJob() {
-    this.running = false
+    this.jobRunning = false
+    // if the job is finished, each node stops running
+    Object.keys(this.nodes).forEach((nodeId) => this.nodes[nodeId].running = false)
+
     // History.create({
     //   nodes: Object.keys(room.nodes).length,
     //   result: room.lastResult.tour + ' ' + room.lastResult.dist,
