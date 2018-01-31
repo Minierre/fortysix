@@ -72,7 +72,8 @@ class ContributorView extends Component {
         }
 
         Mutations.forEach((m) => {
-          fittest = m.function(fittest,m.chanceOfMutation)
+          // some nutation functions take two perameters and some take three
+          fittest = m.function(fittest, m.chanceOfMutation, task.pool)
         })
 
         const fitnesses = fittest.map(chromo => FF(chromo))
@@ -86,7 +87,8 @@ class ContributorView extends Component {
           fitness: task.fitness,
           selection: task.selection,
           mutations: task.mutations,
-          elitism: task.elitism
+          elitism: task.elitism,
+          pool: task.pool
         }
         this.props.socket.emit('done', returnTaskObj)
       })

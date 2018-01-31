@@ -9,7 +9,7 @@ function generateTasks(
   selection,
   chromosomeLength,
   elitism,
-  pool
+  genePool
 ) {
   const tasks = []
 
@@ -18,12 +18,12 @@ function generateTasks(
       room,
       id: uuid(),
       gen: 1,
-      population: genPop(chromosomeLength, populationSize, pool),
+      population: genPop(chromosomeLength, populationSize, genePool),
       fitness,
       mutations,
       selection,
       elitism,
-      pool
+      genePool
     }
     tasks.push(task)
   }
