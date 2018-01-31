@@ -20,7 +20,7 @@ const Parameters = db.define('parameters', {
   },
   fitnessGoal: {
     type: Sequelize.INTEGER,
-    fitnessGoal: 100
+    defaultValue: 23
   }
 })
 
