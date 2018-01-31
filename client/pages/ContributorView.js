@@ -75,7 +75,7 @@ class ContributorView extends Component {
           // some nutation functions take two perameters and some take three
           fittest = m.function(fittest, m.chanceOfMutation, task.pool)
         })
-
+        console.log(fittest)
         const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {

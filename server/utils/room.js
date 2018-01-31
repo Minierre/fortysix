@@ -67,7 +67,7 @@ class RoomManager {
       mutations,
       selection,
       this.chromosomeLength,
-      this.elitism
+      this.genePool
     )
   }
   mapPersistedToMemory(room) {
