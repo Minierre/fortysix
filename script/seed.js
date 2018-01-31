@@ -225,7 +225,7 @@ async function seed() {
       roomHash: '458',
       roomName: 'String Matcher',
       fitnessFunc: FindString,
-      selectionId: 3
+      selectionId: 1
     })
   ])
 
