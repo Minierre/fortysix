@@ -62,7 +62,7 @@ class RoomManager {
   jobError(socket, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
-    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
+    // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
     throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
@@ -247,13 +247,12 @@ class RoomManager {
   }
   addAdmin(socket) {
     this.admins[socket.id] = socket
-    // this.admins.push(socket)
   }
   async jobInit(socket, io) {
     const callName = 'CALL_' + this.room
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
-    socket.broadcast.to(this.room).emit('UPDATE_' + updatedRoom.room, this)
+    socket.broadcast.to(this.room).emit('UPDATE_' + updatedRoom.room, {nodes: this.nodes})
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
       this.startJob()
@@ -282,7 +281,7 @@ class RoomManager {
       if (this.totalTasks() > 0) this.distributeWork(socket)
       this.createMoreTasks(finishedTask)
     }
-    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
+    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, {nodes: this.nodes})
   }
   algorithmDone(room, winningChromosome, fitness, io) {
     const endTime = Date.now()

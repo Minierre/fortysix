@@ -26,6 +26,7 @@ class ScientistView extends Component {
       room: {
         multiThreaded: false,
         nodes: {},
+        bucket: {},
         jobRunning: false
       },
       roomPersisted: {
