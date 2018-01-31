@@ -102,7 +102,14 @@ router.put('/:roomHash', (req, res, next) => {
     `(() => { let fitFunc = eval("(" + ${fitnessFunc} + ")")
     return fitFunc()})()`,
     (output) => {
-      const isValid = !isNaN(Number(output.result))
+      console.log(output.result);
+      console.log(output);
+      let isValid = false;
+      // (!isNaN(Number(output.result)
+      if(output.result = 'SyntaxError: Unexpected string' || !isNaN(Number(output.result))) {
+        isValid = true;
+      }
+      console.log(isValid);
       if (isValid) {
     return Room.update(
     { fitnessFunc },
