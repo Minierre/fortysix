@@ -55,43 +55,28 @@ router.get('/:roomHash', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
-  // return Room.create({ fitnessFunc })
-  //   .then(async (room) => {
-  //     await Parameters.create({}, {
-  //       where: { id: parameters.id }
-  //     })
-
-  //     await mutations.map(async (mutation) => {
-  //       await RoomMutations
-  //         .update(
-  //         { chanceOfMutation: mutation.chanceOfMutation },
-  //         { where: { mutationId: mutation.id } }
-  //         )
-  //     })
-
-  //     await Selections.update(selection, {
-  //       where: { id: selection.id }
-  //     })
-  //   })
-
   if (req.body.fitnessFunc) {
-   /*
-      It is considered malicious to create a Room with a fitness function
-      We want to avoid implementing sandbox here so we forbid the
-      The behavior completely.
-   */
+    /*
+       It is considered malicious to create a Room with a fitness function
+       We want to avoid implementing sandbox here so we forbid the
+       The behavior completely.
+    */
     const err = new Error('You tried to create a Room with a fitness function.')
     err.status = 403
     next(err)
   } else {
     Room.create(req.body)
-      .then(newRoom => res.json(newRoom))
+      .tap(async (room) => {
+        await room.createParameter()
+        await room.addMutation(1)
+      })
+      .then(room => res.json({ roomHash: room.roomHash }))
       .catch(next)
   }
 })
 
 router.put('/:roomHash', (req, res, next) => {
-    const {
+  const {
     parameters,
     mutations,
     selection,
@@ -104,61 +89,61 @@ router.put('/:roomHash', (req, res, next) => {
     (output) => {
       const isValid = !isNaN(Number(output.result))
       if (isValid) {
-    return Room.update(
-    { fitnessFunc },
-    { where: { roomHash: req.params.roomHash } }
-  )
-    .spread(async () => {
-      await Parameters.update(parameters, {
-        where: { id: parameters.id }
-      })
+        return Room.update(
+          { fitnessFunc },
+          { where: { roomHash: req.params.roomHash } }
+        )
+          .spread(async () => {
+            await Parameters.update(parameters, {
+              where: { id: parameters.id }
+            })
 
-      await mutations.map(async (mutation) => {
-        await RoomMutations
-          .update(
-            { chanceOfMutation: mutation.chanceOfMutation },
-            { where: { mutationId: mutation.id } }
-          )
-      })
+            await mutations.map(async (mutation) => {
+              await RoomMutations
+                .update(
+                  { chanceOfMutation: mutation.chanceOfMutation },
+                  { where: { mutationId: mutation.id } }
+                )
+            })
 
-      await Selections.update(selection, {
-        where: { id: selection.id }
-      })
+            await Selections.update(selection, {
+              where: { id: selection.id }
+            })
 
-    }).then(() => {
-      return Room.findOne({
-        where: { roomHash: req.params.roomHash || null },
-        include: [{
-          model: Parameters,
-          through: {
-            attributes: []
-          }
-        },
-        {
-          model: Selections,
-          attributes: ['name', 'function', 'id']
-        },
-        {
-          model: Mutations,
-          through: {
-            attributes: ['chanceOfMutation']
-          }
-        }]
-      })
-        .then((room) => {
-          // Decycle and reshape mutations array because Sequelize isn't perfect
-          const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
-          const newMutations = mutations.map((mutation) => {
-            mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
-            delete mutation.room_mutations
-            return mutation
+          }).then(() => {
+            return Room.findOne({
+              where: { roomHash: req.params.roomHash || null },
+              include: [{
+                model: Parameters,
+                through: {
+                  attributes: []
+                }
+              },
+              {
+                model: Selections,
+                attributes: ['name', 'function', 'id']
+              },
+              {
+                model: Mutations,
+                through: {
+                  attributes: ['chanceOfMutation']
+                }
+              }]
+            })
+              .then((room) => {
+                // Decycle and reshape mutations array because Sequelize isn't perfect
+                const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
+                const newMutations = mutations.map((mutation) => {
+                  mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+                  delete mutation.room_mutations
+                  return mutation
+                })
+                return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
+              })
+              .then(room => res.json(room))
+              .catch(next)
           })
-          return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
-        })
-        .then(room => res.json(room))
-        .catch(next)
-    })
-    .catch(next)
+          .catch(next)
       } else {
         res.status(403).send(output.result)
       }

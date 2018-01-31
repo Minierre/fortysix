@@ -1,6 +1,6 @@
 const User = require('./user')
 const History = require('./history')
-const Room = require('./room');
+const Room = require('./room')
 const Mutations = require('./mutations')
 const Selections = require('./selections')
 const RoomMutations = require('./room_mutations')

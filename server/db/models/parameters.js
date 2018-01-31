@@ -2,11 +2,26 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 
 const Parameters = db.define('parameters', {
-  chromosomeLength: Sequelize.INTEGER,
-  generations: Sequelize.INTEGER,
-  elitism: Sequelize.FLOAT,
-  populationSize: Sequelize.INTEGER,
-  fitnessGoal: Sequelize.INTEGER
+  chromosomeLength: {
+    type: Sequelize.INTEGER,
+    defaultValue: 50
+  },
+  generations: {
+    type: Sequelize.INTEGER,
+    defaultValue: 2
+  },
+  elitism: {
+    type: Sequelize.FLOAT,
+    defaultValue: 0.23
+  },
+  populationSize: {
+    type: Sequelize.INTEGER,
+    defaultValue: 50
+  },
+  fitnessGoal: {
+    type: Sequelize.INTEGER,
+    fitnessGoal: 100
+  }
 })
 
 module.exports = Parameters

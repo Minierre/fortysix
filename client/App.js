@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Route, Switch, Router } from 'react-router-dom'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import history from './history'
 import { me } from './store'
 
@@ -20,10 +19,6 @@ import {
 import './style.css'
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     this.props.loadInitialData()
   }
@@ -31,7 +26,6 @@ class App extends Component {
   render() {
     return (
       <div id="app-wrapper">
-        <MuiThemeProvider>
           <div>
             <Navbar />
             <Router history={history}>
@@ -61,7 +55,6 @@ class App extends Component {
               </Main>
             </Router>
           </div>
-        </MuiThemeProvider>
       </div>
     )
   }
