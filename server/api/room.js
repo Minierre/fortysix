@@ -99,8 +99,8 @@ router.put('/:roomHash', (req, res, next) => {
   } = req.body
 
   sandbox.run(
-    `let t = eval(${req.body.fitnessFunc});
-    (() => t('1010'))()`,
+    `let fitFunc = eval(${req.body.fitnessFunc});
+    (() => fitFunc('1010'))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
       if (isValid) {
