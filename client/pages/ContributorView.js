@@ -10,6 +10,7 @@ class ContributorView extends Component {
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)
+      console.log('START', roomHash)
       try {
         console.log('running: ', task)
         this.runMultiThreaded(task)
@@ -87,7 +88,6 @@ class ContributorView extends Component {
           fitness: task.fitness,
           selection: task.selection,
           mutations: task.mutations,
-          elitism: task.elitism,
           pool: task.pool
         }
         this.props.socket.emit('done', returnTaskObj)

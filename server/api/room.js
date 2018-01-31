@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const Sandbox = require('sandbox')
 const {
   Room,
   Parameters,
@@ -9,6 +10,8 @@ const {
 
 module.exports = router
 
+const sandbox = new Sandbox()
+
 router.get('/all', (req, res, next) => {
   Room.findAll()
     .then(rooms => res.json(rooms))
@@ -18,22 +21,24 @@ router.get('/all', (req, res, next) => {
 router.get('/:roomHash', (req, res, next) => {
   Room.findOne({
     where: { roomHash: req.params.roomHash || null },
-    include: [{
-      model: Parameters,
-      through: {
-        attributes: []
+    include: [
+      {
+        model: Parameters,
+        through: {
+          attributes: []
+        }
+      },
+      {
+        model: Selections,
+        attributes: ['name', 'function', 'id']
+      },
+      {
+        model: Mutations,
+        through: {
+          attributes: ['chanceOfMutation']
+        }
       }
-    },
-    {
-      model: Selections,
-      attributes: ['name', 'function', 'id']
-    },
-    {
-      model: Mutations,
-      through: {
-        attributes: ['chanceOfMutation']
-      }
-    }]
+    ]
   })
     .then((room) => {
       // Decycle and reshape mutations array because Sequelize isn't perfect
@@ -68,20 +73,38 @@ router.post('/', (req, res, next) => {
   //       where: { id: selection.id }
   //     })
   //   })
-  Room.create(req.body)
-    .then(newRoom => res.json(newRoom))
-    .catch(next)
+
+  if (req.body.fitnessFunc) {
+   /*
+      It is considered malicious to create a Room with a fitness function
+      We want to avoid implementing sandbox here so we forbid the
+      The behavior completely.
+   */
+    const err = new Error('You tried to create a Room with a fitness function.')
+    err.status = 403
+    next(err)
+  } else {
+    Room.create(req.body)
+      .then(newRoom => res.json(newRoom))
+      .catch(next)
+  }
 })
 
 router.put('/:roomHash', (req, res, next) => {
-  const {
+    const {
     parameters,
     mutations,
     selection,
     fitnessFunc
   } = req.body
 
-  return Room.update(
+  sandbox.run(
+    `(() => { let fitFunc = eval("(" + ${fitnessFunc} + ")")
+    return fitFunc()})()`,
+    (output) => {
+      const isValid = !isNaN(Number(output.result))
+      if (isValid) {
+    return Room.update(
     { fitnessFunc },
     { where: { roomHash: req.params.roomHash } }
   )
@@ -136,4 +159,9 @@ router.put('/:roomHash', (req, res, next) => {
         .catch(next)
     })
     .catch(next)
+      } else {
+        res.status(403).send(output.result)
+      }
+    }
+  )
 })

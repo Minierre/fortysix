@@ -4,17 +4,6 @@ import axios from 'axios'
 import { Button, Form } from 'react-bootstrap'
 import history from '../../history'
 
-const crypto = require('crypto')
-
-// need a better way to create hashes but this will do for now
-function createHash() {
-  const secret = (Math.random() * Math.random() * 10000000000).toString()
-  const hash = crypto.createHmac('sha256', secret)
-    .update('ExtraSecret')
-    .digest('hex')
-  return hash
-}
-
 
 class CreateRoom extends Component {
   constructor() {
@@ -34,8 +23,7 @@ class CreateRoom extends Component {
 
   createRoom(e) {
     e.preventDefault()
-    const hash = createHash()
-    axios.post('/api/room', { roomName: this.state.roomName, roomHash: hash })
+    axios.post('/api/room', { roomName: this.state.roomName})
       .then(res => history.push(`/admin/${res.data.roomHash}`))
   }
 

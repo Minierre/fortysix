@@ -47,9 +47,11 @@ class RoomManager {
     this.bucket = {}
     this.nodes = {}
   }
-  jobError(socket) {
+  jobError(socket, io, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
+    io.to(this.room).emit('UPDATE_' + this.room, this)
+    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
