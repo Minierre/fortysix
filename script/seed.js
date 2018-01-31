@@ -56,8 +56,16 @@ let crossOver = ((pop, p = 0.2) => {
     if (Math.random() < p) {
       let i = Math.floor(Math.random() * (c1.length - 1))
       i++
-      let c1b = c1.slice(0, i) + c2.slice(i)
-      let c2b = c2.slice(0, i) + c1.slice(i)
+      let c1b
+      let c2b
+      if (typeof c1a === 'string') {
+        c1b = c1.slice(0, i) + c2.slice(i)
+        c2b = c2.slice(0, i) + c1.slice(i)
+      }
+      else {
+        c1b = c1.slice(0, i).concat(c2.slice(i))
+        c2b = c2.slice(0, i).concat(c1.slice(i))
+      }
       c1 = c1b
       c2 = c2b
     }
@@ -65,8 +73,10 @@ let crossOver = ((pop, p = 0.2) => {
   return pop
 }).toString()
 
-let spontaneousMutation = ((pop, p = 0.02) => {
-  return pop.map(v => v.split('').map(v => (Math.random() < p) ? (v === '0') ? '1' : '0' : v).join(''))
+let Mutation = ((pop, p = 0.02, pool = ['0', '1']) => {
+  let type = typeof pop
+  pop = pop.map(v => v.split('').map(v => (Math.random() < p) ? pool[Math.floor(Math.random() * pool.length)] : v))
+  return (type === 'string') ? pop.join(): pop
 }).toString()
 
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
