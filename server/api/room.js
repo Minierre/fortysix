@@ -66,9 +66,13 @@ router.put('/:roomHash', (req, res, next) => {
       if (isValid) {
         return Room.update(
           { fitnessFunc },
-          { where: { roomHash: req.params.roomHash } }
+          {
+            where: { roomHash: req.params.roomHash },
+            returning: true, // needed for affectedRows to be populated
+            plain: true // makes sure that the returned instances are just plain objects
+          }
         )
-          .spread(async () => {
+          .spread(async (numberOfRows, room) => {
             await Parameters.update(parameters, {
               where: { id: parameters.id }
             })
@@ -76,8 +80,11 @@ router.put('/:roomHash', (req, res, next) => {
             await mutations.map(async (mutation) => {
               await RoomMutations
                 .update(
-                  { chanceOfMutation: mutation.chanceOfMutation },
-                  { where: { mutationId: mutation.id } }
+                  {
+                    chanceOfMutation: mutation.chanceOfMutation,
+                    mutationId: mutation.id
+                  },
+                  { where: { roomId: room.id } }
                 )
             })
 
@@ -87,7 +94,7 @@ router.put('/:roomHash', (req, res, next) => {
 
           }).then(() => {
             return Room.getRoomWithAssociations(
-              req.body.roomHash,
+              req.params.roomHash,
               Parameters,
               Selections,
               Mutations
