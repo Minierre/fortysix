@@ -8,6 +8,7 @@ const {
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
+const { RoomStats } = require('./stats')
 
 class RoomManager {
   constructor(roomHash) {
@@ -30,6 +31,7 @@ class RoomManager {
     this.admins = {}
     this.chromosomesReturned = 0
     this.totalFitness = 0
+    this.roomStats = new RoomStats()
   }
 
   addAdmin(socket) {
@@ -285,11 +287,25 @@ class RoomManager {
     if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
     // update the room state
     this.updateRoomStats(finishedTask)
+    // reformats the data and sends it to the stats room
+    this.sendChromosomeData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly
     this.terminateOrDistribute(finishedTask, socket, io)
     console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
+  }
+
+  // the following instance methods allow rooms to send / receive tasks
+  sendChromosomeData(finishedTask) {
+    const data = {}
+    data.generation = finishedTask.gen
+    data.fitness = finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
+    this.roomStats.updateGenerationData(data)
+  }
+  // returns the stats in a form that the front end graph can display
+  collectFitnessData() {
+    return this.roomStats.fetchStats()
   }
 }
 
