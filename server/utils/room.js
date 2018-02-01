@@ -75,36 +75,12 @@ class RoomManager {
   }
   mapPersistedToMemory(room) {
     // takes the room in the database, and maps its properties to the in room memory that the sockets use
-    return Room.findOne({
-      where: { roomHash: room || null },
-      include: [{
-        model: Parameters,
-        through: {
-          attributes: []
-        }
-      },
-      {
-        model: Selections,
-        attributes: ['name', 'function']
-      },
-      {
-        model: Mutations,
-        attributes: ['function'],
-        through: {
-          attributes: ['chanceOfMutation']
-        }
-      }]
-    })
-      .then((roomFromDb) => {
-      // Decycle and reshape mutations array because Sequelize isn't perfect
-        const { mutations, ...rest } = JSON.parse(JSON.stringify(roomFromDb))
-        const newMutations = mutations.map((mutation) => {
-          mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
-          delete mutation.room_mutations
-          return mutation
-        })
-        return { ...rest, mutations: newMutations }
-      })
+    return Room.getRoomWithAssociations(
+      room,
+      Parameters,
+      Selections,
+      Mutations
+    )
       .then(({ mutations, selection, parameters, fitnessFunc }) => {
         this.mutations = mutations
         this.selection = selection
@@ -113,18 +89,18 @@ class RoomManager {
         this.start = Date.now()
         this.totalFitness = 0
         this.chromosomesReturned = 0
-        this.maxGen = parameters[0].generations
-        this.populationSize = parameters[0].populationSize
-        this.chromosomeLength = parameters[0].chromosomeLength
-        this.elitism = parameters[0].elitism
-        this.fitnessGoal = parameters[0].fitnessGoal
+        this.maxGen = parameters.generations
+        this.populationSize = parameters.populationSize
+        this.chromosomeLength = parameters.chromosomeLength
+        this.elitism = parameters.elitism
+        this.fitnessGoal = parameters.fitnessGoal
         Object.keys(this.nodes).forEach((socketId) => {
           this.nodes[socketId].running = true
           this.nodes[socketId].error = false
         })
         return this
       })
-      .catch(err => console.err(err))
+      .catch(err => console.error(err))
   }
   updateRoomStats(finishedTask) {
     this.totalFitness += finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
