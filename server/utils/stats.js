@@ -18,7 +18,7 @@ class RoomStats {
       this.generationData[data.generation].push(data.fitness) :
       this.generationData[data.generation] = [data.fitness]
 
-    this.findNewMean(incomingResult.generation)
+    this.findNewMean(finishedTask.generation)
     return this.stats
   }
   findNewMean(generation) {
