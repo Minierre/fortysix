@@ -82,6 +82,7 @@ class RoomManager {
     this.jobRunning = true
     let mutations = this.mutations
     let selection = this.selection
+
     // generates 4X tasks for each node in the system
     this.tasks = generateTasks(
       this.populationSize,
@@ -237,6 +238,8 @@ class RoomManager {
     const callName = 'CALL_' + this.room
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
+    // sets up our roomStats with the appropriate amount of buckets
+    this.roomStats.createBuckets(this.maxGen)
     this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
@@ -295,7 +298,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: this.stats.getStats()
+      stats: this.roomStats.getStats()
     }))
   }
   doneCallback(finishedTask, socket, io) {
@@ -304,7 +307,7 @@ class RoomManager {
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // reformats the data and sends it to the stats room
-    this.roomStats.processChromosomeData(finishedTask)
+    this.roomStats.updateGenerationData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly
