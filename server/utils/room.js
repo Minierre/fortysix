@@ -38,6 +38,19 @@ class RoomManager {
   join(socket) {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
+    if (this.jobRunning) {
+      this.tasks = this.tasks.concat(generateTasks(
+        this.populationSize,
+        this.room,
+        4,
+        this.fitness,
+        this.mutations,
+        this.selection,
+        this.chromosomeLength,
+        this.genePool
+      ))
+      socket.emit('CALL_' + this.room, this.tasks.shift())
+    }
     this.updateAdmins()
   }
   leave(socket) {
@@ -196,7 +209,7 @@ class RoomManager {
     socket.emit('CALL_' + this.room, this.tasks.shift())
     this.updateAdmins()
   }
-  createMoreTasks(finishedTask) {
+  createTask(finishedTask) {
     if (this.bucket[finishedTask.gen].population.length >= this.populationSize) {
       this.tasks.push(this.bucket[finishedTask.gen])
       this.bucket[finishedTask.gen] = null
@@ -245,9 +258,11 @@ class RoomManager {
       this.algorithmDone(results.room, results.winningChromosome, results.fitness, io)
       this.emptyTaskQueue()
     } else {
-      // distribute
-      if (this.totalTasks() > 0) this.distributeWork(socket)
-      this.createMoreTasks(finishedTask)
+      // Edge Case, if a user leaves the room while a task is finished by that user,
+      // without checking if that user is still in the `nodes` array, we could hit a
+      // Reference Error.
+      if (this.totalTasks() > 0 && this.nodes[socket.id]) this.distributeWork(socket)
+      this.createTask(finishedTask)
     }
     this.updateAdmins()
   }
