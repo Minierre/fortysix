@@ -41,13 +41,12 @@ class RoomManager {
   join(socket) {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
-    forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, { nodes: this.nodes }))
-    // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
+    this.updateAdmins()
   }
   leave(socket) {
     delete this.nodes[socket.id]
     socket.leave(this.room)
-    forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, { nodes: this.nodes }))
+    this.updateAdmins()
   }
 
   abort(socket) {
@@ -222,9 +221,9 @@ class RoomManager {
   }
   // NEEDS TO GET RID OF ANY IO SOCKET CALLING
   distributeWork(socket) {
-    console.log('SOCKET ABOUT TO GET WORK', socket.id, this.room, this.tasks)
     this.nodes[socket.id].running = true
-    socket.to(socket.id).emit('CALL_' + this.room, this.tasks.shift())
+    socket.emit('CALL_' + this.room, this.tasks.shift())
+    this.updateAdmins()
   }
   createMoreTasks(finishedTask) {
     if (this.bucket[finishedTask.gen].population.length >= this.populationSize) {
@@ -252,12 +251,11 @@ class RoomManager {
     const callName = 'CALL_' + this.room
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
-    socket.broadcast.to(this.room).emit('UPDATE_' + updatedRoom.room, {nodes: this.nodes})
+    this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
       this.startJob()
       Object.keys(this.nodes).forEach((id, i) => {
-        console.log('NODE ID', id)
         socket.to(id).emit(callName, this.tasks.shift())
       })
     } else {
@@ -269,7 +267,6 @@ class RoomManager {
 
     // Avoid pushing history multiple times by checking jobRunning
     // if termination condition is met and the alg is still running..
-    console.log('CLIENT SENT BACK WORK, WERE FIGURING IT OUT', finishedTask)
     const allDone = this.shouldTerminate()
     if (allDone) {
       // terminate
@@ -281,7 +278,7 @@ class RoomManager {
       if (this.totalTasks() > 0) this.distributeWork(socket)
       this.createMoreTasks(finishedTask)
     }
-    socket.broadcast.to(this.room).emit('UPDATE_' + this.room, {nodes: this.nodes})
+    this.updateAdmins()
   }
   algorithmDone(room, winningChromosome, fitness, io) {
     const endTime = Date.now()
@@ -299,6 +296,13 @@ class RoomManager {
 
     io.sockets.emit('UPDATE_' + room, getRoom(room))
     this.stopJob()
+  }
+  updateAdmins() {
+    forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
+      nodes: this.nodes,
+      bucket: this.bucket,
+      jobRunning: this.jobRunning
+    }))
   }
 }
 

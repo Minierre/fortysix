@@ -9,7 +9,6 @@ class ContributorView extends Component {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
     this.props.socket.on("CALL_" + roomHash, (task) => {
-      console.log('WE JUST GOT CALED!', roomHash, task)
       this.props.socket.emit('start', roomHash)
       try {
         console.log('running: ', task)
@@ -76,7 +75,6 @@ class ContributorView extends Component {
           // some nutation functions take two perameters and some take three
           fittest = m.function(fittest, m.chanceOfMutation, task.pool)
         })
-        console.log(fittest)
         const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {

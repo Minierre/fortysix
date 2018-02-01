@@ -26,7 +26,7 @@ function registerJoinAdmin(socket, io) {
   socket.on('ADMIN_JOIN', (room) => {
     if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
     rooms[room].addAdmin(socket)
-    jobInit(
+    registerJobStart(
       room,
       socket,
       io
@@ -36,7 +36,7 @@ function registerJoinAdmin(socket, io) {
 
 // todo: register leave admin
 
-function jobInit(room, socket, io) {
+function registerJobStart(room, socket, io) {
   const startName = 'START_' + room
   socket.on(startName, (args) => {
     if (!rooms[room]) throw new Error(chalk.red(`${room} doesn't exist!`))
