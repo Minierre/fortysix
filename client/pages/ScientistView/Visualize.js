@@ -30,7 +30,6 @@ class Visualize extends Component {
                 value="Average Fitness"
                 angle={-90}
                 position="insideLeft"
-                offset={20}
               />
             </YAxis>
             <CartesianGrid strokeDasharray="3 3" />

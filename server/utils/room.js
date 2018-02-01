@@ -31,7 +31,7 @@ class RoomManager {
     this.admins = {}
     this.chromosomesReturned = 0
     this.totalFitness = 0
-    this.roomStats = new RoomStats()
+    this.roomStats = null
   }
 
   addAdmin(socket) {
@@ -239,7 +239,7 @@ class RoomManager {
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
     // sets up our roomStats with the appropriate amount of buckets
-    this.roomStats.createBuckets(this.maxGen)
+    this.roomStats = new RoomStats(this.maxGen)
     this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
@@ -298,7 +298,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: this.roomStats.getStats()
+      stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
   doneCallback(finishedTask, socket, io) {
