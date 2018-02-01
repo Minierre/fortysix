@@ -39,8 +39,8 @@ class ContributorView extends Component {
 
   runMultiThreaded(task) {
     const roomHash = this.props.match.params.roomHash
-    let Selection = eval('(' + task.selection.function + ')')
-    let Mutations = task.mutations.map( (mutation) => {
+    const Selection = eval('(' + task.selection.function + ')')
+    const Mutations = task.mutations.map( (mutation) => {
       return ({ function: eval('(' + mutation.function + ')'), chanceOfMutation: mutation.chanceOfMutation })
     })
     let Fitness = task.fitness
@@ -73,10 +73,16 @@ class ContributorView extends Component {
           fittest.push(pop[fitpop.indexOf(Math.max(...fitpop))])
         }
 
-        Mutations.forEach((m) => {
-          // some nutation functions take two perameters and some take three
-          fittest = m.function(fittest, m.chanceOfMutation, task.pool)
-        })
+        const parents = fittest.slice()
+        fittest = []
+        for (let i = 0; i < task.reproductiveCoefficient; i++) {
+          let children = parents.slice()
+          Mutations.forEach((m) => {
+            children = m.function(children, m.chanceOfMutation, task.genePool)
+          })
+          fittest = fittest.concat(children)
+        }
+
         const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {
@@ -88,7 +94,8 @@ class ContributorView extends Component {
           fitness: task.fitness,
           selection: task.selection,
           mutations: task.mutations,
-          genePool: task.genePool
+          genePool: task.genePool,
+          reproductiveCoefficient: task.reproductiveCoefficient
         }
         this.props.socket.emit('done', returnTaskObj)
       })

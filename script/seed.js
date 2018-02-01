@@ -66,7 +66,24 @@ async function seed() {
       generations: 3,
       elitism: 0,
       populationSize: 100,
-      fitnessGoal: 1000000000
+      fitnessGoal: 1000000000,
+      reproductiveCoefficient: 2
+    }),
+    Parameters.create({
+      chromosomeLength: 100,
+      generations: 3,
+      elitism: 0,
+      populationSize: 100,
+      fitnessGoal: 1000000000,
+      reproductiveCoefficient: 2
+    }),
+    Parameters.create({
+      chromosomeLength: 100,
+      generations: 3,
+      elitism: 0,
+      populationSize: 100,
+      fitnessGoal: 1000000000,
+      reproductiveCoefficient: 2
     })
   ])
 
@@ -77,11 +94,11 @@ async function seed() {
     }),
     RoomParameters.create({
       roomId: 2,
-      parameterId: 1
+      parameterId: 2
     }),
     RoomParameters.create({
       roomId: 3,
-      parameterId: 1
+      parameterId: 3
     })
   ])
 
@@ -94,6 +111,11 @@ async function seed() {
     RoomMutations.create({
       mutationId: 2,
       roomId: 1,
+      chanceOfMutation: 0
+    }),
+    RoomMutations.create({
+      mutationId: 3,
+      roomId: 3,
       chanceOfMutation: 0
     })
   ])
