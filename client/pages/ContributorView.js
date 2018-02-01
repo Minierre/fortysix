@@ -11,7 +11,7 @@ class ContributorView extends Component {
     this.props.socket.on("CALL_" + roomHash, (task) => {
       this.props.socket.emit('start', roomHash)
       try {
-        // console.log('running: ', task)
+        console.log('running: ', task)
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)
@@ -79,7 +79,6 @@ class ContributorView extends Component {
             fittest = fittest.concat(m.function(fittest, m.chanceOfMutation, task.pool))
           }
         })
-
         const fitnesses = fittest.map(chromo => FF(chromo))
 
         const returnTaskObj = {
