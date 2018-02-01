@@ -34,12 +34,12 @@ function generateTasks(
 function genPop(length, populationSize, pool, probability = 0.5) {
   const pop = []
   for (let i = 0; i < populationSize; i++) {
-    let c = ''
+    let c = []
     for (let j = 0; j < length; j++) {
       // Randomly generate binary string
-      c += pool[Math.floor(Math.random() * pool.length)]
+      c.push(pool[Math.floor(Math.random() * pool.length)])
     }
-    pop.push(c)
+    pop.push(c.slice())
   }
   return pop
 }
