@@ -3,12 +3,20 @@ const express = require('express')
 const volleyball = require('volleyball')
 const bodyParser = require('body-parser')
 const compression = require('compression')
-const session = require('express-session')
+// const session = require('express-session')
+const sharedSession = require('express-socket.io-session')
 const passport = require('passport')
+const session = require("express-session")
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const socketio = require('socket.io')
 const db = require('./db')
 
+session({
+  secret: "my-secret",
+  resave: true,
+  saveUninitialized: true
+})
+console.log(session);
 const sessionStore = new SequelizeStore({ db })
 const PORT = process.env.PORT || 8080
 const app = express()
@@ -44,12 +52,16 @@ const createApp = () => {
   app.use(compression())
 
   // session middleware with passport
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false
-  }))
+
+  app.use(session)
+  // app.use(session({
+  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+  //   store: sessionStore,
+  //   resave: false,
+  //   saveUninitialized: false
+  // }))
+  // console.log(session);
+  // console.log(sharedSession);
   app.use(passport.initialize())
   app.use(passport.session())
 
@@ -87,10 +99,11 @@ const createApp = () => {
 const startListening = () => {
   // start listening (and create a 'server' object representing our server)
   const server = app.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
-
-  // set up our socket control center
   const io = socketio(server)
   require('./socket')(io)
+  // io.use(sharedSession(session))
+  // set up our socket control center
+  // console.log(sharedSession);
 }
 
 const syncDb = () => db.sync()
