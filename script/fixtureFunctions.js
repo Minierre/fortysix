@@ -5,7 +5,7 @@ const findString = ((c, targetString = 'jon') => {
   for (i = 0; i < c.length; ++i) {
     if (c[i] === targetString[i])
       fitness += 1;
-    fitness += (127 - Math.abs(c.charCodeAt(i) - targetString.charCodeAt(i))) / 50;
+    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString[i].charCodeAt(0))) / 50;
   }
   return fitness;
 }).toString()
@@ -13,7 +13,8 @@ const findString = ((c, targetString = 'jon') => {
 
 // fitness function for game of life, disincentivises loops
 const gameOfLifeFitness = ((c, w = 10) => {
-  let memo = {}
+  c = c.join('')
+  const memo = {}
   let fitness = 1
   let testingChromosome = c
   function iterate(C, w) {
@@ -57,7 +58,8 @@ const gameOfLifeFitness = ((c, w = 10) => {
 
 // fitness function for game of life, rewards loops
 const gameOfLifeFitnessLoopers = ((c, w = 10) => {
-  let memo = {}
+  c = c.join('')
+  const memo = {}
   let fitness = 1
   let testingChromosome = c
   function iterate(C, w) {
@@ -100,7 +102,7 @@ const gameOfLifeFitnessLoopers = ((c, w = 10) => {
 
 
 // pairs, splits, and splices every twosome of chromosomes in population ('pop') at some radom point in their gene sequence with probability = 'p'
-let crossOver = ((pop, p = 0.2) => {
+let crossOver = ((pop, p) => {
   for (var j = 1; j < pop.length; j++) {
     let c1 = pop[j]
     let c2 = pop[j - 1]
@@ -126,7 +128,7 @@ let crossOver = ((pop, p = 0.2) => {
 
 
 // randomly changes any gene in each chromosome to another gene in the gene pool ('pool') with probability of any gene being effected = 'p'
-let randomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
+let randomSettingMutation = ((pop, p, pool) => {
   // checks to be sure all types in the population are same and output what they are
   const type = (pop.every((chromosome, _, ar) => {
     return typeof chromosome === typeof ar[0]
@@ -140,7 +142,7 @@ let randomSettingMutation = ((pop, p = 0.02, pool = ['0', '1']) => {
 
 
 // randomly swaps genes in two positions of each chromosome effected, 'p' is chance of any given chromosome being effected
-let swapMutation = ((pop, p = 0.02) => {
+let swapMutation = ((pop, p) => {
   // checks to be sure all types in the population are same and output what they are
   const type = (pop.every((chromosome, _, ar) => {
     return typeof chromosome === typeof ar[0]
