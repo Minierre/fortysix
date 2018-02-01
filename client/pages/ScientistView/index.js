@@ -122,7 +122,9 @@ class ScientistView extends Component {
                   fitnessGoal,
                   fitnessFunc,
                   mutations,
-                  selection
+                  selection,
+                  genePool,
+                  reproductiveCoefficient
                 } = values
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
@@ -132,6 +134,7 @@ class ScientistView extends Component {
                     elitism,
                     populationSize,
                     fitnessGoal,
+                    genePool,
                     reproductiveCoefficient
                   },
                   fitnessFunc,

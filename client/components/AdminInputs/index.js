@@ -71,6 +71,16 @@ class AdminInputs extends Component {
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
+                <Select
+                  controlId="selectionFunc"
+                  label="Selection Algorithm"
+                  type="number"
+                  value={values.selection && values.selection.id}
+                  options={this.state.selectionFuncs}
+                  placeholder="Enter selection Function"
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
+                />
               </Col>
               <Col sm={6}>
                 <Input
@@ -91,13 +101,12 @@ class AdminInputs extends Component {
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
-                <Select
-                  controlId="selectionFunc"
-                  label="Selection Algorithm"
+                <Input
+                  controlId="reproductiveCoefficient"
+                  label="Reproductive Coefficient"
                   type="number"
-                  value={values.selection && values.selection.id}
-                  options={this.state.selectionFuncs}
-                  placeholder="Enter selection Function"
+                  value={values.reproductiveCoefficient}
+                  placeholder="Enter reproductive coefficient"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />

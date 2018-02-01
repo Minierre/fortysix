@@ -8,7 +8,8 @@ function generateTasks(
   mutations,
   selection,
   chromosomeLength,
-  genePool
+  genePool,
+  reproductiveCoefficient
 ) {
   const tasks = []
 
@@ -21,7 +22,8 @@ function generateTasks(
       fitness,
       mutations,
       selection,
-      genePool
+      genePool,
+      reproductiveCoefficient
     }
     tasks.push(task)
   }
@@ -29,7 +31,7 @@ function generateTasks(
 }
 
 // generates a randome population of size = 'populationSize', composed of chromosomes of length = 'length', composed of genes from the genepool = 'pool'
-function genPop(length, populationSize, pool = ['1','0'], probability = 0.5) {
+function genPop(length, populationSize, pool, probability = 0.5) {
   const pop = []
   for (let i = 0; i < populationSize; i++) {
     let c = ''
