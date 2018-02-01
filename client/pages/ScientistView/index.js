@@ -10,7 +10,7 @@ import ReactJson from 'react-json-view'
 import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import Status from './Status'
 import History from './History'
-// import Visualize from './Visualize'
+import Visualize from './Visualize'
 import './style.css'
 
 import {
@@ -169,10 +169,10 @@ class ScientistView extends Component {
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
-            <ReactJson src={this.state.room} />
+            <ReactJson src={this.state.room.bucket} />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
-            {/* <Visualize data={this.state.room} /> */}
+            <Visualize data={this.state.room} />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={5} title="History">
             <History history={this.state.history} />
