@@ -21,27 +21,31 @@ class Visualize extends Component {
       { name: 'Generation 5', fitness: 444 },
     ]
     return (
-      <ResponsiveContainer height={600} >
-        <BarChart
-          width={600}
-          height={300}
-          data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
-          <XAxis dataKey="name">
-            <Label value="Generations" offset={-10} position="insideBottom" />
-          </XAxis>
-          <YAxis>
-            <Label
-              value="Average Fitness"
-              angle={-90}
-              position="insideLeft"
-            />
-          </YAxis>
-          <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip />
-          <Bar dataKey="fitness" fill="#8884d8" />
-        </BarChart>
-      </ResponsiveContainer>
+      <div>
+        <h4>Average Fitness Per Generation</h4>
+        <ResponsiveContainer height={600} >
+          <BarChart
+            width={600}
+            height={300}
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
+            <XAxis dataKey="name">
+              <Label value="Generations" offset={-10} position="insideBottom" />
+            </XAxis>
+            <YAxis>
+              <Label
+                value="Average Fitness"
+                angle={-90}
+                position="insideLeft"
+              />
+            </YAxis>
+            <CartesianGrid strokeDasharray="3 3" />
+            <Tooltip />
+            <Bar dataKey="fitness" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
     )
   }
 }
