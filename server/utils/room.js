@@ -23,6 +23,7 @@ class RoomManager {
     this.chromosomeLength = null
     this.fitnessGoal = null
     this.elitism = null
+    this.reproductiveCoefficient = 1
     this.fitness = null
     this.mutuations = null
     this.selection = null
@@ -76,7 +77,8 @@ class RoomManager {
       mutations,
       selection,
       this.chromosomeLength,
-      this.genePool
+      this.genePool,
+      this.reproductiveCoefficient
     )
   }
   mapPersistedToMemory(room) {
@@ -100,6 +102,7 @@ class RoomManager {
         this.chromosomeLength = parameters.chromosomeLength
         this.elitism = parameters.elitism
         this.fitnessGoal = parameters.fitnessGoal
+        this.reproductiveCoefficient = parameters.reproductiveCoefficient
         Object.keys(this.nodes).forEach((socketId) => {
           this.nodes[socketId].running = true
           this.nodes[socketId].error = false
@@ -209,7 +212,8 @@ class RoomManager {
         this.mutations,
         this.selection,
         this.chromosomeLength,
-        this.genePool
+        this.genePool,
+        this.reproductiveCoefficient
       )
       this.tasks =
         this.tasks.concat(newTask)
@@ -251,6 +255,7 @@ class RoomManager {
     }
     this.updateAdmins()
   }
+
   algorithmDone(winningChromosome, fitness) {
     const endTime = Date.now()
     function convertMS(ms) {

@@ -8,7 +8,8 @@ function generateTasks(
   mutations,
   selection,
   chromosomeLength,
-  genePool
+  genePool,
+  reproductiveCoefficient
 ) {
   const tasks = []
 
@@ -21,7 +22,8 @@ function generateTasks(
       fitness,
       mutations,
       selection,
-      genePool
+      genePool,
+      reproductiveCoefficient
     }
     tasks.push(task)
   }

@@ -21,6 +21,10 @@ const Parameters = db.define('parameters', {
   fitnessGoal: {
     type: Sequelize.INTEGER,
     defaultValue: 23
+  },
+  reproductiveCoefficient: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1
   }
 })
 

@@ -39,7 +39,6 @@ class ContributorView extends Component {
 
   runMultiThreaded(task) {
     const roomHash = this.props.match.params.roomHash
-    const reproductiveCoefficient = task.reproductiveCoefficient
     const Selection = eval('(' + task.selection.function + ')')
     const Mutations = task.mutations.map( (mutation) => {
       return ({ function: eval('(' + mutation.function + ')'), chanceOfMutation: mutation.chanceOfMutation })
@@ -75,7 +74,7 @@ class ContributorView extends Component {
         }
 
         Mutations.forEach((m) => {
-          for (let i = 0; i < reproductiveCoefficient; i++) {
+          for (let i = 0; i < task.reproductiveCoefficient; i++) {
             fittest = fittest.concat(m.function(fittest, m.chanceOfMutation, task.pool))
           }
         })
