@@ -76,7 +76,8 @@ class ScientistView extends Component {
         generations: this.state.roomPersisted.generations,
         currentSelectionFunc: this.state.roomPersisted.selection,
         currentMutationFunc: this.state.roomPersisted.mutations[0],
-        chromosomeLength: this.state.roomPersisted.chromosomeLength
+        chromosomeLength: this.state.roomPersisted.chromosomeLength,
+        reproductiveCoefficient: this.state.roomPersisted.reproductiveCoefficient
       },
       room: this.state.room
     }
@@ -130,7 +131,8 @@ class ScientistView extends Component {
                     generations,
                     elitism,
                     populationSize,
-                    fitnessGoal
+                    fitnessGoal,
+                    reproductiveCoefficient
                   },
                   fitnessFunc,
                   mutations,
