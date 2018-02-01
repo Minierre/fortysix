@@ -10,14 +10,9 @@ const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
 
 class RoomManager {
-  constructor(roomHash, socket) {
+  constructor(roomHash) {
     this.room = roomHash
-    this.nodes = {
-      [socket.id]: {
-        running: false,
-        error: false
-      }
-    }
+    this.nodes = {}
     this.tasks = []
     this.jobRunning = false
     this.start = null
@@ -33,6 +28,8 @@ class RoomManager {
     this.selection = null
     this.genePool = ['1', '0']
     this.admins = {}
+    this.chromosomesReturned = 0
+    this.totalFitness = 0
   }
 
   addAdmin(socket) {
@@ -48,7 +45,6 @@ class RoomManager {
     socket.leave(this.room)
     this.updateAdmins()
   }
-
   abort(socket) {
     this.start = null
     this.tasks = []
@@ -154,8 +150,7 @@ class RoomManager {
     }
   }
   shouldTerminate() {
-    // right now this function doesn't do anything with the finishedTask,
-    // but it will when we use elitism or a maxFitness
+    // checks the termination conditions and returns true if the job should stop
     return this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize && this.isJobRunning()
   }
   finalSelection() {
@@ -282,27 +277,32 @@ class RoomManager {
   }
   algorithmDone(room, winningChromosome, fitness, io) {
     const endTime = Date.now()
-    console.log(
-      chalk.green(`DURATION OF ${room}: `, endTime - room.start)
-    )
-
-    console.log(
-      chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`)
-    )
-
-    console.log(
-      chalk.magenta(`BEST FITNESS: ${fitness}`)
-    )
-
-    io.sockets.emit('UPDATE_' + room, getRoom(room))
+    console.log(chalk.green(`DURATION OF ${room}: `, endTime - room.start))
+    console.log(chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`))
+    console.log(chalk.magenta(`BEST FITNESS: ${fitness}`))
+    this.updateAdmins()
     this.stopJob()
   }
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
       nodes: this.nodes,
       bucket: this.bucket,
-      jobRunning: this.jobRunning
+      jobRunning: this.jobRunning,
+      fitness: this.fitness,
+      chromosomesReturned: this.chromosomesReturned,
+      totalFitness: this.totalFitness
     }))
+  }
+  doneCallback(finishedTask, socket, io) {
+    // a bit of a security check --  might signal a malicious behavior
+    if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
+    // update the room state
+    this.updateRoomStats(finishedTask)
+    // update the bucket
+    this.updateBucket(finishedTask)
+    // checks if termination conditions are met and acts accordingly
+    this.terminateOrDistribute(finishedTask, socket, io)
+    console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
   }
 }
 

@@ -24,7 +24,7 @@ module.exports = (io) => {
 
 function registerJoinAdmin(socket, io) {
   socket.on('ADMIN_JOIN', (room) => {
-    if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
+    if (!rooms[room]) rooms[room] = new RoomManager(room)
     rooms[room].addAdmin(socket)
     registerJobStart(
       room,
@@ -69,7 +69,7 @@ function registerAbort(socket) {
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
 function registerJoin(socket, io) {
   socket.on('join', (room) => {
-    if (!rooms[room]) rooms[room] = new RoomManager(room, socket)
+    if (!rooms[room]) rooms[room] = new RoomManager(room)
     rooms[room].join(socket, io)
     // if a socket disconnects, we take that node off the room's list of nodes
     socket.once('disconnect', () => rooms[room].leave(socket, io))
@@ -94,17 +94,5 @@ function registerStart(socket) {
 
 // When a client finishes its work, it calls 'done' socket event
 function registerDone(socket, io) {
-  socket.on('done', finishedTask => doneCallback(finishedTask, socket, io))
-}
-
-function doneCallback(finishedTask, socket, io) {
-  // a bit of a security check --  might signal a malicious behavior
-  if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
-  // update the room state
-  rooms[finishedTask.room].updateRoomStats(finishedTask)
-  // update the bucket
-  rooms[finishedTask.room].updateBucket(finishedTask)
-  // checks if termination conditions are met and acts accordingly
-  rooms[finishedTask.room].terminateOrDistribute(finishedTask, socket, io)
-  console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
+  socket.on('done', finishedTask => rooms[finishedTask.room].doneCallback(finishedTask, socket, io))
 }
