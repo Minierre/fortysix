@@ -19,37 +19,12 @@ router.get('/all', (req, res, next) => {
 })
 
 router.get('/:roomHash', (req, res, next) => {
-  Room.findOne({
-    where: { roomHash: req.params.roomHash || null },
-    include: [
-      {
-        model: Parameters,
-        through: {
-          attributes: []
-        }
-      },
-      {
-        model: Selections,
-        attributes: ['name', 'function', 'id']
-      },
-      {
-        model: Mutations,
-        through: {
-          attributes: ['chanceOfMutation']
-        }
-      }
-    ]
-  })
-    .then((room) => {
-      // Decycle and reshape mutations array because Sequelize isn't perfect
-      const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
-      const newMutations = mutations.map((mutation) => {
-        mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
-        delete mutation.room_mutations
-        return mutation
-      })
-      return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
-    })
+  return Room.getRoomWithAssociations(
+    req.params.roomHash,
+    Parameters,
+    Selections,
+    Mutations
+  )
     .then(room => res.json(room))
     .catch(next)
 })
@@ -80,23 +55,24 @@ router.put('/:roomHash', (req, res, next) => {
     parameters,
     mutations,
     selection,
-    fitnessFunc
+    fitnessFunc,
   } = req.body
 
   sandbox.run(
-    `(() => { let fitFunc = eval("(" + ${fitnessFunc} + ")")
-    return fitFunc()})()`,
+    `let fitFunc = eval(${req.body.fitnessFunc});
+    (() => fitFunc('1010'))()`,
     (output) => {
-      let isValid = false;
-      if(output.result = 'SyntaxError: Unexpected string' || !isNaN(Number(output.result))) {
-        isValid = true;
-      }
+      const isValid = !isNaN(Number(output.result))
       if (isValid) {
         return Room.update(
           { fitnessFunc },
-          { where: { roomHash: req.params.roomHash } }
+          {
+            where: { roomHash: req.params.roomHash },
+            returning: true, // needed for affectedRows to be populated
+            plain: true // makes sure that the returned instances are just plain objects
+          }
         )
-          .spread(async () => {
+          .spread(async (numberOfRows, room) => {
             await Parameters.update(parameters, {
               where: { id: parameters.id }
             })
@@ -104,8 +80,11 @@ router.put('/:roomHash', (req, res, next) => {
             await mutations.map(async (mutation) => {
               await RoomMutations
                 .update(
-                  { chanceOfMutation: mutation.chanceOfMutation },
-                  { where: { mutationId: mutation.id } }
+                  {
+                    chanceOfMutation: mutation.chanceOfMutation,
+                    mutationId: mutation.id
+                  },
+                  { where: { roomId: room.id } }
                 )
             })
 
@@ -114,37 +93,13 @@ router.put('/:roomHash', (req, res, next) => {
             })
 
           }).then(() => {
-            return Room.findOne({
-              where: { roomHash: req.params.roomHash || null },
-              include: [{
-                model: Parameters,
-                through: {
-                  attributes: []
-                }
-              },
-              {
-                model: Selections,
-                attributes: ['name', 'function', 'id']
-              },
-              {
-                model: Mutations,
-                through: {
-                  attributes: ['chanceOfMutation']
-                }
-              }]
-            })
-              .then((room) => {
-                // Decycle and reshape mutations array because Sequelize isn't perfect
-                const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
-                const newMutations = mutations.map((mutation) => {
-                  mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
-                  delete mutation.room_mutations
-                  return mutation
-                })
-                return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
-              })
+            return Room.getRoomWithAssociations(
+              req.params.roomHash,
+              Parameters,
+              Selections,
+              Mutations
+            )
               .then(room => res.json(room))
-              .catch(next)
           })
           .catch(next)
       } else {

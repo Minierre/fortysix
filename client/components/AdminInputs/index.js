@@ -71,6 +71,15 @@ class AdminInputs extends Component {
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
+                <Input
+                  controlId="genePool"
+                  label="Gene Pool"
+                  type="text"
+                  value={values.genePool}
+                  placeholder="Enter comma delimited values"
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
+                />
               </Col>
               <Col sm={6}>
                 <Input
@@ -88,6 +97,15 @@ class AdminInputs extends Component {
                   type="number"
                   value={values.elitism}
                   placeholder="Enter elitism"
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
+                />
+                <Input
+                  controlId="reproductiveCoefficient"
+                  label="Reproductive Coefficient"
+                  type="number"
+                  value={values.reproductiveCoefficient}
+                  placeholder="Enter reproductive coefficient"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />

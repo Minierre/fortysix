@@ -6,9 +6,11 @@ import {
 } from 'react-bootstrap'
 import { Formik } from 'formik'
 import axios from 'axios'
+import ReactJson from 'react-json-view'
 import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import Status from './Status'
 import History from './History'
+// import Visualize from './Visualize'
 import './style.css'
 
 import {
@@ -17,7 +19,6 @@ import {
 
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
-const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 class ScientistView extends Component {
   constructor(props) {
@@ -26,6 +27,7 @@ class ScientistView extends Component {
       room: {
         multiThreaded: false,
         nodes: {},
+        bucket: {},
         jobRunning: false
       },
       roomPersisted: {
@@ -74,7 +76,8 @@ class ScientistView extends Component {
         generations: this.state.roomPersisted.generations,
         currentSelectionFunc: this.state.roomPersisted.selection,
         currentMutationFunc: this.state.roomPersisted.mutations[0],
-        chromosomeLength: this.state.roomPersisted.chromosomeLength
+        chromosomeLength: this.state.roomPersisted.chromosomeLength,
+        reproductiveCoefficient: this.state.roomPersisted.reproductiveCoefficient
       },
       room: this.state.room
     }
@@ -112,7 +115,6 @@ class ScientistView extends Component {
               ) => {
                 const roomHash = this.props.match.params.roomHash
                 const {
-                  genePool,
                   chromosomeLength,
                   generations,
                   elitism,
@@ -120,17 +122,20 @@ class ScientistView extends Component {
                   fitnessGoal,
                   fitnessFunc,
                   mutations,
-                  selection
+                  selection,
+                  genePool,
+                  reproductiveCoefficient
                 } = values
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,
-                    genePool
                     chromosomeLength,
                     generations,
                     elitism,
                     populationSize,
                     fitnessGoal,
+                    genePool,
+                    reproductiveCoefficient
                   },
                   fitnessFunc,
                   mutations,
@@ -168,9 +173,17 @@ class ScientistView extends Component {
               startJob={this.startJob}
             />
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Visualize">
+          <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
+            {/* <ReactJson src={
+              {
+                // nodes: this.state.room.nodes,
+                bucket: this.state.room.bucket
+              }} /> */}
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="History">
+          <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
+            {/* <Visualize data={this.state.room} /> */}
+          </Tab>
+          <Tab style={{ marginTop: '0.5em' }} eventKey={5} title="History">
             <History history={this.state.history} />
           </Tab>
         </Tabs>
