@@ -2,7 +2,7 @@ const { mean } = require('simple-statistics')
 
 class RoomStats {
   constructor() {
-    this.finalStats = []
+    this.stats = []
     this.generationData = {}
   }
   createBuckets(generations) {
@@ -10,18 +10,22 @@ class RoomStats {
       this.stats.push({ name: `Generation ${i}`, fitness: null })
     }
   }
-  updateGenerationData(incomingResult) {
-    this.generationData[incomingResult.generation] ?
-      this.generationData[incomingResult.generation].push(incomingResult.fitness) :
-      this.generationData[incomingResult.generation] = [incomingResult.fitness]
+  updateGenerationData(finishedTask) {
+    const data = {}
+    data.generation = finishedTask.gen
+    data.fitness = finishedTask.fitnesses.reduce((a, b) => a + b, 0)
+    this.generationData[data.generation] ?
+      this.generationData[data.generation].push(data.fitness) :
+      this.generationData[data.generation] = [data.fitness]
 
     this.findNewMean(incomingResult.generation)
+    return this.stats
   }
   findNewMean(generation) {
-    this.finalStats[generation].fitness = mean(this.generationData[generation])
+    this.stats[generation].fitness = mean(this.generationData[generation])
   }
-  fetchStats() {
-    return this.finalStats
+  getStats() {
+    return this.stats
   }
 }
 

@@ -124,7 +124,7 @@ class RoomManager {
       .catch(err => console.error(err))
   }
   updateRoomStats(finishedTask) {
-    this.totalFitness += finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
+    this.totalFitness += finishedTask.fitnesses.reduce((a, b) => a + b, 0)
     this.chromosomesReturned += finishedTask.population.length
   }
   updateBucket(finishedTask) {
@@ -294,33 +294,23 @@ class RoomManager {
       jobRunning: this.jobRunning,
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
-      totalFitness: this.totalFitness
+      totalFitness: this.totalFitness,
+      stats: this.stats.getStats()
     }))
   }
   doneCallback(finishedTask, socket, io) {
     // a bit of a security check --  might signal a malicious behavior
-    if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
-    // update the room state
+    if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
+    // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // reformats the data and sends it to the stats room
-    this.sendChromosomeData(finishedTask)
+    this.roomStats.processChromosomeData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly
     this.terminateOrDistribute(finishedTask, socket, io)
+    this.updateAdmins()
     console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
-  }
-
-  // the following instance methods allow rooms to send / receive tasks
-  sendChromosomeData(finishedTask) {
-    const data = {}
-    data.generation = finishedTask.gen
-    data.fitness = finishedTask.fitnesses[0] + finishedTask.fitnesses[1]
-    this.roomStats.updateGenerationData(data)
-  }
-  // returns the stats in a form that the front end graph can display
-  collectFitnessData() {
-    return this.roomStats.fetchStats()
   }
 }
 
