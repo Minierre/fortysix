@@ -1,5 +1,5 @@
 // fitness function for matching an input string, default string = alphabet
-const findString = ((c, targetString = 'abcdefghijklmnopqrstuvwxyz') => {
+const findString = ((c, targetString = 'jon') => {
   let fitness = 0;
   let i;
   for (i = 0; i < c.length; ++i) {

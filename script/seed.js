@@ -112,6 +112,11 @@ async function seed() {
       mutationId: 2,
       roomId: 1,
       chanceOfMutation: 0
+    }),
+    RoomMutations.create({
+      mutationId: 3,
+      roomId: 3,
+      chanceOfMutation: 0
     })
   ])
 
