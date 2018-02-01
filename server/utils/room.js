@@ -128,7 +128,7 @@ class RoomManager {
           this.nodes[socketId].running = true
           this.nodes[socketId].error = false
         })
-        return this
+        return // empty return
       })
       .catch(err => console.err(err))
   }
@@ -275,9 +275,20 @@ class RoomManager {
     }
     this.updateAdmins()
   }
-  algorithmDone(room, winningChromosome, fitness, io) {
+  algorithmDone(winningChromosome, fitness) {
     const endTime = Date.now()
-    console.log(chalk.green(`DURATION OF ${room}: `, endTime - room.start))
+    function convertMS(ms) {
+      let d, h, m, s
+      s = Math.floor(ms / 1000)
+      m = Math.floor(s / 60)
+      s = s % 60
+      h = Math.floor(m / 60)
+      m = m % 60
+      d = Math.floor(h / 24)
+      h = h % 24
+      return `days: ${d}, hours: ${h}, minutes: ${m}, seconds: ${s}`
+    };
+    console.log(chalk.green(`DURATION OF ${this.room}: `, convertMS(endTime - this.start)))
     console.log(chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`))
     console.log(chalk.magenta(`BEST FITNESS: ${fitness}`))
     this.updateAdmins()
