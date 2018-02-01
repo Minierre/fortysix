@@ -27,7 +27,7 @@ class RoomManager {
     this.fitness = null
     this.mutuations = null
     this.selection = null
-    this.genePool = ['1', '0']
+    this.genePool = []
     this.admins = {}
     this.chromosomesReturned = 0
     this.totalFitness = 0
@@ -116,6 +116,7 @@ class RoomManager {
         this.elitism = parameters.elitism
         this.fitnessGoal = parameters.fitnessGoal
         this.reproductiveCoefficient = parameters.reproductiveCoefficient
+        this.genePool = parameters.genePool.split(',')
         Object.keys(this.nodes).forEach((socketId) => {
           this.nodes[socketId].running = true
           this.nodes[socketId].error = false

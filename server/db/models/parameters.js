@@ -22,6 +22,10 @@ const Parameters = db.define('parameters', {
     type: Sequelize.INTEGER,
     defaultValue: 23
   },
+  genePool: {
+    type: Sequelize.TEXT,
+    defaultValue: '1,0'
+  },
   reproductiveCoefficient: {
     type: Sequelize.INTEGER,
     defaultValue: 1
