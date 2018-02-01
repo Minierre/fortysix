@@ -17,7 +17,6 @@ import {
 
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
-const TOGGLE_MULTITHREADED = 'TOGGLE_MULTITHREADED'
 
 class ScientistView extends Component {
   constructor(props) {
