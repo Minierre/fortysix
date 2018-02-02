@@ -34,7 +34,9 @@ class RoomStats {
       this.generationFitnessData[1] = this.binaryInsertion(this.generationFitnessData[1], fitness)
     })
     // every task comes back with fitness data too, which we store
-    fitnesses.forEach(fitness => this.binaryInsertion(this.generationFitnessData[gen], fitness))
+    fitnesses.forEach((fitness) => {
+      this.generationFitnessData[gen] = this.binaryInsertion(this.generationFitnessData[gen], fitness)
+    })
 
     return this.calculateStatisticalFeedback()
   }
@@ -56,7 +58,7 @@ class RoomStats {
     return (val - mean) / sd
   }
   generateGraphData(mean, sd) {
-    console.log(chalk.yellow(mean, sd))
+    console.log(chalk.yellow(this.generationFitnessData[2]))
   }
   binaryInsertion(arr, value) {
     let n = Math.floor(arr.length / 2)
@@ -64,33 +66,18 @@ class RoomStats {
     while (n !== 0 && n !== arr.length - 1 && m > 0) {
       if (arr[n] <= value && arr[n + 1] > value) {
         return arr.slice(0, n + 1).concat(value).concat(arr.slice(n + 1))
-      }
-      else if (arr[n] > value) {
+      } else if (arr[n] > value) {
         n -= m
-      }
-      else if (arr[n] < value) {
+      } else if (arr[n] < value) {
         n += m
       }
       m = (m === 1) ? 0 : Math.ceil(m / 2)
     }
     if (arr[n] <= value && arr[n + 1] > value) {
       return arr.slice(0, n + 1).concat(value).concat(arr.slice(n + 1))
-    }
-    else if (n === arr.length - 1) return arr.concat([value])
+    } else if (n === arr.length - 1) return arr.concat([value])
     return ([value]).concat(arr)
   }
-
-  // findNewMeans(generation) {
-  //   let sum = 0
-  //   this.generationData[generation].forEach(fitness => sum += fitness)
-  //   this.averageGenerationStats[generation - 2].fitness = sum / this.generationData[generation].length
-  //   return this.averageGenerationStats
-  // }
-
-
-  // getStats() {
-  //   return this.averageGenerationStats
-  // }
 }
 
 module.exports = { RoomStats }
