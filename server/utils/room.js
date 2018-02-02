@@ -310,7 +310,6 @@ class RoomManager {
     }))
   }
   doneCallback(finishedTask, socket, io) {
-    console.log(chalk.red(JSON.stringify(finishedTask)))
     // a bit of a security check --  might signal a malicious behavior
     if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
