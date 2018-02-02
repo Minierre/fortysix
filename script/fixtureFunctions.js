@@ -5,7 +5,7 @@ const findString = ((c, targetString = 'jon') => {
   for (i = 0; i < c.length; ++i) {
     if (c[i] === targetString[i])
       fitness += 1;
-    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString[i].charCodeAt(0))) / 50;
+    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
   }
   return fitness;
 }).toString()
