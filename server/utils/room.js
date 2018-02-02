@@ -50,7 +50,8 @@ class RoomManager {
         this.mutations,
         this.selection,
         this.chromosomeLength,
-        this.genePool
+        this.genePool,
+        this.elitism
       ))
       socket.emit('CALL_' + this.room, this.tasks.shift())
     }
@@ -94,7 +95,8 @@ class RoomManager {
       selection,
       this.chromosomeLength,
       this.genePool,
-      this.reproductiveCoefficient
+      this.reproductiveCoefficient,
+      this.elitism
     )
   }
   mapPersistedToMemory(room) {

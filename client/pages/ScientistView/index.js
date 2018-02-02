@@ -117,25 +117,25 @@ class ScientistView extends Component {
                 const {
                   chromosomeLength,
                   generations,
-                  elitism,
                   populationSize,
                   fitnessGoal,
                   fitnessFunc,
                   mutations,
                   selection,
                   genePool,
-                  reproductiveCoefficient
+                  reproductiveCoefficient,
+                  elitism
                 } = values
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,
                     chromosomeLength,
                     generations,
-                    elitism,
                     populationSize,
                     fitnessGoal,
                     genePool,
-                    reproductiveCoefficient
+                    reproductiveCoefficient,
+                    elitism
                   },
                   fitnessFunc,
                   mutations,
