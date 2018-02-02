@@ -56,6 +56,7 @@ router.put('/:roomHash', (req, res, next) => {
     mutations,
     selection,
     fitnessFunc,
+    testPool
   } = req.body
 
   sandbox.run(
