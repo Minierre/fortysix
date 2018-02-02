@@ -142,7 +142,7 @@ class ScientistView extends Component {
                   fitnessFunc,
                   mutations,
                   selection,
-                  genPop(chromosomeLength, populationSize, genePool)
+                  testPool: genPop(chromosomeLength, populationSize, genePool)
                 })
                   .then((roomPersisted) => {
                     this.setState({ roomPersisted: roomPersisted.data })
