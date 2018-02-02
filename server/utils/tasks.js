@@ -31,7 +31,7 @@ function generateTasks(
 }
 
 // generates a randome population of size = 'populationSize', composed of chromosomes of length = 'length', composed of genes from the genepool = 'pool'
-function genPop(length, populationSize, pool, probability = 0.5) {
+function genPop(length, populationSize, pool) {
   const pop = []
   for (let i = 0; i < populationSize; i++) {
     let c = []
@@ -44,4 +44,4 @@ function genPop(length, populationSize, pool, probability = 0.5) {
   return pop
 }
 
-module.exports = { generateTasks }
+module.exports = { generateTasks, genPop }

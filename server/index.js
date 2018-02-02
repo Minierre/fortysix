@@ -4,10 +4,12 @@ const volleyball = require('volleyball')
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const session = require('express-session')
+const passportSocketIo = require('passport.socketio')
 const passport = require('passport')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const socketio = require('socket.io')
 const db = require('./db')
+const cookieParser = require('cookie-parser')
 
 const sessionStore = new SequelizeStore({ db })
 const PORT = process.env.PORT || 8080
@@ -44,8 +46,14 @@ const createApp = () => {
   app.use(compression())
 
   // session middleware with passport
+
+  // app.use(session)
   app.use(session({
     secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+    cookie: {
+      secure: false,
+      maxAge: 2419200000
+    },
     store: sessionStore,
     resave: false,
     saveUninitialized: false
@@ -87,10 +95,15 @@ const createApp = () => {
 const startListening = () => {
   // start listening (and create a 'server' object representing our server)
   const server = app.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
-
-  // set up our socket control center
   const io = socketio(server)
   require('./socket')(io)
+  io.use(passportSocketIo.authorize({
+    cookieParser,
+    key: 'connect.sid',
+    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+    store: sessionStore,
+    passport,
+  }))
 }
 
 const syncDb = () => db.sync()

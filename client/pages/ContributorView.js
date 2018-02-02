@@ -4,11 +4,18 @@ import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
 
 class ContributorView extends Component {
+  constructor() {
+    super()
+    this.state = {
+      tasksCompleted: 0,
+    }
+  }
 
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
-    this.props.socket.on("CALL_" + roomHash, (task) => {
+    this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompleted }  ) => {
+      this.setState({tasksCompleted})
       this.props.socket.emit('start', roomHash)
       try {
         console.log('running: ', task)
@@ -103,14 +110,17 @@ class ContributorView extends Component {
 
   render() {
     return (
-      <Panel>
-        <Panel.Heading>
-          <Panel.Title componentClass="h3">
-            By having this page open you are contributing to science.
-          </Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>Thank you for contributing to science.</Panel.Body>
-      </Panel>
+      <div>
+        <Panel>
+          <Panel.Heading>
+            <Panel.Title componentClass="h3">
+              By having this page open you are contributing to science.
+            </Panel.Title>
+          </Panel.Heading>
+          <Panel.Body>Thank you for contributing to science.</Panel.Body>
+        </Panel>
+        <h2>{this.state.tasksCompleted}</h2>
+      </div>
     )
   }
 }

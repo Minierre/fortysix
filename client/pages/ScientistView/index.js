@@ -17,6 +17,8 @@ import {
   AdminInputs,
 } from '../../components'
 
+import { genPop } from "../../../server/utils/tasks";
+
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
 
@@ -124,7 +126,7 @@ class ScientistView extends Component {
                   mutations,
                   selection,
                   genePool,
-                  reproductiveCoefficient
+                  reproductiveCoefficient,
                 } = values
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
@@ -139,7 +141,8 @@ class ScientistView extends Component {
                   },
                   fitnessFunc,
                   mutations,
-                  selection
+                  selection,
+                  testPool: genPop(chromosomeLength, populationSize, genePool)
                 })
                   .then((roomPersisted) => {
                     this.setState({ roomPersisted: roomPersisted.data })
