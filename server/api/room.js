@@ -60,7 +60,7 @@ router.put('/:roomHash', (req, res, next) => {
     testPool
   } = req.body
 
-  let c = testPool[0] || '1010'
+  const c = testPool[0] || '1010'
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
