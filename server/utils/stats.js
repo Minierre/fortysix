@@ -40,6 +40,7 @@ class RoomStats {
       this.generationFitnessData[gen] = this.binaryInsertion(this.generationFitnessData[gen], fitness)
     })
 
+    console.log(this.generationFitnessData[1])
     return this.generateGraphData()
   }
   findMean(arr) {
@@ -57,8 +58,15 @@ class RoomStats {
 
     for (let i = 1; i <= this.generations; i++) {
       const normalizationFactor = Math.ceil(this.selectionSize ** i)
+      // console.log(chalk.yellow(normalizationFactor,this.generationFitnessData[1]))
+
       let mean = this.findMean(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor))
-      let sd = this.findSD(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor))
+      let sd = this.findSD(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor), mean)
+      // console.log(chalk.yellow(mean, sd))
+      let generationZScore = this.generationFitnessData[i].map((fitness) => {
+        return this.findZScore(fitness, mean, sd)
+      })
+      // console.log(chalk.yellow(generationZScore))
 
       const zScoreBucket = {}
       graphData.push(zScoreBucket)
