@@ -37,6 +37,7 @@
     "konva": "^1.7.6",
     "material-ui": "^0.20.0",
     "moment": "^2.20.1",
+    "normalize-samples": "^0.1.1",
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "pg": "^6.1.2",
