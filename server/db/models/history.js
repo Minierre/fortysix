@@ -19,9 +19,6 @@ const History = db.define('history', {
   },
   result: {
     type: Sequelize.TEXT
-  },
-  multiThreaded: {
-    type: Sequelize.BOOLEAN
   }
 })
 

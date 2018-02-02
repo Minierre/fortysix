@@ -170,35 +170,31 @@ class RoomManager {
     results.winningChromosome = mostFitChromosome
     return results
   }
-  stopJob() {
+
+  stopJob(socket) {
     this.jobRunning = false
     // if the job is finished, each node stops running
     Object.keys(this.nodes).forEach((nodeId) => this.nodes[nodeId].running = false)
 
-    // History.create({
-    //   nodes: Object.keys(room.nodes).length,
-    //   result: room.lastResult.tour + ' ' + room.lastResult.dist,
-    //   startTime: room.start,
-    //   multiThreaded: room.multiThreaded,
-    //   endTime,
-    //   room
-    // })
-    //   .then(() => {
-    //     History.findAll({
-    //       where: {
-    //         room
-    //       }
-    //     }).then((history) => {
-    //       io.sockets.emit('UPDATE_HISTORY_' + room, history)
-    //     })
-    //     rooms[room].start = null
-    //     rooms[room].maxGen = null
-    //     // rooms[room].populationSize = null
-    //     rooms[room].lastResult = {
-    //       maxGeneration: 0,
-    //       maxFitness: 0
-    //     }
-    //   })
+    History.create({
+      nodes: Object.keys(this.nodes).length,
+      room: this.room,
+      result: this.lastResult,
+      startTime: this.start,
+      endTime: new Date(),
+    })
+      .then(() => {
+        History.findAll({
+          where: {
+            room: this.room
+          }
+        }).then((history) => {
+          socket.broadcast.to(this.room).emit('UPDATE_HISTORY_' + this.room, history)
+        })
+        this.start = null
+        this.lastResult = null
+      })
+
     this.start = null
     this.maxGen = null
     this.lastResult = {
@@ -267,7 +263,7 @@ class RoomManager {
     if (allDone) {
       // terminate
       const results = this.finalSelection()
-      this.algorithmDone(results.room, results.winningChromosome, results.fitness, io)
+      this.algorithmDone(results.winningChromosome, results.fitness, socket)
       this.emptyTaskQueue()
     } else {
       // Edge Case, if a user leaves the room while a task is finished by that user,
@@ -279,7 +275,7 @@ class RoomManager {
     this.updateAdmins()
   }
 
-  algorithmDone(winningChromosome, fitness) {
+  algorithmDone(winningChromosome, fitness, socket) {
     const endTime = Date.now()
     function convertMS(ms) {
       let d, h, m, s
@@ -296,7 +292,10 @@ class RoomManager {
     console.log(chalk.magenta(`BEST CHROMOSOME: ${winningChromosome}`))
     console.log(chalk.magenta(`BEST FITNESS: ${fitness}`))
     this.updateAdmins()
-    this.stopJob()
+    this.lastResult = winningChromosome.reduce((result, gene) => {
+      return result + gene
+    }, '')
+    this.stopJob(socket)
   }
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
