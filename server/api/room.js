@@ -76,16 +76,13 @@ router.put('/:roomHash', (req, res, next) => {
             await Parameters.update(parameters, {
               where: { id: parameters.id }
             })
-
             await mutations.map(async (mutation) => {
               await RoomMutations
-                .update(
-                  {
-                    chanceOfMutation: mutation.chanceOfMutation,
-                    mutationId: mutation.id
-                  },
-                  { where: { roomId: room.id } }
-                )
+                .upsert({
+                  chanceOfMutation: Number(mutation.chanceOfMutation),
+                  roomId: room.id,
+                  mutationId: mutation.id
+                })
             })
 
             await Selections.update(selection, {

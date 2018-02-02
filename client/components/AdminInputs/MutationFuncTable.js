@@ -1,6 +1,7 @@
 import React from 'react';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import axios from 'axios'
+import differenceBy from 'lodash/differenceBy'
 
 export default class MutationFuncTable extends React.Component {
   constructor(props) {
@@ -15,22 +16,47 @@ export default class MutationFuncTable extends React.Component {
   }
 
   onAfterSaveCell(row, cellName, cellValue) {
-
-    const newMutations = this.props.functions.map(mut => {
-      // Since we can't have duplicates from table validation we knowwe are updating a row
-      if (row.mutationId === mut.mutationId) {
-        return { ...mut, chanceOfMutation: mut.chanceOfMutation }
-      }
-      return mut
-    })
-
-    const newRow = () => this.props.functions.every(func => func.name !== cellValue)
-
     this.props.submit({
       preventDefault: () => { },
       target: {
-        value: newRow() ? [...newMutations, row] : newMutations
+        value: {
+          mutationId: row.mutationId,
+          chanceOfMutation: row.chanceOfMutation
+        }
       }
+    })
+  }
+
+  onAfterInsertRow(row) {
+    const id = this.state.mutationFuncs.find(mut => mut.name === row.name).id
+    this.props.onChange({
+      persist: () => { },
+      target: {
+        name: 'mutations',
+        value: this.props.functions.concat([{
+          id,
+          name: row.name,
+          mutationId: id,
+          chanceOfMutation: row.chanceOfMutation
+        }])
+      }
+    })
+
+    // HACK: This is to fix a race condition that causes Formik to not update
+    // when the modal form is submitted.
+    setImmediate(() => {
+      this.props.submit({
+        preventDefault: () => { },
+        target: {
+          name: 'mutations',
+          value: this.props.functions.concat([{
+            id,
+            name: row.name,
+            mutationId: id,
+            chanceOfMutation: row.chanceOfMutation
+          }])
+        }
+      })
     })
   }
 
@@ -39,39 +65,18 @@ export default class MutationFuncTable extends React.Component {
       .then(funcs => this.setState({ mutationFuncs: funcs.data }))
   }
 
-  addMutationFuncsToDropDown() {
-    return this.state.mutationFuncs.map(mut => {
-      return mut.name
-    })
+  MutationFuncSelect(column, attr, editorClass, ignoreEditable, defaultValue) {
+    return (
+      <select className={`${editorClass}`} { ...attr }>
+        {
+          differenceBy(this.state.mutationFuncs, this.props.functions, 'id').map(
+            func =>
+              (<option key={func.id} value={func.name}>{func.name}</option>)
+          )
+        }
+      </select>
+    )
   }
-
-  functionNameValidator(newVal, previousVal) {
-    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
-
-    const isDuplicate = () => {
-        return this.props.functions
-          .filter(func => func.name !== previousVal.name)
-          .some(func => func.name === newVal)
-    }
-
-    if (!newVal) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must be inserted';
-      response.notification.title = 'Requested Value';
-    } else if (newVal.length < 10) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must have 10+ characters';
-      response.notification.title = 'Invalid Value';
-    } else if (isDuplicate()) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'You can\'t have the same function twice';
-      response.notification.title = 'Invalid Value';
-    }
-    return response;
-}
 
   chanceOfMutationValidator(value) {
     const nan = isNaN(value);
@@ -81,30 +86,50 @@ export default class MutationFuncTable extends React.Component {
     return true;
   }
 
+  invalidChanceOfMutation = (cell, row) => {
+    console.log(`${cell} at row id: ${row.id} fails on editing`);
+  }
+
+  editingChanceOfMutation = (cell, row) => {
+    console.log(`${cell} at row id: ${row.id} in current editing`);
+  }
+
+  onAfterDeleteRow(rowKeys) {
+    alert('The rowkey you drop: ' + rowKeys);
+  }
+
   render() {
     return (
-      <BootstrapTable data={this.props.functions} cellEdit={{
-        mode: 'click',
-        blurToSave: true,
-        afterBeforeCell: this.onAfterSaveCell.bind(this)
-      }} insertRow={true}>
+      <BootstrapTable
+        data={this.props.functions}
+        options={{ afterInsertRow: this.onAfterInsertRow.bind(this) }}
+        cellEdit={{
+          mode: 'click',
+          blurToSave: true,
+          afterSaveCell: this.onAfterSaveCell.bind(this),
+          afterDeleteRow: this.onAfterDeleteRow.bind(this)
+        }}
+        selectRow={{
+          mode: 'checkbox'
+        }}
+        deleteRow={true}
+        insertRow={true}>
         <TableHeaderColumn
+          autoValue
           hidden
           dataField='id'
           isKey={true}
         >Job ID</TableHeaderColumn>
         <TableHeaderColumn
           dataField='name'
-          editable={{
-            type: 'select', options: {
-              values: this.addMutationFuncsToDropDown(),
-            },
-
-            validator: this.functionNameValidator.bind(this)
-          }}>Mutation Function</TableHeaderColumn>
+          customInsertEditor={
+            { getElement: this.MutationFuncSelect.bind(this) }
+          }
+        >Mutation Function</TableHeaderColumn>
         <TableHeaderColumn
-          dataField='chanceOfMutation'
-          editable={{ validator: this.chanceOfMutationValidator }}
+          dataField='chanceOfMutation' editable={{ validator: this.chanceOfMutationValidator }}
+          editColumnClassName={this.editingChanceOfMutation}
+          invalidEditColumnClassName={this.invalidChanceOfMutation}
         > Chance of Mutation</TableHeaderColumn>
       </BootstrapTable>
     );
