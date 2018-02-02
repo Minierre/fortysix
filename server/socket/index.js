@@ -63,7 +63,11 @@ function registerJobError(socket, io) {
 
 // abort event gets triggered when when the client side reset button is hit
 function registerAbort(socket) {
-  socket.on('ABORT', room => rooms[room].abort(socket))
+  socket.on('ABORT', room => {
+    // if there are no nodes in the room, create a new roomManager instance
+    if (Object.keys(rooms[room].nodes).length < 1) rooms[room] = new RoomManager()
+    else rooms[room].abort(socket)
+  })
 }
 
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
