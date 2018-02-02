@@ -63,7 +63,7 @@ router.put('/:roomHash', (req, res, next) => {
     (() => fitFunc('1010'))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
-      if (isValid) {
+      if (true) {
         return Room.update(
           { fitnessFunc },
           {
@@ -76,16 +76,13 @@ router.put('/:roomHash', (req, res, next) => {
             await Parameters.update(parameters, {
               where: { id: parameters.id }
             })
-
             await mutations.map(async (mutation) => {
               await RoomMutations
-                .update(
-                  {
-                    chanceOfMutation: mutation.chanceOfMutation,
-                    mutationId: mutation.id
-                  },
-                  { where: { roomId: room.id } }
-                )
+                .upsert({
+                  chanceOfMutation: Number(mutation.chanceOfMutation),
+                  roomId: room.id,
+                  mutationId: mutation.id
+                })
             })
 
             await Selections.update(selection, {
