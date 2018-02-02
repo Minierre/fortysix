@@ -49,7 +49,6 @@ router.post('/', (req, res, next) => {
       .catch(next)
   }
 })
-
 router.put('/:roomHash', (req, res, next) => {
   const {
     parameters,
