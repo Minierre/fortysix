@@ -1,5 +1,6 @@
 const normalize = require('normalize-samples')
 const forEach = require('lodash/forEach')
+const BST = require('js-algorithms/src/data-structures/binary-search-tree');
 const chalk = require('chalk')
 
 class RoomStats {
@@ -12,7 +13,7 @@ class RoomStats {
     // so we don't recalculate the mean and the stdv at every incoming task, we store it
     this.queue = []
     // looks like [{gen: 2, fit: 2345}, {gen: 2, fit: 2342}]
-    this.generationFitnessesData = []
+    this.generationFitnessesData = {}
     this.zScoreBuckets = {
       name: "bad", generations: {},
       name: "not good", generations: {},
@@ -26,7 +27,7 @@ class RoomStats {
     // }
 
     for (let i = 1; i <= generations; i++) {
-      this.generationFitnessData.push({ gen: i, fitnesses: [] })
+      this.generationFitnessData[i] = []
     }
 
 
@@ -89,7 +90,7 @@ class RoomStats {
   }
 
   generateGraphData(sample, mean, stDv) {
-
+    console.log(chalk.yellow('SAMPLE', sample))
   }
 
   // findNewMeans(generation) {
