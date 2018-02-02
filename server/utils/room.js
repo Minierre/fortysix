@@ -37,7 +37,7 @@ class RoomManager {
   }
   join(socket) {
     socket.join(this.room)
-    this.nodes[socket.id] = { running: false, error: false }
+    this.nodes[socket.id] = { running: false, error: false, tasksCompleted: 0 }
     this.updateAdmins()
   }
   leave(socket) {
@@ -58,7 +58,7 @@ class RoomManager {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
+    console.log(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -193,9 +193,11 @@ class RoomManager {
   // NEEDS TO GET RID OF ANY IO SOCKET CALLING
   distributeWork(socket) {
     this.nodes[socket.id].running = true
-    socket.emit('CALL_' + this.room, this.tasks.shift())
+    const task = this.tasks.shift()
+    socket.emit('CALL_' + this.room, task )
     this.updateAdmins()
   }
+  // { task, tasksCompleted: this.nodes[socket.id].tasksCompleted }
   createMoreTasks(finishedTask) {
     if (this.bucket[finishedTask.gen].population.length >= this.populationSize) {
       this.tasks.push(this.bucket[finishedTask.gen])
@@ -282,6 +284,7 @@ class RoomManager {
   }
   doneCallback(finishedTask, socket, io) {
     // a bit of a security check --  might signal a malicious behavior
+    if (this.nodes[socket.id]) ++this.nodes[socket.id]
     if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error()
     // update the room state
     this.updateRoomStats(finishedTask)

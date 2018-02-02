@@ -3,20 +3,14 @@ const express = require('express')
 const volleyball = require('volleyball')
 const bodyParser = require('body-parser')
 const compression = require('compression')
-// const session = require('express-session')
-const sharedSession = require('express-socket.io-session')
+const session = require('express-session')
+const passportSocketIo = require('passport.socketio')
 const passport = require('passport')
-const session = require("express-session")
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const socketio = require('socket.io')
 const db = require('./db')
+const cookieParser = require('cookie-parser')
 
-session({
-  secret: "my-secret",
-  resave: true,
-  saveUninitialized: true
-})
-console.log(session);
 const sessionStore = new SequelizeStore({ db })
 const PORT = process.env.PORT || 8080
 const app = express()
@@ -53,15 +47,17 @@ const createApp = () => {
 
   // session middleware with passport
 
-  app.use(session)
-  // app.use(session({
-  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
-  //   store: sessionStore,
-  //   resave: false,
-  //   saveUninitialized: false
-  // }))
-  // console.log(session);
-  // console.log(sharedSession);
+  // app.use(session)
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+    cookie: {
+      secure: false,
+      maxAge: 2419200000
+    },
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false
+  }))
   app.use(passport.initialize())
   app.use(passport.session())
 
@@ -101,9 +97,13 @@ const startListening = () => {
   const server = app.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
   const io = socketio(server)
   require('./socket')(io)
-  // io.use(sharedSession(session))
-  // set up our socket control center
-  // console.log(sharedSession);
+  io.use(passportSocketIo.authorize({
+    cookieParser,       // the same middleware you registrer in express
+    key: 'connect.sid',       // the name of the cookie where express/connect stores its session_id
+    secret: process.env.SESSION_SECRET || 'my best friend is Cody',    // the session_secret to parse the cookie
+    store: sessionStore,        // we NEED to use a sessionstore. no memorystore please
+    passport,
+}))
 }
 
 const syncDb = () => db.sync()

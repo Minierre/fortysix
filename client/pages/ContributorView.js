@@ -8,10 +8,12 @@ class ContributorView extends Component {
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
-    this.props.socket.on("CALL_" + roomHash, (task) => {
+    this.props.socket.on("CALL_" + roomHash, ( task, tasksCompleted ) => {
+      console.log(task);
       this.props.socket.emit('start', roomHash)
       try {
-        console.log('running: ', task)
+        console.log(tasksCompleted);
+        // console.log('running: ', task)
         this.runMultiThreaded(task)
       } catch (err) {
         console.error(err)

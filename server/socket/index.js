@@ -16,18 +16,6 @@ const getRoom = (object = {}) => {
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    // console.log('socket handshake:' + socket.handshake.session);
-    // socket.on('login', (userdata) => {
-    //   console.log('inside login');
-    //   socket.handshake.session.userData = userData;
-    //   socket.handshake.session.save()
-    // });
-    // socket.on('logout', (userData) => {
-    //   if (socket.handshake.session.userData) {
-    //     delete socket.handshake.session.userData
-    //     socket.handshake.session.save()
-    //   }
-    // })
     console.log(`A socket connection to the server has been made: ${socket.id}`)
     registerJoinAdmin(socket, io)
     registerEvents(socket, io)
@@ -45,7 +33,6 @@ function registerJoinAdmin(socket, io) {
     )
   })
 }
-
 // todo: register leave admin
 
 function registerJobStart(room, socket, io) {
@@ -67,9 +54,9 @@ function registerEvents(socket, io) {
 }
 
 // when a specific client gets an error
-function registerJobError(socket, io) {
+function registerJobError(socket) {
   socket.on('JOB_ERROR', ({ roomHash, error }) => {
-    rooms[roomHash].jobError(socket, io, error)
+    rooms[roomHash].jobError(socket, error)
   })
 }
 
