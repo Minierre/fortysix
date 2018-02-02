@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap'
 import { Formik } from 'formik'
 import axios from 'axios'
-import ReactJson from 'react-json-view'
+import JSONTree from 'react-json-tree'
 import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import Status from './Status'
 import History from './History'
@@ -174,11 +174,10 @@ class ScientistView extends Component {
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
-            {/* <ReactJson src={
-              {
-                // nodes: this.state.room.nodes,
-                bucket: this.state.room.bucket
-              }} /> */}
+            <JSONTree data={{
+              nodes: this.state.room.nodes,
+              buckets: this.state.room.bucket
+            }} />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
             <Visualize data={this.state.room.stats} />
