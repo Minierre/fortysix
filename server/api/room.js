@@ -63,7 +63,7 @@ router.put('/:roomHash', (req, res, next) => {
     (() => fitFunc('1010'))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
-      if (isValid) {
+      if (true) {
         return Room.update(
           { fitnessFunc },
           {
