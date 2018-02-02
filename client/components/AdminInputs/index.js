@@ -117,7 +117,7 @@ class AdminInputs extends Component {
                   options={this.state.selectionFuncs}
                   placeholder="Enter selection Function"
                   onBlur={this.props.submit}
-                  onChange={this.props.onChange}
+                  onSelect={this.props.onChange}
                 />
               </Col>
               <div className="mutation-func-table-wrapper">
