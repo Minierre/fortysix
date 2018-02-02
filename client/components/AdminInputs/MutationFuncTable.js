@@ -15,11 +15,21 @@ export default class MutationFuncTable extends React.Component {
   }
 
   onAfterSaveCell(row, cellName, cellValue) {
-    const newMutations = this.props.functions.filter(func => row.id === func.id)
+
+    const newMutations = this.props.functions.map(mut => {
+      // Since we can't have duplicates from table validation we knowwe are updating a row
+      if (row.mutationId === mut.mutationId) {
+        return { ...mut, chanceOfMutation: mut.chanceOfMutation }
+      }
+      return mut
+    })
+
+    const newRow = () => this.props.functions.every(func => func.name !== cellValue)
+
     this.props.submit({
       preventDefault: () => { },
       target: {
-        value: [...newMutations, row]
+        value: newRow() ? [...newMutations, row] : newMutations
       }
     })
   }
@@ -35,17 +45,29 @@ export default class MutationFuncTable extends React.Component {
     })
   }
 
-  functionNameValidator(value) {
+  functionNameValidator(newVal, previousVal) {
     const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
-    if (!value) {
+
+    const isDuplicate = () => {
+        return this.props.functions
+          .filter(func => func.name !== previousVal.name)
+          .some(func => func.name === newVal)
+    }
+
+    if (!newVal) {
       response.isValid = false;
       response.notification.type = 'error';
       response.notification.msg = 'Value must be inserted';
       response.notification.title = 'Requested Value';
-    } else if (value.length < 10) {
+    } else if (newVal.length < 10) {
       response.isValid = false;
       response.notification.type = 'error';
       response.notification.msg = 'Value must have 10+ characters';
+      response.notification.title = 'Invalid Value';
+    } else if (isDuplicate()) {
+      response.isValid = false;
+      response.notification.type = 'error';
+      response.notification.msg = 'You can\'t have the same function twice';
       response.notification.title = 'Invalid Value';
     }
     return response;
@@ -59,20 +81,12 @@ export default class MutationFuncTable extends React.Component {
     return true;
   }
 
-  invalidChanceOfMutation = (cell, row) => {
-    console.log(`${cell} at row id: ${row.id} fails on editing`);
-  }
-
-  editingChanceOfMutation = (cell, row) => {
-    console.log(`${cell} at row id: ${row.id} in current editing`);
-  }
-
   render() {
     return (
       <BootstrapTable data={this.props.functions} cellEdit={{
         mode: 'click',
         blurToSave: true,
-        afterSaveCell: this.onAfterSaveCell.bind(this)
+        afterBeforeCell: this.onAfterSaveCell.bind(this)
       }} insertRow={true}>
         <TableHeaderColumn
           hidden
@@ -84,11 +98,13 @@ export default class MutationFuncTable extends React.Component {
           editable={{
             type: 'select', options: {
               values: this.addMutationFuncsToDropDown(),
-              validator: this.functionNameValidator
-            }
+            },
+
+            validator: this.functionNameValidator.bind(this)
           }}>Mutation Function</TableHeaderColumn>
         <TableHeaderColumn
-          dataField='chanceOfMutation' editable={{ validator: this.chanceOfMutationValidator }} editColumnClassName={this.editingChanceOfMutation} invalidEditColumnClassName={this.invalidChanceOfMutation}
+          dataField='chanceOfMutation'
+          editable={{ validator: this.chanceOfMutationValidator }}
         > Chance of Mutation</TableHeaderColumn>
       </BootstrapTable>
     );
