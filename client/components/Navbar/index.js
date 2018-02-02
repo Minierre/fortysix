@@ -7,9 +7,10 @@ const Navbar = () => (
   <NavigationBar inverse>
     <NavigationBar.Header>
       <NavigationBar.Brand>
-        Partonia
+        Forty Six
       </NavigationBar.Brand>
     </NavigationBar.Header>
+    <p className="navbar-text navbar-right">Signed in as </p>
   </NavigationBar>
 )
 
