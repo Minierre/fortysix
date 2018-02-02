@@ -33,7 +33,6 @@ function registerJoinAdmin(socket, io) {
     )
   })
 }
-
 // todo: register leave admin
 
 function registerJobStart(room, socket, io) {
@@ -55,9 +54,9 @@ function registerEvents(socket, io) {
 }
 
 // when a specific client gets an error
-function registerJobError(socket, io) {
+function registerJobError(socket) {
   socket.on('JOB_ERROR', ({ roomHash, error }) => {
-    rooms[roomHash].jobError(socket, io, error)
+    rooms[roomHash].jobError(socket, error)
   })
 }
 
