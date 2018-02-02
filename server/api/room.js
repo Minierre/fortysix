@@ -59,11 +59,14 @@ router.put('/:roomHash', (req, res, next) => {
     testPool
   } = req.body
 
+  let c = testPool[0] || '1010'
+
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
-    (() => fitFunc(['1010']))()`,
+    (() => fitFunc([${c}]))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
+      console.log(output.result)
       if (isValid) {
         return Room.update(
           { fitnessFunc },

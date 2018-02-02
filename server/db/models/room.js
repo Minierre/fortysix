@@ -7,7 +7,7 @@ const Room = db.define(
   {
     roomHash: {
       type: Sequelize.STRING,
-      unique: true
+      // unique: true
     },
     fitnessFunc: {
       type: Sequelize.TEXT,
@@ -15,7 +15,7 @@ const Room = db.define(
     },
     roomName: {
       type: Sequelize.STRING,
-      unique: true
+      // unique: true
     },
     selectionId: {
       type: Sequelize.INTEGER,
