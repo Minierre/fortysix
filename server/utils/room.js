@@ -118,7 +118,6 @@ class RoomManager {
         this.maxGen = parameters.generations
         this.populationSize = parameters.populationSize
         this.chromosomeLength = parameters.chromosomeLength
-        console.log('should be setting elitism to perameters: ', parameters.elitism)
         this.elitism = parameters.elitism
         this.fitnessGoal = parameters.fitnessGoal
         this.reproductiveCoefficient = parameters.reproductiveCoefficient

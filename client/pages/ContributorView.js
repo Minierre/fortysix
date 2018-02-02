@@ -99,7 +99,6 @@ class ContributorView extends Component {
           elitism: task.elitism
         }
 
-        console.log('WINNERS: ',returnTaskObj.population)
         this.props.socket.emit('done', returnTaskObj)
       })
   }
