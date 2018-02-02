@@ -16,6 +16,7 @@ const getRoom = (object = {}) => {
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
+    console.log(socket.request.user);
     console.log(`A socket connection to the server has been made: ${socket.id}`)
     registerJoinAdmin(socket, io)
     registerEvents(socket, io)
@@ -36,6 +37,7 @@ function registerJoinAdmin(socket, io) {
 // todo: register leave admin
 
 function registerJobStart(room, socket, io) {
+  console.log(socket.request.user);
   const startName = 'START_' + room
   socket.on(startName, (args) => {
     if (!rooms[room]) throw new Error(chalk.red(`${room} doesn't exist!`))

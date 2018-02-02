@@ -13,6 +13,7 @@ module.exports = router
 const sandbox = new Sandbox()
 
 router.get('/all', (req, res, next) => {
+  console.log(req.session.passport);
   Room.findAll()
     .then(rooms => res.json(rooms))
     .catch(next)
