@@ -13,7 +13,6 @@ module.exports = router
 const sandbox = new Sandbox()
 
 router.get('/all', (req, res, next) => {
-  // console.log(req.session);
   Room.findAll()
     .then(rooms => res.json(rooms))
     .catch(next)
@@ -56,11 +55,11 @@ router.put('/:roomHash', (req, res, next) => {
     parameters,
     mutations,
     selection,
-    fitnessFunc
+    fitnessFunc,
   } = req.body
 
   sandbox.run(
-    `let fitFunc = eval(${req.body.fitnessFunc});
+    `let fitFunc = eval(${fitnessFunc});
     (() => fitFunc('1010'))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))

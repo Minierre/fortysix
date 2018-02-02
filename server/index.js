@@ -98,12 +98,12 @@ const startListening = () => {
   const io = socketio(server)
   require('./socket')(io)
   io.use(passportSocketIo.authorize({
-    cookieParser,       // the same middleware you registrer in express
-    key: 'connect.sid',       // the name of the cookie where express/connect stores its session_id
-    secret: process.env.SESSION_SECRET || 'my best friend is Cody',    // the session_secret to parse the cookie
-    store: sessionStore,        // we NEED to use a sessionstore. no memorystore please
+    cookieParser,
+    key: 'connect.sid',
+    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+    store: sessionStore,
     passport,
-}))
+  }))
 }
 
 const syncDb = () => db.sync()
