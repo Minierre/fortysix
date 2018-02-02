@@ -97,13 +97,13 @@ const startListening = () => {
   const server = app.listen(PORT, () => console.log(`Mixing it up on port ${PORT}`))
   const io = socketio(server)
   require('./socket')(io)
-  io.use(passportSocketIo.authorize({
-    cookieParser,
-    key: 'connect.sid',
-    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
-    store: sessionStore,
-    passport,
-  }))
+  // io.use(passportSocketIo.authorize({
+  //   cookieParser,
+  //   key: 'connect.sid',
+  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+  //   store: sessionStore,
+  //   passport,
+  // }))
 }
 
 const syncDb = () => db.sync()
