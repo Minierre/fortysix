@@ -246,7 +246,7 @@ class RoomManager {
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
     // sets up our roomStats with the appropriate amount of buckets
-    this.roomStats = new RoomStats(this.maxGen)
+    this.roomStats = new RoomStats(this.maxGen, this.populationSize)
     this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {

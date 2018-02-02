@@ -2,7 +2,7 @@ const forEach = require('lodash/forEach')
 const chalk = require('chalk')
 
 class RoomStats {
-  constructor(generations) {
+  constructor(generations, populationSize) {
     // this.averageGenerationStats = []
     this.statisticalFeedback = []
     // in order to compute stats, you need individual generation and chromosome data
@@ -23,6 +23,8 @@ class RoomStats {
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessData[i] = []
     }
+    this.generations = generations
+    this.selectionSize = 2 / populationSize
   }
 
   updateGenerationData(finishedTask) {
@@ -38,14 +40,7 @@ class RoomStats {
       this.generationFitnessData[gen] = this.binaryInsertion(this.generationFitnessData[gen], fitness)
     })
 
-    return this.calculateStatisticalFeedback()
-  }
-
-  calculateStatisticalFeedback() {
-    const genOneMean = this.findMean(this.generationFitnessData[1])
-    const genOneSD = this.findSD(this.generationFitnessData[1], genOneMean)
-
-    return this.generateGraphData(genOneMean, genOneSD)
+    return this.generateGraphData()
   }
   findMean(arr) {
     return arr.reduce((a, b) => a + b) / arr.length
@@ -57,8 +52,18 @@ class RoomStats {
   findZScore(val, mean, sd) {
     return (val - mean) / sd
   }
-  generateGraphData(mean, sd) {
-    console.log(chalk.yellow(this.generationFitnessData[2]))
+  generateGraphData() {
+    let graphData = []
+
+    for (let i = 1; i <= this.generations; i++) {
+      const normalizationFactor = Math.ceil(this.selectionSize ** i)
+      let mean = this.findMean(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor))
+      let sd = this.findSD(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor))
+
+      const zScoreBucket = {}
+      graphData.push(zScoreBucket)
+    }
+    return graphData
   }
   binaryInsertion(arr, value) {
     let n = Math.floor(arr.length / 2)
