@@ -96,7 +96,8 @@ class ContributorView extends Component {
           mutations: task.mutations,
           genePool: task.genePool,
           reproductiveCoefficient: task.reproductiveCoefficient,
-          elitism: task.elitism
+          elitism: task.elitism,
+          genOneFitnessData: (task.gen === 1) ? fitpop : null
         }
 
         this.props.socket.emit('done', returnTaskObj)
