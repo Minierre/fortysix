@@ -95,8 +95,11 @@ class ContributorView extends Component {
           selection: task.selection,
           mutations: task.mutations,
           genePool: task.genePool,
-          reproductiveCoefficient: task.reproductiveCoefficient
+          reproductiveCoefficient: task.reproductiveCoefficient,
+          elitism: task.elitism
         }
+
+        console.log('WINNERS: ',returnTaskObj.population)
         this.props.socket.emit('done', returnTaskObj)
       })
   }

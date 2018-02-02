@@ -12,7 +12,7 @@ const Parameters = db.define('parameters', {
   },
   elitism: {
     type: Sequelize.FLOAT,
-    defaultValue: 0.23
+    defaultValue: 0
   },
   populationSize: {
     type: Sequelize.INTEGER,
