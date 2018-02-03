@@ -11,7 +11,7 @@ const Select = ({
   placeholder,
   type,
   value,
-  onSelect,
+  onChange,
   options
  }) => (
     <FormGroup
@@ -21,11 +21,11 @@ const Select = ({
       <FormControl
         componentClass="select"
         placeholder={placeholder}
-        onSelect={onSelect}
-        value
+        onSelect={onChange}
+        value={value}
       >
         {options.map((option, idx) =>
-          <option key={option.id} value={idx}>{option.name}</option>
+          <option key={option.id} value={option.id}>{option.name}</option>
         )}
       </FormControl>
       <FormControl.Feedback />
