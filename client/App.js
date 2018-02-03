@@ -26,35 +26,32 @@ class App extends Component {
   render() {
     return (
       <div id="app-wrapper">
-          <div>
-            <Navbar />
-            <Router history={history}>
-              <Main>
-                <Switch>
-                  <Route
-                    path="/admin/:roomHash"
-                    component={() => <ScientistView socket={this.props.socket} />}
-                  />
-                  <Route
-                    path="/contributor/:roomHash"
-                    component={() => <ContributorView socket={this.props.socket} />}
-                  />
-                  <Route
-                    path="/login"
-                    component={() => <LoginSignup socket={this.props.socket} />}
-                  />
-                  <Route
-                    path="/signup"
-                    component={() => <LoginSignup socket={this.props.socket} />}
-                  />
-                  <Route
-                    path="/"
-                    component={() => <Home socket={this.props.socket} />}
-                  />
-                </Switch>
-              </Main>
-            </Router>
-          </div>
+        <Router history={history}>
+          <Main>
+            <Switch>
+              <Route
+                path="/admin/:roomHash"
+                component={() => <ScientistView socket={this.props.socket} />}
+              />
+              <Route
+                path="/contributor/:roomHash"
+                component={() => <ContributorView socket={this.props.socket} />}
+              />
+              <Route
+                path="/login"
+                component={() => <LoginSignup socket={this.props.socket} />}
+              />
+              <Route
+                path="/signup"
+                component={() => <LoginSignup socket={this.props.socket} />}
+              />
+              <Route
+                path="/"
+                component={() => <Home socket={this.props.socket} />}
+              />
+            </Switch>
+          </Main>
+        </Router>
       </div>
     )
   }
