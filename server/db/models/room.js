@@ -39,10 +39,7 @@ Room.getRoomWithAssociations = (roomHash = null, parameters, selections, mutatio
       attributes: ['name', 'function', 'id']
     },
     {
-      model: mutations,
-      through: {
-        attributes: ['chanceOfMutation']
-      }
+      model: mutations
     }]
   })
     .then((room) => {
@@ -50,6 +47,8 @@ Room.getRoomWithAssociations = (roomHash = null, parameters, selections, mutatio
       const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
       const newMutations = mutations.map((mutation) => {
         mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+        mutation.mutationId = mutation.room_mutations.mutationId
+        mutation.roomId = mutation.room_mutations.roomId
         delete mutation.room_mutations
         return mutation
       })

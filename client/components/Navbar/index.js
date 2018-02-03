@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Navbar as NavigationBar } from 'react-bootstrap'
 
 import './style.css'
@@ -7,7 +8,7 @@ const Navbar = () => (
   <NavigationBar inverse>
     <NavigationBar.Header>
       <NavigationBar.Brand>
-        Partonia
+        <Link to="/">FortySix</Link>
       </NavigationBar.Brand>
     </NavigationBar.Header>
   </NavigationBar>
