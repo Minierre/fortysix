@@ -10,12 +10,10 @@ class RoomStats {
     this.counter = 0
     // stores object data that looks like {{2: [2345,2315]}, ...]
     this.generationFitnessesData = {}
-    this.
 
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessesData[i] = []
     }
-    // console.log(this.generationFitnessesData)
     this.generations = generations
     this.selectionSize = 2 / populationSize
   }
