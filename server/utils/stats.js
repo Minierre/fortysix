@@ -48,27 +48,22 @@ class RoomStats {
     return arr.reduce((a, b) => a + b) / arr.length
   }
   findSD(arr, mean) {
-    const stDv = Math.sqrt(this.findMean(arr.map(ele => (ele - mean) ** 2)))
-    return stDv
+    return Math.sqrt(this.findMean(arr.map(ele => (ele - mean) ** 2)))
   }
   findZScore(val, mean, sd) {
     return (val - mean) / sd
   }
   generateGraphData() {
     let graphData = []
-
     for (let i = 1; i <= this.generations; i++) {
-      const normalizationFactor = Math.ceil(this.selectionSize ** i)
-      // console.log(chalk.yellow(normalizationFactor,this.generationFitnessesData[1]))
+      const normalizationFactor = this.selectionSize ** i
+      const normalizationArr = this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length * normalizationFactor)
 
-      let mean = this.findMean(this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length - normalizationFactor))
-      let sd = this.findSD(this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length - normalizationFactor), mean)
-      // console.log(chalk.yellow(mean, sd))
+      const mean = this.findMean(normalizationArr)
+      const sd = this.findSD(normalizationArr, mean)
       let generationZScore = this.generationFitnessesData[i].map((fitness) => {
         return this.findZScore(fitness, mean, sd)
       })
-      // console.log(chalk.yellow(generationZScore))
-
       const zScoreBucket = {}
       graphData.push(zScoreBucket)
     }
