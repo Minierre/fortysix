@@ -1,5 +1,6 @@
 const forEach = require('lodash/forEach')
 const chalk = require('chalk')
+const sortedIndex = require('lodash/sortedIndex')
 
 class RoomStats {
   constructor(generations, populationSize) {
@@ -7,7 +8,7 @@ class RoomStats {
     this.statisticalFeedback = []
     // in order to compute stats, you need individual generation and chromosome data
     // this.generationData = {}
-    this.generationFitnessData = []
+    // this.generationFitnessesData = []
     // so we don't recalculate the mean and the stdv at every incoming task, we store it
     this.queue = []
     // looks like [{gen: 2, fit: 2345}, {gen: 2, fit: 2342}]
@@ -21,8 +22,9 @@ class RoomStats {
     }
 
     for (let i = 1; i <= generations; i++) {
-      this.generationFitnessData[i] = []
+      this.generationFitnessesData[i] = []
     }
+    // console.log(this.generationFitnessesData)
     this.generations = generations
     this.selectionSize = 2 / populationSize
   }
@@ -33,14 +35,13 @@ class RoomStats {
 
     // we insert the first generation data into the array, in a sorted order
     if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
-      this.generationFitnessData[1] = this.binaryInsertion(this.generationFitnessData[1], fitness)
+      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], fitness)
     })
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
-      this.generationFitnessData[gen] = this.binaryInsertion(this.generationFitnessData[gen], fitness)
+      this.generationFitnessesData[gen] = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    console.log(this.generationFitnessData[1])
     return this.generateGraphData()
   }
   findMean(arr) {
@@ -58,12 +59,12 @@ class RoomStats {
 
     for (let i = 1; i <= this.generations; i++) {
       const normalizationFactor = Math.ceil(this.selectionSize ** i)
-      // console.log(chalk.yellow(normalizationFactor,this.generationFitnessData[1]))
+      // console.log(chalk.yellow(normalizationFactor,this.generationFitnessesData[1]))
 
-      let mean = this.findMean(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor))
-      let sd = this.findSD(this.generationFitnessData[1].slice(this.generationFitnessData[1].length - normalizationFactor), mean)
+      let mean = this.findMean(this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length - normalizationFactor))
+      let sd = this.findSD(this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length - normalizationFactor), mean)
       // console.log(chalk.yellow(mean, sd))
-      let generationZScore = this.generationFitnessData[i].map((fitness) => {
+      let generationZScore = this.generationFitnessesData[i].map((fitness) => {
         return this.findZScore(fitness, mean, sd)
       })
       // console.log(chalk.yellow(generationZScore))
@@ -73,23 +74,11 @@ class RoomStats {
     }
     return graphData
   }
-  binaryInsertion(arr, value) {
-    let n = Math.floor(arr.length / 2)
-    let m = Math.floor(arr.length / 4)
-    while (n !== 0 && n !== arr.length - 1 && m > 0) {
-      if (arr[n] <= value && arr[n + 1] > value) {
-        return arr.slice(0, n + 1).concat(value).concat(arr.slice(n + 1))
-      } else if (arr[n] > value) {
-        n -= m
-      } else if (arr[n] < value) {
-        n += m
-      }
-      m = (m === 1) ? 0 : Math.ceil(m / 2)
-    }
-    if (arr[n] <= value && arr[n + 1] > value) {
-      return arr.slice(0, n + 1).concat(value).concat(arr.slice(n + 1))
-    } else if (n === arr.length - 1) return arr.concat([value])
-    return ([value]).concat(arr)
+
+  binaryInsertion(array, value) {
+    var index = sortedIndex(array, value)
+    array = array.slice(0, index).concat(value, array.slice(index))
+    return array
   }
 }
 
