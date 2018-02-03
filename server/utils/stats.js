@@ -6,6 +6,7 @@ class RoomStats {
   constructor(generations, populationSize) {
     // this.averageGenerationStats = []
     this.statisticalFeedback = []
+    this.graphData = []
     // so we don't recalculate the mean and the stdv at every incoming task, we store it
     this.counter = 0
     // stores object data that looks like {{2: [2345,2315]}, ...]
@@ -106,21 +107,24 @@ class RoomStats {
         }
       })
     }
-    const graphData = []
-    graphData.push(zScoreBucketHorrible)
-    graphData.push(zScoreBucketVeryBad)
-    graphData.push(zScoreBucketBad)
-    graphData.push(zScoreBucketRandom)
-    graphData.push(zScoreBucketNotBad)
-    graphData.push(zScoreBucketGood)
-    graphData.push(zScoreBucketExcellent)
-    return graphData
+    this.graphData.push(zScoreBucketVeryBad)
+    this.graphData.push(zScoreBucketHorrible)
+    this.graphData.push(zScoreBucketBad)
+    this.graphData.push(zScoreBucketRandom)
+    this.graphData.push(zScoreBucketNotBad)
+    this.graphData.push(zScoreBucketGood)
+    this.graphData.push(zScoreBucketExcellent)
+    return this.graphData
   }
 
   binaryInsertion(array, value) {
     let index = sortedIndex(array, value)
     array = array.slice(0, index).concat(value, array.slice(index))
     return array
+  }
+
+  getStats() {
+    return this.graphData
   }
 }
 

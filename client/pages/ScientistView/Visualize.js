@@ -13,6 +13,7 @@ import {
 
 class Visualize extends Component {
   render() {
+    console.log(this.props.data)
     return (
       <div>
         <h4>Average Fitness Per Generation</h4>
