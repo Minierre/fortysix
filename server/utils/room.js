@@ -305,7 +305,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      // stats: this.roomStats ? this.roomStats.getStats() : []
+      stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
   doneCallback(finishedTask, socket, io) {
