@@ -54,24 +54,80 @@ class RoomStats {
     return (val - mean) / sd
   }
   generateGraphData() {
-    let graphData = []
-    for (let i = 1; i <= this.generations; i++) {
-      const normalizationFactor = this.selectionSize ** i
-      const normalizationArr = this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length * normalizationFactor)
+    // sets up the zScoreBuckets
+    const zScoreBucketHorrible = { name: 'horrible' }
+    const zScoreBucketVeryBad = { name: 'veryBad' }
+    const zScoreBucketBad = { name: 'bad' }
+    const zScoreBucketRandom = { name: 'random' }
+    const zScoreBucketNotBad = { name: 'notBad' }
+    const zScoreBucketGood = { name: 'good' }
+    const zScoreBucketExcellent = { name: 'excellent' }
 
-      const mean = this.findMean(normalizationArr)
-      const sd = this.findSD(normalizationArr, mean)
-      let generationZScore = this.generationFitnessesData[i].map((fitness) => {
-        return this.findZScore(fitness, mean, sd)
+    for (let i = 1; i <= this.generations; i++) {
+      // incorporates a base zscore percentage of 0 in each of the zscore buckets per generation
+      zScoreBucketHorrible[i] = 0
+      zScoreBucketVeryBad[i] = 0
+      zScoreBucketBad[i] = 0
+      zScoreBucketRandom[i] = 0
+      zScoreBucketNotBad[i] = 0
+      zScoreBucketGood[i] = 0
+      zScoreBucketExcellent[i] = 0
+
+      // create an arr from gen1 fitnesses to normalize more mature generation fitness data
+      const normalizationFactor = this.selectionSize ** (i - 1)
+      let normalizationArr = normalizationFactor === 1 ?
+        this.generationFitnessesData[1] :
+        this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length * normalizationFactor)
+      // compute the normalized mean and sd
+      const normalizedMean = this.findMean(normalizationArr)
+      const normalizedSD = this.findSD(normalizationArr, normalizedMean)
+
+      // go through each of the generations
+      this.generationFitnessesData[i].forEach((fitness) => {
+        const zScore = this.findZScore(fitness, normalizedMean, normalizedSD)
+        switch (true) {
+          case (zScore < -2.567):
+            zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore >= -2.567 && zScore < -1.96:
+            zScoreBucketVeryBad[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore >= -1.96 && Number(zScore) < -1.645:
+            zScoreBucketBad[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore >= -1.645 && zScore < 1.645:
+            zScoreBucketRandom[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore >= 1.645 && zScore < 1.96:
+            zScoreBucketNotBad[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore >= 1.96 && zScore < 2.567:
+            zScoreBucketGood[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          case zScore > 2.567:
+            zScoreBucketExcellent[i] += (1 / this.generationFitnessesData[i].length)
+            break
+          default:
+            console.log('default', typeof zScore)
+
+            break
+        }
       })
-      const zScoreBucket = {}
-      graphData.push(zScoreBucket)
     }
+    const graphData = []
+    graphData.push(zScoreBucketHorrible)
+    graphData.push(zScoreBucketVeryBad)
+    graphData.push(zScoreBucketBad)
+    graphData.push(zScoreBucketRandom)
+    graphData.push(zScoreBucketNotBad)
+    graphData.push(zScoreBucketGood)
+    graphData.push(zScoreBucketExcellent)
+    console.log(graphData)
     return graphData
   }
 
   binaryInsertion(array, value) {
-    var index = sortedIndex(array, value)
+    let index = sortedIndex(array, value)
     array = array.slice(0, index).concat(value, array.slice(index))
     return array
   }
