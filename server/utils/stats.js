@@ -6,20 +6,11 @@ class RoomStats {
   constructor(generations, populationSize) {
     // this.averageGenerationStats = []
     this.statisticalFeedback = []
-    // in order to compute stats, you need individual generation and chromosome data
-    // this.generationData = {}
-    // this.generationFitnessesData = []
     // so we don't recalculate the mean and the stdv at every incoming task, we store it
-    this.queue = []
-    // looks like [{gen: 2, fit: 2345}, {gen: 2, fit: 2342}]
+    this.counter = 0
+    // stores object data that looks like {{2: [2345,2315]}, ...]
     this.generationFitnessesData = {}
-    this.zScoreBuckets = {
-      name: "bad", generations: {},
-      name: "not good", generations: {},
-      name: "random", generations: {},
-      name: "statistically insignificant", generations: {},
-      name: "statistically significant", generations: {}
-    }
+    this.
 
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessesData[i] = []
@@ -42,7 +33,11 @@ class RoomStats {
       this.generationFitnessesData[gen] = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    return this.generateGraphData()
+    this.counter++
+    if (this.counter >= 100) {
+      this.counter = 0
+      return this.generateGraphData()
+    }
   }
   findMean(arr) {
     return arr.reduce((a, b) => a + b) / arr.length
@@ -108,7 +103,6 @@ class RoomStats {
             zScoreBucketExcellent[i] += (1 / this.generationFitnessesData[i].length)
             break
           default:
-            console.log('default', typeof zScore)
 
             break
         }
@@ -122,7 +116,6 @@ class RoomStats {
     graphData.push(zScoreBucketNotBad)
     graphData.push(zScoreBucketGood)
     graphData.push(zScoreBucketExcellent)
-    console.log(graphData)
     return graphData
   }
 
