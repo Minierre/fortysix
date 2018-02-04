@@ -97,13 +97,15 @@ const startListening = () => {
   // set up our socket control center
   const io = socketio(server)
   require('./socket')(io)
-  io.use(passportSocketIo.authorize({
-    cookieParser,
-    key: 'connect.sid',
-    secret: process.env.SESSION_SECRET || 'my best friend is Cody',
-    store: sessionStore,
-    passport,
-  }))
+  //commented out because it prevents users from
+  //contributing anonymously
+  // io.use(passportSocketIo.authorize({
+  //   cookieParser,
+  //   key: 'connect.sid',
+  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+  //   store: sessionStore,
+  //   passport,
+  // }))
 }
 
 const syncDb = () => db.sync()

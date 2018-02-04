@@ -18,11 +18,12 @@ class Navbar extends Component {
   }
 
 logout(evt) {
-  axios.post('/auth/logout')
+  axios.post('api/auth/logout')
   .then(() => history.push('/login'))
 }
 
   render() {
+    console.log(this.props);
     return(
       <NavigationBar inverse>
       <NavigationBar.Header>
@@ -31,9 +32,8 @@ logout(evt) {
       </NavigationBar.Brand>
       </NavigationBar.Header>
         <ul className="nav navbar-nav navbar-right">
-          <li><a href="#"><span className="glyphicon glyphicon-log-out"></span> Logout</a></li>
+          <li onClick={this.logout}><a href='/'><span className="glyphicon glyphicon-log-out"></span> Logout</a></li>
         </ul>
-
       </NavigationBar>
     )
   }

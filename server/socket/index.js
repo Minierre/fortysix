@@ -16,10 +16,10 @@ const getRoom = (object = {}) => {
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log(socket.request.user);
+    // console.log(socket.request.user);
     console.log(`A socket connection to the server has been made: ${socket.id}`)
-    registerJoinAdmin(socket, io)
     registerEvents(socket, io)
+    registerJoinAdmin(socket, io)
   })
 }
 
@@ -61,12 +61,6 @@ function registerJobError(socket) {
     rooms[roomHash].jobError(socket, error)
   })
 }
-
-// function registerLogout(socket) {
-//   socket.on('LOGOUT', () => {
-//     socket.request.session.user
-//   })
-// }
 
 // abort event gets triggered when when the client side reset button is hit
 function registerAbort(socket) {
