@@ -9,8 +9,6 @@ const {
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
 const { RoomStats } = require('./stats')
-const { spawn } = require('threads')
-
 
 class RoomManager {
   constructor(roomHash) {
@@ -132,10 +130,12 @@ class RoomManager {
       })
       .catch(err => console.error(err))
   }
+
   updateRoomStats(finishedTask) {
     this.totalFitness += finishedTask.fitnesses.reduce((a, b) => a + b, 0)
     this.chromosomesReturned += finishedTask.population.length
   }
+
   updateBucket(finishedTask) {
     // if the room's bucket contains a task with the current incoming generation...
     if (this.bucket[finishedTask.gen]) {
@@ -208,9 +208,11 @@ class RoomManager {
       maxFitness: 0
     }
   }
+
   emptyTaskQueue() {
     this.tasks = []
   }
+
   totalTasks() {
     return this.tasks.length
   }
@@ -240,6 +242,7 @@ class RoomManager {
         this.tasks.concat(newTask)
     }
   }
+
   addAdmin(socket) {
     this.admins[socket.id] = socket
   }
@@ -260,6 +263,7 @@ class RoomManager {
       console.log(chalk.red(`${startName} already running!`))
     }
   }
+
   terminateOrDistribute(finishedTask, socket, io) {
     // decides whether to hand off the final generation to the final selection function OR distributes the next task on queue to the worker node
 
@@ -323,6 +327,7 @@ class RoomManager {
       stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
+
   doneCallback(finishedTask, socket, io) {
     // a bit of a security check --  might signal a malicious behavior
     // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
