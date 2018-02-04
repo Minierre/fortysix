@@ -34,7 +34,7 @@ class ContributorView extends Component {
 
   componentWillUnmount() {
     const roomHash = this.props.match.params.roomHash
-    this.props.socket.emit("LEAVE_" + roomHash)
+    this.props.socket.emit('leave', roomHash)
   }
 
   runMultiThreaded(task) {
