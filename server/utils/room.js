@@ -146,7 +146,7 @@ class RoomManager {
     }
     // if not, make a new key in the bucket for the new incoming generation
     else {
-      this.bucket[finishedTask.gen] = finishedTask
+      this.bucket[finishedTask.gen] = Object.assign({}, finishedTask)
       delete this.bucket[finishedTask.gen].genOneFitnessData
     }
   }
