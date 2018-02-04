@@ -44,6 +44,7 @@ class RoomStats {
       })
         .promise()
         .then(({ newGenerationOneFitnessesData }) => {
+          console.log('hello')
           thread.kill()
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
           this.generateGraphData()

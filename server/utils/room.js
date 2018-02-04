@@ -149,7 +149,7 @@ class RoomManager {
       this.bucket[finishedTask.gen] = finishedTask
     }
   }
-  
+
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
     return (this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
@@ -320,7 +320,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: []
+      stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
   doneCallback(finishedTask, socket, io) {
@@ -329,7 +329,7 @@ class RoomManager {
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // If a task comes back after a server restart, ignore it.
-    // if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
+    if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly
