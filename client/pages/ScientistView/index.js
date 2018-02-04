@@ -180,7 +180,14 @@ class ScientistView extends Component {
             }} />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
-            <Visualize data={this.state.room.stats} />
+            <Visualize
+              generations={
+                this.state.roomPersisted &&
+                this.state.roomPersisted.parameters &&
+                this.state.roomPersisted.parameters.generations
+              }
+              data={this.state.room.stats}
+            />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={5} title="History">
             <History history={this.state.history} />
