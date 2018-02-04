@@ -32,11 +32,7 @@ class RoomStats {
       this.generationFitnessesData[gen] = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    this.counter++
-    if (this.counter >= 100) {
-      this.counter = 0
-      return this.generateGraphData()
-    }
+    return this.generateGraphData()
   }
   findMean(arr) {
     return arr.reduce((a, b) => a + b) / arr.length
@@ -49,13 +45,13 @@ class RoomStats {
   }
   generateGraphData() {
     // sets up the zScoreBuckets
-    const zScoreBucketHorrible = { name: 'horrible' }
-    const zScoreBucketVeryBad = { name: 'veryBad' }
-    const zScoreBucketBad = { name: 'bad' }
-    const zScoreBucketRandom = { name: 'random' }
-    const zScoreBucketNotBad = { name: 'notBad' }
-    const zScoreBucketGood = { name: 'good' }
-    const zScoreBucketExcellent = { name: 'excellent' }
+    const zScoreBucketHorrible = { name: 'Horrible' }
+    const zScoreBucketVeryBad = { name: 'Very Bad' }
+    const zScoreBucketBad = { name: 'Bad' }
+    const zScoreBucketRandom = { name: 'Random' }
+    const zScoreBucketNotBad = { name: 'Not Bad' }
+    const zScoreBucketGood = { name: 'Good' }
+    const zScoreBucketExcellent = { name: 'Excellent' }
 
     for (let i = 1; i <= this.generations; i++) {
       // incorporates a base zscore percentage of 0 in each of the zscore buckets per generation
@@ -107,20 +103,23 @@ class RoomStats {
         }
       })
     }
-    this.graphData.push(zScoreBucketVeryBad)
-    this.graphData.push(zScoreBucketHorrible)
-    this.graphData.push(zScoreBucketBad)
-    this.graphData.push(zScoreBucketRandom)
-    this.graphData.push(zScoreBucketNotBad)
-    this.graphData.push(zScoreBucketGood)
-    this.graphData.push(zScoreBucketExcellent)
+
+    this.graphData = [
+      zScoreBucketHorrible,
+      zScoreBucketVeryBad,
+      zScoreBucketBad,
+      zScoreBucketRandom,
+      zScoreBucketNotBad,
+      zScoreBucketGood,
+      zScoreBucketExcellent
+    ]
+
     return this.graphData
   }
 
   binaryInsertion(array, value) {
     let index = sortedIndex(array, value)
-    array = array.slice(0, index).concat(value, array.slice(index))
-    return array
+    return array.slice(0, index).concat(value, array.slice(index))
   }
 
   getStats() {
