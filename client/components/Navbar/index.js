@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { Navbar as NavigationBar } from 'react-bootstrap'
+import { Navbar as NavigationBar, Button } from 'react-bootstrap'
 import history from '../../history'
 
 
@@ -27,12 +27,13 @@ logout(evt) {
       <NavigationBar inverse>
       <NavigationBar.Header>
       <NavigationBar.Brand>
-      <Link to='/'>
-      4D6
-      </Link>
+        <Link to="/">FortySix</Link>
       </NavigationBar.Brand>
       </NavigationBar.Header>
-      <button type='submit' className='btn' onClick={this.logout}>Logout</button>
+        <ul className="nav navbar-nav navbar-right">
+          <li><a href="#"><span className="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
+
       </NavigationBar>
     )
   }
