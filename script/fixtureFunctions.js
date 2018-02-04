@@ -199,10 +199,7 @@ let randomSettingMutation = ((pop, p, pool) => {
 
 // randomly swaps genes in two positions of each chromosome effected, 'p' is chance of any given chromosome being effected
 let swapMutation = ((pop, p) => {
-  // checks to be sure all types in the population are same and output what they are
-  const type = (pop.every((chromosome, _, ar) => {
-    return typeof chromosome === typeof ar[0]
-  })) ? typeof pop[0] : false
+  // swaps two random genes in a chromosome
   function swap(c) {
     let i = Math.floor(Math.random() * c.length)
     let j = Math.floor(Math.random() * c.length)
@@ -211,11 +208,9 @@ let swapMutation = ((pop, p) => {
     c[j] = temp
     return c
   }
-  return (type && type === 'string')
-    ?
-    pop.map(v => v.split('').map(w => (Math.random() < p) ? swap(w) : w).join(''))
-    :
-    pop.map(v => v.map(w => (Math.random() < p) ? swap(w) : w))
+  // mutates each chromosome in the population 'pop' with probability p
+  return pop.map((chromosome) => {
+    return (Math.random() < p) ? swap(chromosome) : chromosome
 }).toString()
 
 
