@@ -85,12 +85,12 @@ async function seed() {
     }),
     Parameters.create({
       chromosomeLength: 100,
-      generations: 5,
+      generations: 100,
       elitism: 0,
-      populationSize: 1500,
+      populationSize: 200,
       fitnessGoal: 1000000000,
-      reproductiveCoefficient: 25,
-      genePool: 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, '
+      reproductiveCoefficient: 200,
+      genePool: 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, ,.'
     }),
     Parameters.create({
       chromosomeLength: 8,
