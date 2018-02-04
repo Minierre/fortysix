@@ -4,10 +4,10 @@ const findString = ((c, targetString = 'jon') => {
   let i;
   for (i = 0; i < c.length; ++i) {
     if (c[i] === targetString[i])
-      fitness += 1;
-    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
+      fitness += 100;
+    fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
   }
-  return fitness;
+  return Math.max(fitness, 0);
 }).toString()
 
 // fitness function for writing an arrow function that returns hello world
@@ -211,8 +211,8 @@ let swapMutation = ((pop, p) => {
   // mutates each chromosome in the population 'pop' with probability p
   return pop.map((chromosome) => {
     return (Math.random() < p) ? swap(chromosome) : chromosome
+  })
 }).toString()
-
 
 // sudo randomly chooses 'n' chromosomes with fitness-weighted probability of choosing any given chromosome
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {

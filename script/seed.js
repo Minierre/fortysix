@@ -85,11 +85,12 @@ async function seed() {
     }),
     Parameters.create({
       chromosomeLength: 100,
-      generations: 3,
+      generations: 5,
       elitism: 0,
-      populationSize: 100,
+      populationSize: 1500,
       fitnessGoal: 1000000000,
-      reproductiveCoefficient: 2
+      reproductiveCoefficient: 25,
+      genePool: 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, '
     }),
     Parameters.create({
       chromosomeLength: 8,
@@ -135,7 +136,12 @@ async function seed() {
     RoomMutations.create({
       mutationId: 3,
       roomId: 3,
-      chanceOfMutation: 0
+      chanceOfMutation: .2
+    }),
+    RoomMutations.create({
+      mutationId: 2,
+      roomId: 3,
+      chanceOfMutation: .2
     }),
     RoomMutations.create({
       mutationId: 1,
