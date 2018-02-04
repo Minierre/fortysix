@@ -242,7 +242,7 @@ class RoomManager {
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
     // sets up our roomStats with the appropriate amount of buckets
-    this.roomStats = new RoomStats(this.maxGen)
+    this.roomStats = new RoomStats(this.maxGen, this.populationSize)
     this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
@@ -313,8 +313,8 @@ class RoomManager {
     // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
-    // reformats the data and sends it to the stats room
-    this.roomStats.updateGenerationData(finishedTask)
+    // If a task comes back after a server restart, ignore it.
+    if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly

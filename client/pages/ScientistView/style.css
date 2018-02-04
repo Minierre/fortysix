@@ -2,3 +2,18 @@
 #scientist-view-wrapper {
   width: 100%;
 }
+
+.well {
+  width: 100%
+}
+
+.graph-title-wrapper {
+  /* Margin left for centering the title on the graph */
+  margin-left: 10%;
+}
+
+.graph-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
