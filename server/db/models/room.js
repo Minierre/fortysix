@@ -45,16 +45,14 @@ Room.getRoomWithAssociations = (roomHash = null, parameters, selections, mutatio
     .then((room) => {
       // Decycle and reshape mutations array because Sequelize isn't perfect
       const { mutations, ...rest } = JSON.parse(JSON.stringify(room))
-      if (mutations) {
-        const newMutations = mutations.map((mutation) => {
-          mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
-          mutation.mutationId = mutation.room_mutations.mutationId
-          mutation.roomId = mutation.room_mutations.roomId
-          delete mutation.room_mutations
-          return mutation
-        })
-        return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
-      }
+      const newMutations = mutations.map((mutation) => {
+        mutation.chanceOfMutation = mutation.room_mutations.chanceOfMutation
+        mutation.mutationId = mutation.room_mutations.mutationId
+        mutation.roomId = mutation.room_mutations.roomId
+        delete mutation.room_mutations
+        return mutation
+      })
+      return { ...rest, mutations: newMutations, parameters: room.parameters[0] }
     })
 }
 
