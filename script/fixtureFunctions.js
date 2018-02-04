@@ -4,10 +4,10 @@ const findString = ((c, targetString = 'jon') => {
   let i;
   for (i = 0; i < c.length; ++i) {
     if (c[i] === targetString[i])
-      fitness += 1;
-    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
+      fitness += 100;
+    fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
   }
-  return fitness;
+  return Math.max(fitness, 0);
 }).toString()
 
 // fitness function for writing an arrow function that returns hello world
@@ -199,10 +199,7 @@ let randomSettingMutation = ((pop, p, pool) => {
 
 // randomly swaps genes in two positions of each chromosome effected, 'p' is chance of any given chromosome being effected
 let swapMutation = ((pop, p) => {
-  // checks to be sure all types in the population are same and output what they are
-  const type = (pop.every((chromosome, _, ar) => {
-    return typeof chromosome === typeof ar[0]
-  })) ? typeof pop[0] : false
+  // swaps two random genes in a chromosome
   function swap(c) {
     let i = Math.floor(Math.random() * c.length)
     let j = Math.floor(Math.random() * c.length)
@@ -211,13 +208,11 @@ let swapMutation = ((pop, p) => {
     c[j] = temp
     return c
   }
-  return (type && type === 'string')
-    ?
-    pop.map(v => v.split('').map(w => (Math.random() < p) ? swap(w) : w).join(''))
-    :
-    pop.map(v => v.map(w => (Math.random() < p) ? swap(w) : w))
+  // mutates each chromosome in the population 'pop' with probability p
+  return pop.map((chromosome) => {
+    return (Math.random() < p) ? swap(chromosome) : chromosome
+  })
 }).toString()
-
 
 // sudo randomly chooses 'n' chromosomes with fitness-weighted probability of choosing any given chromosome
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
