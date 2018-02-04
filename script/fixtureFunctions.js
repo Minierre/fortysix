@@ -57,7 +57,7 @@ const helloWorld = ((c) => {
     else if (c.includes('=>')) {
       fitness += .10
     }
-    let funcPatterns = ["function(){return\"helloworld\"}", "()=>\"helloworld\""]
+    let funcPatterns = ["()=>\"helloworld\""]
     let difs = []
     for (var l = 0; l < funcPatterns.length; l++) {
       difs.push(stringDif(c.split(" ").join(""), funcPatterns[l]))

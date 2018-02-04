@@ -24,7 +24,7 @@ class RoomManager {
     this.maxGen = null
     this.populationSize = null
     this.chromosomeLength = null
-    this.fitnessGoal = null
+    this.fitnessGoal = 0
     this.elitism = null
     this.reproductiveCoefficient = 1
     this.fitness = null
@@ -149,7 +149,7 @@ class RoomManager {
       this.bucket[finishedTask.gen] = finishedTask
     }
   }
-  
+
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
     return (this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
