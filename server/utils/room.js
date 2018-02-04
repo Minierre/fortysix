@@ -75,7 +75,7 @@ class RoomManager {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
+    console.log(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -310,7 +310,7 @@ class RoomManager {
   }
   doneCallback(finishedTask, socket, io) {
     // a bit of a security check --  might signal a malicious behavior
-    if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
+    // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // reformats the data and sends it to the stats room

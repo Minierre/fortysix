@@ -10,6 +10,52 @@ const findString = ((c, targetString = 'jon') => {
   return fitness;
 }).toString()
 
+// fitness function for writing an arrow function that returns hello world
+const helloWorld = ((c) => {
+  c = c.join('')
+
+  let stringDif = (str0, str1) => {
+    let numWrong = Math.abs(str1.length - str0.length)
+    for (var i = 0; i < Math.min(str0.length, str1.length); i++) {
+      if (str1[i] !== str0[i]) numWrong++
+    }
+    return numWrong
+  }
+
+  let fitness = 1
+  try {
+    let value = eval('(' + c + ')')()
+    if (typeof value === 'string') {
+      fitness *= 10
+      fitness /= stringDif(value, 'hello world')
+      if (value.length === ('hello world').length) {
+        fitness *= 10
+      }
+      if (value.toLowerCase() === 'hello world') {
+        fitness = 100000000
+      }
+    }
+    if (typeof value !== 'undefined') {
+      fitness *= 10
+    }
+    return fitness * 1000
+  }
+  catch (e) {
+    if (c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')' || c.trimLeft().indexOf('function')) {
+      fitness += 100
+    }
+    else if (c.includes('return') || c.includes('=>')) {
+      fitness += 100
+    }
+    let funcPatterns = ["function(){return\"helloworld\"}", "()=>\"helloworld\""]
+    let difs = []
+    for (var l = 0; l < funcPatterns.length; l++) {
+      difs.push(stringDif(c.split(" ").join(""), funcPatterns[l]))
+    }
+    fitness += (c.length - (Math.min.apply(null, difs))) * 10
+    return fitness
+  }
+}).toString()
 
 // fitness function for game of life, disincentivises loops
 const gameOfLifeFitness = ((c, w = 10) => {
@@ -201,6 +247,7 @@ let fittest = ((population, arrayOfFitnesses, n = 1) => {
 
 module.exports = {
   findString,
+  helloWorld,
   gameOfLifeFitness,
   gameOfLifeFitnessLoopers,
   crossOver,
