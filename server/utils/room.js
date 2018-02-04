@@ -9,6 +9,8 @@ const {
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
 const { RoomStats } = require('./stats')
+const { spawn } = require('threads')
+
 
 class RoomManager {
   constructor(roomHash) {
@@ -147,10 +149,12 @@ class RoomManager {
       this.bucket[finishedTask.gen] = finishedTask
     }
   }
+  
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
     return (this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
   }
+
   finalSelection() {
     // takes the max generation and selects the most fit chromosome
     const finalGeneration = this.bucket[this.maxGen]

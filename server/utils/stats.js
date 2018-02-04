@@ -1,6 +1,16 @@
 const forEach = require('lodash/forEach')
 const chalk = require('chalk')
+const { spawn, config } = require('threads')
 const sortedIndex = require('lodash/sortedIndex')
+
+// Set-up worker thread
+config.set({
+  basepath: {
+    node: __dirname,
+    // web: 'http://myserver.local/thread-scripts'
+  }
+})
+
 
 class RoomStats {
   constructor(generations, populationSize) {
@@ -22,27 +32,54 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
+    const thread = spawn('updateGenerationData.js')
 
-    // we insert the first generation data into the array, in a sorted order
-    if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
-      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], fitness)
-    })
-    // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
-      this.generationFitnessesData[gen] = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
+      this.generationFitnessesData[gen]
+        = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    return this.generateGraphData()
+    if (genOneFitnessData) {
+      thread.send({
+        genOneFitnessData,
+        generationOneFitnessesData: this.generationFitnessesData[1],
+      })
+        .promise()
+        .then(({ newGenerationOneFitnessesData }) => {
+          thread.kill()
+          this.generationFitnessesData[1] = newGenerationOneFitnessesData
+          this.generateGraphData()
+        })
+    }
+    //we insert the first generation data into the array, in a sorted order
+    // if (genOneFitnessData) {
+    //   genOneFitnessData.forEach((fitness) => {
+    //     this.generationFitnessesData[1] =
+    //       this.binaryInsertion(this.generationFitnessesData[1], fitness)
+    //   })
+    // }
+
+    // fitnesses.forEach((fitness) => {
+    //   this.generationFitnessesData[gen]
+    //     = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
+    // })
+    // this.generateGraphData()
+
+    // every task comes back with fitness data too, which we store
   }
+
   findMean(arr) {
     return arr.reduce((a, b) => a + b) / arr.length
   }
+
   findSD(arr, mean) {
     return Math.sqrt(this.findMean(arr.map(ele => (ele - mean) ** 2)))
   }
+
   findZScore(val, mean, sd) {
     return (val - mean) / sd
   }
+
   generateGraphData() {
     // sets up the zScoreBuckets
     const zScoreBucketHorrible = { name: 'Horrible' }
