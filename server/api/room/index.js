@@ -6,7 +6,7 @@ const {
   Mutations,
   Selections,
   RoomMutations
-} = require('../db/models')
+} = require('../../db/models')
 
 module.exports = router
 
@@ -62,9 +62,14 @@ router.put('/:roomHash', (req, res, next) => {
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
+<<<<<<< HEAD:server/api/room.js
     (() => fitFunc([${c}]))()`,
+=======
+    (() => fitFunc())()`,
+>>>>>>> master:server/api/room/index.js
     (output) => {
       const isValid = !isNaN(Number(output.result))
+      // FIXME: re-add security
       if (true) {
         return Room.update(
           { fitnessFunc },
@@ -75,21 +80,29 @@ router.put('/:roomHash', (req, res, next) => {
           }
         )
           .spread(async (numberOfRows, room) => {
-            await Parameters.update(parameters, {
-              where: { id: parameters.id }
-            })
-            await mutations.map(async (mutation) => {
-              await RoomMutations
-                .upsert({
-                  chanceOfMutation: Number(mutation.chanceOfMutation),
-                  roomId: room.id,
-                  mutationId: mutation.id
-                })
-            })
 
-            await Selections.update(selection, {
-              where: { id: selection.id }
-            })
+            if (parameters) {
+              await Parameters.update(parameters, {
+                where: { id: parameters.id }
+              })
+            }
+
+            if (mutations) {
+              await mutations.map(async (mutation) => {
+                await RoomMutations
+                  .upsert({
+                    chanceOfMutation: Number(mutation.chanceOfMutation),
+                    roomId: room.id,
+                    mutationId: mutation.id
+                  })
+              })
+            }
+
+            if (selection) {
+              await Selections.update(selection, {
+                where: { id: selection.id }
+              })
+            }
 
           }).then(() => {
             return Room.getRoomWithAssociations(
@@ -98,7 +111,7 @@ router.put('/:roomHash', (req, res, next) => {
               Selections,
               Mutations
             )
-              .then(room => res.json(room))
+              .then(room => res.status(201).json(room))
           })
           .catch(next)
       } else {
