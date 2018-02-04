@@ -62,7 +62,7 @@ router.put('/:roomHash', (req, res, next) => {
     (() => fitFunc('1010'))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
-      if (true) {
+      if (isValid) {
         return Room.update(
           { fitnessFunc },
           {
@@ -72,21 +72,29 @@ router.put('/:roomHash', (req, res, next) => {
           }
         )
           .spread(async (numberOfRows, room) => {
-            await Parameters.update(parameters, {
-              where: { id: parameters.id }
-            })
-            await mutations.map(async (mutation) => {
-              await RoomMutations
-                .upsert({
-                  chanceOfMutation: Number(mutation.chanceOfMutation),
-                  roomId: room.id,
-                  mutationId: mutation.id
-                })
-            })
 
-            await Selections.update(selection, {
-              where: { id: selection.id }
-            })
+            if (parameters) {
+              await Parameters.update(parameters, {
+                where: { id: parameters.id }
+              })
+            }
+
+            if (mutations) {
+              await mutations.map(async (mutation) => {
+                await RoomMutations
+                  .upsert({
+                    chanceOfMutation: Number(mutation.chanceOfMutation),
+                    roomId: room.id,
+                    mutationId: mutation.id
+                  })
+              })
+            }
+
+            if (selection) {
+              await Selections.update(selection, {
+                where: { id: selection.id }
+              })
+            }
 
           }).then(() => {
             return Room.getRoomWithAssociations(
@@ -95,7 +103,7 @@ router.put('/:roomHash', (req, res, next) => {
               Selections,
               Mutations
             )
-              .then(room => res.json(room))
+              .then(room => res.status(201).json(room))
           })
           .catch(next)
       } else {
