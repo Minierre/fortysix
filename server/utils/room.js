@@ -40,7 +40,7 @@ class RoomManager {
   }
   join(socket) {
     socket.join(this.room)
-    this.nodes[socket.id] = { running: false, error: false }
+    this.nodes[socket.id] = { running: false, error: false, tasksCompleted: 0 }
     if (this.jobRunning) {
       this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
@@ -53,7 +53,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-      socket.emit('CALL_' + this.room, this.tasks.shift())
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift() })
     }
     this.updateAdmins()
   }
@@ -75,7 +75,7 @@ class RoomManager {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
+    console.log(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -211,7 +211,8 @@ class RoomManager {
   // NEEDS TO GET RID OF ANY IO SOCKET CALLING
   distributeWork(socket) {
     this.nodes[socket.id].running = true
-    socket.emit('CALL_' + this.room, this.tasks.shift())
+    this.nodes[socket.id].tasksCompleted++
+    socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompleted: this.nodes[socket.id].tasksCompleted })
     this.updateAdmins()
   }
   createTask(finishedTask) {
@@ -248,10 +249,10 @@ class RoomManager {
     if (!this.isJobRunning()) {
       this.startJob()
       Object.keys(this.nodes).forEach((id, i) => {
-        socket.to(id).emit(callName, this.tasks.shift())
+        socket.to(id).emit(callName, { task: this.tasks.shift() })
       })
     } else {
-      console.log(chalk.red(`${startName} already running!`))
+      console.log(chalk.red(`${this.room} already running!`))
     }
   }
   terminateOrDistribute(finishedTask, socket, io) {
@@ -310,7 +311,7 @@ class RoomManager {
   }
   doneCallback(finishedTask, socket, io) {
     // a bit of a security check --  might signal a malicious behavior
-    if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
+    // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // reformats the data and sends it to the stats room
