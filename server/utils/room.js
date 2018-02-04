@@ -40,7 +40,7 @@ class RoomManager {
   }
   join(socket) {
     socket.join(this.room)
-    this.nodes[socket.id] = { running: false, error: false, tasksCompleted: 0 }
+    this.nodes[socket.id] = { running: false, error: false, tasksCompleted: 0, totalTasks: this.tasks.length }
     if (this.jobRunning) {
       this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
@@ -53,7 +53,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift() })
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasks: this.tasks.length })
     }
     this.updateAdmins()
   }
@@ -212,7 +212,7 @@ class RoomManager {
   distributeWork(socket) {
     this.nodes[socket.id].running = true
     this.nodes[socket.id].tasksCompleted++
-    socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompleted: this.nodes[socket.id].tasksCompleted })
+    socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompleted: this.nodes[socket.id].tasksCompleted, totalTasks: this.tasks.length })
     this.updateAdmins()
   }
   createTask(finishedTask) {
@@ -310,7 +310,7 @@ class RoomManager {
     }))
   }
   doneCallback(finishedTask, socket, io) {
-    // a bit of a security check --  might signal a malicious behavior
+    // a bit of a security check --  might signal a malicious
     // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
