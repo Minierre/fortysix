@@ -11,6 +11,7 @@ const {
 
 const {
   findString,
+  helloWorld,
   gameOfLifeFitness,
   gameOfLifeFitnessLoopers,
   crossOver,
@@ -57,6 +58,11 @@ async function seed() {
       roomName: 'String Matcher',
       fitnessFunc: findString,
       selectionId: 2
+    }),
+    Room.create({
+      roomName: 'Hello World',
+      fitnessFunc: helloWorld,
+      selectionId: 1
     })
   ])
 
@@ -84,6 +90,15 @@ async function seed() {
       populationSize: 100,
       fitnessGoal: 1000000000,
       reproductiveCoefficient: 2
+    }),
+    Parameters.create({
+      chromosomeLength: 8,
+      generations: 5,
+      elitism: 0,
+      populationSize: 1000,
+      fitnessGoal: 100000000,
+      reproductiveCoefficient: 100,
+      genePool: '=,>, ,",(, ), hello, world, {,}'
     })
   ])
 
@@ -99,6 +114,10 @@ async function seed() {
     RoomParameters.create({
       roomId: 3,
       parameterId: 3
+    }),
+    RoomParameters.create({
+      roomId: 4,
+      parameterId: 4
     })
   ])
 
@@ -117,6 +136,16 @@ async function seed() {
       mutationId: 3,
       roomId: 3,
       chanceOfMutation: 0
+    }),
+    RoomMutations.create({
+      mutationId: 1,
+      roomId: 4,
+      chanceOfMutation: .1
+    }),
+    RoomMutations.create({
+      mutationId: 2,
+      roomId: 4,
+      chanceOfMutation: .25
     })
   ])
 

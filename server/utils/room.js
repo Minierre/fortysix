@@ -9,6 +9,8 @@ const {
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
 const { RoomStats } = require('./stats')
+const { spawn } = require('threads')
+
 
 class RoomManager {
   constructor(roomHash) {
@@ -75,7 +77,7 @@ class RoomManager {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
-    throw new Error(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
+    console.log(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
   isJobRunning() {
     return this.jobRunning
@@ -147,10 +149,12 @@ class RoomManager {
       this.bucket[finishedTask.gen] = finishedTask
     }
   }
+
   shouldTerminate() {
     // checks the termination conditions and returns true if the job should stop
     return this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize && this.isJobRunning()
   }
+
   finalSelection() {
     // takes the max generation and selects the most fit chromosome
     const finalGeneration = this.bucket[this.maxGen]
