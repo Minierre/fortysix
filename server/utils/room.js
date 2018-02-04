@@ -185,7 +185,7 @@ class RoomManager {
 
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
-    return this.isJobRunning() && ((this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize) || Math.max(...fitnesses) >= this.fitnessGoal)
+    return ((this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize) || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
   }
 
   finalSelection() {

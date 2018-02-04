@@ -53,4 +53,10 @@ describe('RoomManager', () => {
 
     expect(roomManager.shouldTerminate([101])).to.equal(true)
   })
+
+  it('should terminate when fitnessGoal reaches maximum', () => {
+    roomManager.fitnessGoal = 90
+    roomManager.jobRunning = true
+    expect(roomManager.shouldTerminate([101])).to.equal(true)
+  })
 })
