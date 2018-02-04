@@ -22,7 +22,7 @@ class RoomManager {
     this.maxGen = null
     this.populationSize = null
     this.chromosomeLength = null
-    this.fitnessGoal = null
+    this.fitnessGoal = 0
     this.elitism = null
     this.reproductiveCoefficient = 1
     this.fitness = null
