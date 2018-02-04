@@ -1,9 +1,9 @@
 const request = require('supertest')
 const { should, expect } = require('chai')
 const chai = require('chai')
-const { describe, it, beforeEach } = require('mocha')
-const app = require('../index.js')
-const db = require('../db')
+const { describe, it, beforeEach, afterEach } = require('mocha')
+const app = require('../../index.js')
+const db = require('../../db')
 const Room = db.model('room')
 
 
@@ -13,8 +13,16 @@ describe('sandbox penetration testing', () => {
   let roomHash
 
   beforeEach(() => {
-    return Room.findOne().then((room) => {
+    return Room.create({}).then((room) => {
       roomHash = room.roomHash
+    })
+  })
+
+  afterEach(() => {
+    return Room.destroy({
+      where: {
+        roomHash
+      }
     })
   })
 

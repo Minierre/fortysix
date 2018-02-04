@@ -6,7 +6,7 @@ const {
   Mutations,
   Selections,
   RoomMutations
-} = require('../db/models')
+} = require('../../db/models')
 
 module.exports = router
 
