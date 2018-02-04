@@ -96,9 +96,9 @@ async function seed() {
       generations: 5,
       elitism: 0,
       populationSize: 1000,
-      fitnessGoal: 100000000,
+      fitnessGoal: 1000000000,
       reproductiveCoefficient: 100,
-      genePool: '=,>, ,",(, ), hello, world, {,}'
+      genePool: '=,>, ,",(,),hello,world,{,},;,.'
     })
   ])
 
