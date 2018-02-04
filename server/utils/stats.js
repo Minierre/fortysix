@@ -7,10 +7,8 @@ const sortedIndex = require('lodash/sortedIndex')
 config.set({
   basepath: {
     node: __dirname,
-    // web: 'http://myserver.local/thread-scripts'
   }
 })
-
 
 class RoomStats {
   constructor(generations, populationSize) {
@@ -51,21 +49,6 @@ class RoomStats {
           this.generateGraphData()
         })
     }
-    //we insert the first generation data into the array, in a sorted order
-    // if (genOneFitnessData) {
-    //   genOneFitnessData.forEach((fitness) => {
-    //     this.generationFitnessesData[1] =
-    //       this.binaryInsertion(this.generationFitnessesData[1], fitness)
-    //   })
-    // }
-
-    // fitnesses.forEach((fitness) => {
-    //   this.generationFitnessesData[gen]
-    //     = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
-    // })
-    // this.generateGraphData()
-
-    // every task comes back with fitness data too, which we store
   }
 
   findMean(arr) {
