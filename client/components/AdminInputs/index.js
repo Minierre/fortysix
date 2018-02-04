@@ -43,7 +43,7 @@ class AdminInputs extends Component {
           <h3>Parameters</h3>
           <div className="sliders">
             <Form>
-              <Col sm={6} md={3} xs={12}>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="populationSize"
                   label="Population Size"
@@ -63,7 +63,7 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
               </Col>
-              <Col sm={6} md={3} xs={12}>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="chromosomeLength"
                   label="Chromosome Length"
@@ -83,7 +83,7 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
               </Col>
-              <Col sm={6} md={3} xs={12}>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="fitnessGoal"
                   label="Fitness Goal"
@@ -103,7 +103,7 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
               </Col>
-              <Col sm={6} md={3} xs={12}>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="reproductiveCoefficient"
                   label="Reproductive Coefficient"
