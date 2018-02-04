@@ -22,37 +22,47 @@ const helloWorld = ((c) => {
     return numWrong
   }
 
-  let fitness = 1
+  let fitness = .0001
   try {
+    fitness += 1
     let value = eval('(' + c + ')')()
     if (typeof value === 'string') {
-      fitness *= 10
+      fitness *= 1000
       fitness /= stringDif(value, 'hello world')
       if (value.length === ('hello world').length) {
-        fitness *= 10
+        fitness *= 100
       }
-      if (value.toLowerCase() === 'hello world') {
+      if (value.split(' ').join('').toLowerCase() === 'helloworld') {
         fitness = 100000000
       }
+      else if (value === 'hello world') {
+        fitness = 1000000000
+      }
     }
-    if (typeof value !== 'undefined') {
-      fitness *= 10
+    else if (typeof value !== 'undefined') {
+      fitness *= 100
     }
-    return fitness * 1000
+    return fitness
   }
   catch (e) {
-    if (c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')' || c.trimLeft().indexOf('function')) {
-      fitness += 100
+    if (c.includes('=>') && c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')' && c.indexOf('=>') > c.indexOf('(') && c.indexOf('(') > c.indexOf(')')) {
+      fitness += 2
     }
-    else if (c.includes('return') || c.includes('=>')) {
-      fitness += 100
+    else if (c.includes('=>') && c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')') {
+      fitness += .5
+    }
+    else if (c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')') {
+      fitness += .10
+    }
+    else if (c.includes('=>')) {
+      fitness += .10
     }
     let funcPatterns = ["function(){return\"helloworld\"}", "()=>\"helloworld\""]
     let difs = []
     for (var l = 0; l < funcPatterns.length; l++) {
       difs.push(stringDif(c.split(" ").join(""), funcPatterns[l]))
     }
-    fitness += (c.length - (Math.min.apply(null, difs))) * 10
+    fitness += (c.length - (Math.min.apply(null, difs))) * .01
     return fitness
   }
 }).toString()

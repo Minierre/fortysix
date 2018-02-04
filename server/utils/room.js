@@ -147,9 +147,9 @@ class RoomManager {
       this.bucket[finishedTask.gen] = finishedTask
     }
   }
-  shouldTerminate() {
+  shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
-    return this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize && this.isJobRunning()
+    return (this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
   }
   finalSelection() {
     // takes the max generation and selects the most fit chromosome
@@ -168,6 +168,8 @@ class RoomManager {
     }
     results.fitness = mostFit
     results.winningChromosome = mostFitChromosome
+    this.bucket = {}
+    this.tasks = []
     return results
   }
 
@@ -259,10 +261,19 @@ class RoomManager {
 
     // Avoid pushing history multiple times by checking jobRunning
     // if termination condition is met and the alg is still running..
-    const allDone = this.shouldTerminate()
+    const allDone = this.shouldTerminate(finishedTask.fitnesses)
     if (allDone) {
       // terminate
-      const results = this.finalSelection()
+      let results = {}
+      if (Math.max(...finishedTask.fitnesses) < this.fitnessGoal) {
+        results = this.finalSelection()
+      } else {
+        const fittestIndex = finishedTask.fitnesses.indexOf(Math.max(...finishedTask.fitnesses))
+        results = {
+          winningChromosome: finishedTask.population[fittestIndex],
+          fitness: finishedTask.fitnesses[fittestIndex]
+        }
+      }
       this.algorithmDone(results.winningChromosome, results.fitness, socket)
       this.emptyTaskQueue()
     } else {
@@ -305,7 +316,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: this.roomStats ? this.roomStats.getStats() : []
+      stats: []
     }))
   }
   doneCallback(finishedTask, socket, io) {
@@ -314,7 +325,7 @@ class RoomManager {
     // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
     this.updateRoomStats(finishedTask)
     // If a task comes back after a server restart, ignore it.
-    if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
+    // if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
     // update the bucket
     this.updateBucket(finishedTask)
     // checks if termination conditions are met and acts accordingly
