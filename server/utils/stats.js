@@ -35,7 +35,7 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
-    const thread = spawn('updateGenerationData.js')
+    // const thread = spawn('updateGenerationData.js')
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
@@ -50,18 +50,19 @@ class RoomStats {
         = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    if (genOneFitnessData) {
-      thread.send({
-        genOneFitnessData,
-        generationOneFitnessesData: this.generationFitnessesData[1],
-      })
-        .promise()
-        .then(({ newGenerationOneFitnessesData }) => {
-          thread.kill()
-          this.generationFitnessesData[1] = newGenerationOneFitnessesData
-          this.generateGraphData()
-        })
-    }
+    // if (genOneFitnessData) {
+    //   thread.send({
+    //     genOneFitnessData,
+    //     generationOneFitnessesData: this.generationFitnessesData[1],
+    //   })
+    //     .promise()
+    //     .then(({ newGenerationOneFitnessesData }) => {
+    //       thread.kill()
+    //       this.generationFitnessesData[1] = newGenerationOneFitnessesData
+    //       this.generateGraphData()
+    //     })
+    // }
+    this.generateGraphData()
   }
 
   findMean(arr) {
@@ -143,12 +144,10 @@ class RoomStats {
 
   getStats() {
     const topTenGraphData = [{ name: 'Horrible' }, { name: 'Very Bad' }, { name: 'Bad' }, { name: 'Random' }, { name: 'Not Bad' }, { name: 'Good' }, { name: 'Excellent' }]
-    // only return the top 10 highest processed generations
-    const shouldReturnStats = i => i >= this.highestProcessedGeneration - 10 && i >= 2 && !!this.graphData[i]
-
-    for (let i = this.highestProcessedGeneration; shouldReturnStats(i); i -= 1) {
+    // only return the top 10 highest processed generations (only execute this function when graphData exists)
+    for (let i = this.highestProcessedGeneration; i >= this.highestProcessedGeneration - 10 && i >= 2; i -= 1) {
       topTenGraphData.forEach((confidenceInterval, index) => {
-        topTenGraphData[index][i] = (confidenceInterval[i]) ? confidenceInterval[i].concat(this.graphData[index][i]) : [this.graphData[index][i]]
+        topTenGraphData[index][i] = this.graphData[index][i]
       })
     }
     console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
@@ -174,6 +173,7 @@ class RoomStats {
     const stable = this.findSD(this.dataCache[currentGen].stDvs) < this.selectionSize * normalizedSD
 
     if (stable) {
+      console.log(chalk.green('HEURISTIC HAPPENED'))
       this.dataCache[currentGen].stDvs = []
       this.dataCache[currentGen].stableMean = normalizedMean
       this.dataCache[currentGen].stableSD = normalizedSD
