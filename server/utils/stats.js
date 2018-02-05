@@ -35,34 +35,29 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
-    // const thread = spawn('updateGenerationData.js')
+    const thread = spawn('updateGenerationData.js')
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
-    // we insert the first generation data into the array, in a sorted order
-    if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
-      this.numberOfChromosomesProcessed++
-      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], (fitness + 1))
-    })
+    if (genOneFitnessData) {
+      thread.send({
+        genOneFitnessData,
+        generationOneFitnessesData: this.generationFitnessesData[1],
+      })
+        .promise()
+        .then(({ newGenerationOneFitnessesData }) => {
+          thread.kill()
+          this.numberOfChromosomesProcessed++
+          this.generationFitnessesData[1] = newGenerationOneFitnessesData
+          this.generateGraphData()
+        })
+    }
+
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
       this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], (fitness + 1))
+        = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
-
-    // if (genOneFitnessData) {
-    //   thread.send({
-    //     genOneFitnessData,
-    //     generationOneFitnessesData: this.generationFitnessesData[1],
-    //   })
-    //     .promise()
-    //     .then(({ newGenerationOneFitnessesData }) => {
-    //       thread.kill()
-    //       this.generationFitnessesData[1] = newGenerationOneFitnessesData
-    //       this.generateGraphData()
-    //     })
-    // }
-    this.generateGraphData()
   }
 
   findMean(arr) {
@@ -168,11 +163,11 @@ class RoomStats {
     const normalizedMean = this.findMean(normalizationArr)
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
     this.dataCache[currentGen].stDvs.push(normalizedSD)
-    this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen)
+    this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen, normalizationFactor)
     return { stableMean: normalizedMean, stableSD: normalizedSD }
   }
-  updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
-    const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) === 0
+  updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen, normalizationFactor) {
+    const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < this.selectionSize * normalizedSD && this.dataCache[1].stDvs.length > this.populationSize * 5
     console.log(chalk.yellow(JSON.stringify(this.dataCache[1].stDvs.length)))
     console.log('--------------------\n')
     if (stable) {
