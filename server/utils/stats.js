@@ -11,9 +11,13 @@ class RoomStats {
     this.counter = 0
     // stores object data that looks like {{2: [2345,2315]}, ...]
     this.generationFitnessesData = {}
+    // the next three properties keep track of data used to short circuit the mean and sd process to make major time and space complexity operations
+    this.dataCache = {}
+    this.numberOfChromosomesProcessed = 0
 
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessesData[i] = []
+      this.dataCache[i] = { stableMean: null, stableSD: null, stDvs: [] }
     }
     this.generations = generations
     this.selectionSize = 2 / populationSize
@@ -25,6 +29,7 @@ class RoomStats {
 
     // we insert the first generation data into the array, in a sorted order
     if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
+      this.numberOfChromosomesProcessed++
       this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], fitness)
     })
     // every task comes back with fitness data too, which we store
@@ -57,7 +62,7 @@ class RoomStats {
     const zScoreBucketGood = { name: 'good' }
     const zScoreBucketExcellent = { name: 'excellent' }
 
-    for (let i = 1; i <= this.generations; i++) {
+    for (let i = 2; i <= this.generations; i++) {
       // incorporates a base zscore percentage of 0 in each of the zscore buckets per generation
       zScoreBucketHorrible[i] = 0
       zScoreBucketVeryBad[i] = 0
@@ -67,18 +72,13 @@ class RoomStats {
       zScoreBucketGood[i] = 0
       zScoreBucketExcellent[i] = 0
 
-      // create an arr from gen1 fitnesses to normalize more mature generation fitness data
-      const normalizationFactor = this.selectionSize ** (i - 1)
-      let normalizationArr = normalizationFactor === 1 ?
-        this.generationFitnessesData[1] :
-        this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length * normalizationFactor)
-      // compute the normalized mean and sd
-      const normalizedMean = this.findMean(normalizationArr)
-      const normalizedSD = this.findSD(normalizationArr, normalizedMean)
+
+      // check data cache to see if a stable sd or mean exists, and if not, calculate the normalized mean and sd
+      const { stableMean, stableSD } = this.generateMeanAndSD(i)
 
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
-        const zScore = this.findZScore(fitness, normalizedMean, normalizedSD)
+        const zScore = this.findZScore(fitness, stableMean, stableSD)
         switch (true) {
           case (zScore < -2.567):
             zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
@@ -107,13 +107,8 @@ class RoomStats {
         }
       })
     }
-    this.graphData.push(zScoreBucketVeryBad)
-    this.graphData.push(zScoreBucketHorrible)
-    this.graphData.push(zScoreBucketBad)
-    this.graphData.push(zScoreBucketRandom)
-    this.graphData.push(zScoreBucketNotBad)
-    this.graphData.push(zScoreBucketGood)
-    this.graphData.push(zScoreBucketExcellent)
+
+    this.graphData = [zScoreBucketVeryBad, zScoreBucketHorrible, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
     return this.graphData
   }
 
@@ -125,6 +120,31 @@ class RoomStats {
 
   getStats() {
     return this.graphData
+  }
+
+  generateMeanAndSD(currentGen) {
+    if (this.dataCache[currentGen].stableMean) {
+      return this.dataCache[currentGen]
+    }
+    // create an arr from gen1 fitnesses to normalize more mature generation fitness data
+    const normalizationFactor = this.selectionSize ** (currentGen - 1)
+    const normalizationArr = this.generationFitnessesData[1].slice(-this.numberOfChromosomesProcessed * normalizationFactor)
+    // compute the normalized mean and sd
+    const normalizedMean = this.findMean(normalizationArr)
+    const normalizedSD = this.findSD(normalizationArr, normalizedMean)
+    this.dataCache[currentGen].stDvs.push(normalizedSD)
+    this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen)
+    return { stableMean: normalizedMean, stableSD: normalizedSD }
+  }
+  updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
+    const stable = this.findSD(this.dataCache[currentGen].stDvs) < this.selectionSize * normalizedSD
+
+    if (stable) {
+      this.dataCache[currentGen].stDvs = []
+      this.dataCache[currentGen].stableMean = normalizedMean
+      this.dataCache[currentGen].stableSD = normalizedSD
+      this.generationFitnessesData[1] = normalizationArr
+    }
   }
 }
 

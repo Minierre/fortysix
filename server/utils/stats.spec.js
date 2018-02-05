@@ -18,7 +18,7 @@ describe('stats', () => {
     })
   })
 
-  xit('expects generationFitnessData to have correct initial value', () => {
+  it('expects generationFitnessData to have correct initial value', () => {
     expect(roomStats.generationFitnessesData).to.deep.equal({
       "1": [],
       "2": [],
@@ -26,7 +26,7 @@ describe('stats', () => {
     })
   })
 
-  xit('inserts updated generationData in sorted order', () => {
+  it('inserts updated generationData in sorted order', () => {
     const task = {
       gen: 2,
       // fitnesses always numbers
@@ -44,7 +44,7 @@ describe('stats', () => {
     })
   })
 
-  xit('updates multiple generationData buckets when receiving multiple tasks in succession', () => {
+  it('updates multiple generationData buckets when receiving multiple tasks in succession', () => {
 
     const task = {
       gen: 2,
@@ -68,7 +68,7 @@ describe('stats', () => {
     })
   })
 
-  xit('adds non generation two finished tasks properly', () => {
+  it('adds non generation two finished tasks properly', () => {
 
     const task = {
       gen: 2,
@@ -106,17 +106,15 @@ describe('stats', () => {
     }
     roomStats.updateGenerationData(task)
     roomStats.generateGraphData()
-    expect(roomStats.graphData).to.deep.equal([ { '1': 0, '2': 0, '3': 0, name: 'veryBad' },
-    { '1': 0, '2': 0, '3': 0, name: 'horrible' },
-    { '1': 0, '2': 0, '3': 0, name: 'bad' },
-    { '1': 0,
-      '2': 0,
+    expect(roomStats.graphData).to.deep.equal([ { '2': 0, '3': 0, name: 'veryBad' },
+    { '2': 0, '3': 0, name: 'horrible' },
+    { '2': 0, '3': 0, name: 'bad' },
+    { '2': 0,
       '3': 0,
       name: 'random' },
-    { '1': 0, '2': 0, '3': 0, name: 'notBad' },
-    { '1': 0, '2': 0, '3': 0, name: 'good' },
-    { '1': 0,
-      '2': 1,
+    { '2': 0, '3': 0, name: 'notBad' },
+    { '2': 0, '3': 0, name: 'good' },
+    { '2': 1,
       '3': 0,
       name: 'excellent' } ])
   })
