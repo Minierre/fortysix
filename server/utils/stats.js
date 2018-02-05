@@ -38,6 +38,7 @@ class RoomStats {
     const thread = spawn('updateGenerationData.js')
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
+    this.numberOfChromosomesProcessed += genOneFitnessData.length
 
     if (genOneFitnessData) {
       thread.send({
@@ -47,7 +48,6 @@ class RoomStats {
         .promise()
         .then(({ newGenerationOneFitnessesData }) => {
           thread.kill()
-          this.numberOfChromosomesProcessed++
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
           this.generateGraphData()
         })
@@ -156,12 +156,14 @@ class RoomStats {
     }
     // create an arr from gen1 fitnesses to normalize more mature generation fitness data
     const normalizationFactor = this.selectionSize ** (currentGen - 1)
-    const normalizationArr = this.generationFitnessesData[1].slice(-this.numberOfChromosomesProcessed * normalizationFactor)
-    console.log(chalk.green(normalizationArr.length))
-    console.log('--------------------\n')
+
+    const normalizationArr = this.generationFitnessesData[1].slice(-Math.ceil(this.numberOfChromosomesProcessed * normalizationFactor))
+    console.log(chalk.magenta(currentGen, this.generationFitnessesData[1].length, normalizationArr.length, this.numberOfChromosomesProcessed * normalizationFactor))
     // compute the normalized mean and sd
     const normalizedMean = this.findMean(normalizationArr)
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
+    // console.log(chalk.magenta(normalizedMean, normalizedSD))
+    // console.log('--------------------\n')
     this.dataCache[currentGen].stDvs.push(normalizedSD)
     this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen, normalizationFactor)
     return { stableMean: normalizedMean, stableSD: normalizedSD }
