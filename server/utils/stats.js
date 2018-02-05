@@ -39,8 +39,14 @@ class RoomStats {
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
+    // every task comes back with fitness data too, which we store
+    fitnesses.forEach((fitness) => {
+      this.generationFitnessesData[gen]
+        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
+    })
+
     if (genOneFitnessData) {
-      thread.send({
+      return thread.send({
         genOneFitnessData,
         generationOneFitnessesData: this.generationFitnessesData[1],
       })
@@ -52,12 +58,6 @@ class RoomStats {
           this.generateGraphData()
         })
     }
-
-    // every task comes back with fitness data too, which we store
-    fitnesses.forEach((fitness) => {
-      this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
-    })
   }
 
   findMean(arr) {
@@ -145,8 +145,6 @@ class RoomStats {
         topTenGraphData[index][i] = this.graphData[index][i]
       })
     }
-    console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
-    console.log('---------------')
     return topTenGraphData
   }
 
