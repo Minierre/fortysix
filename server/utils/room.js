@@ -9,8 +9,6 @@ const {
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
 const { RoomStats } = require('./stats')
-const { spawn } = require('threads')
-
 
 class RoomManager {
   constructor(roomHash) {
@@ -28,7 +26,7 @@ class RoomManager {
     this.elitism = null
     this.reproductiveCoefficient = 1
     this.fitness = null
-    this.mutuations = null
+    this.mutations = null
     this.selection = null
     this.genePool = []
     this.admins = {}
@@ -37,13 +35,40 @@ class RoomManager {
     this.roomStats = null
   }
 
+  getState() {
+    return {
+      room: this.room,
+      nodes: this.nodes,
+      tasks: this.tasks,
+      jobRunning: this.jobRunning,
+      start: this.start,
+      lastResult: this.lastResult,
+      bucket: this.bucket,
+      maxGen: this.maxGen,
+      populationSize: this.populationSize,
+      chromosomeLength: this.chromosomeLength,
+      fitnessGoal: this.fitnessGoal,
+      elitism: this.elitism,
+      reproductiveCoefficient: this.reproductiveCoefficient,
+      fitness: this.fitness,
+      mutations: this.mutations,
+      selection: this.selection,
+      genePool: this.genePool,
+      admins: this.admins,
+      chromosomesReturned: this.chromosomesReturned,
+      totalFitness: this.totalFitness,
+      roomStats: this.roomStats,
+    }
+  }
+
   addAdmin(socket) {
     this.admins[socket.id] = socket
   }
+
   join(socket) {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
-    if (this.jobRunning) {
+    if (this.isJobRunning()) {
       this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
         this.room,
@@ -59,12 +84,16 @@ class RoomManager {
     }
     this.updateAdmins()
   }
+
   leave(socket) {
     delete this.nodes[socket.id]
     socket.leave(this.room)
     this.updateAdmins()
   }
+
   abort(socket) {
+    console.log(chalk.red('JOB ABORTED: '), this.room)
+
     this.start = null
     this.tasks = []
     this.jobRunning = false
@@ -73,34 +102,35 @@ class RoomManager {
     this.nodes = {}
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
+
   jobError(socket, error) {
     this.nodes[socket.id].running = false
     this.nodes[socket.id].error = true
     // socket.broadcast.to(this.room).emit('UPDATE_' + this.room, this)
     console.log(`JOB_ERROR: ${this.room} for socket: ${socket.id}, `, error)
   }
+
   isJobRunning() {
     return this.jobRunning
   }
+
   startJob() {
     this.jobRunning = true
-    let mutations = this.mutations
-    let selection = this.selection
-
     // generates 4X tasks for each node in the system
     this.tasks = generateTasks(
       this.populationSize,
       this.room,
       Object.keys(this.nodes).length * 4,
       this.fitness,
-      mutations,
-      selection,
+      this.mutations,
+      this.selection,
       this.chromosomeLength,
       this.genePool,
       this.reproductiveCoefficient,
       this.elitism
     )
   }
+
   mapPersistedToMemory(room) {
     // takes the room in the database, and maps its properties to the in room memory that the sockets use
     return Room.getRoomWithAssociations(
@@ -132,10 +162,12 @@ class RoomManager {
       })
       .catch(err => console.error(err))
   }
+
   updateRoomStats(finishedTask) {
     this.totalFitness += finishedTask.fitnesses.reduce((a, b) => a + b, 0)
     this.chromosomesReturned += finishedTask.population.length
   }
+
   updateBucket(finishedTask) {
     // if the room's bucket contains a task with the current incoming generation...
     if (this.bucket[finishedTask.gen]) {
@@ -153,7 +185,7 @@ class RoomManager {
 
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
-    return (this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
+    return ((this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize) || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
   }
 
   finalSelection() {
@@ -209,18 +241,24 @@ class RoomManager {
       maxFitness: 0
     }
   }
+
   emptyTaskQueue() {
     this.tasks = []
   }
+
   totalTasks() {
     return this.tasks.length
   }
   // NEEDS TO GET RID OF ANY IO SOCKET CALLING
   distributeWork(socket) {
-    this.nodes[socket.id].running = true
-    socket.emit('CALL_' + this.room, this.tasks.shift())
-    this.updateAdmins()
+    if (this.nodes[socket.id]) {
+      this.nodes[socket.id].running = true
+      this.nodes[socket.id].error = false
+      socket.emit('CALL_' + this.room, this.tasks.shift())
+      this.updateAdmins()
+    }
   }
+
   createTask(finishedTask) {
     if (this.bucket[finishedTask.gen].population.length >= this.populationSize) {
       this.tasks.push(this.bucket[finishedTask.gen])
@@ -241,9 +279,11 @@ class RoomManager {
         this.tasks.concat(newTask)
     }
   }
+
   addAdmin(socket) {
     this.admins[socket.id] = socket
   }
+
   async jobInit(socket, io) {
     const callName = 'CALL_' + this.room
     // takes the room stored in the database, and maps it to the in memory room
@@ -258,9 +298,10 @@ class RoomManager {
         socket.to(id).emit(callName, this.tasks.shift())
       })
     } else {
-      console.log(chalk.red(`${startName} already running!`))
+      console.log(chalk.red(`${this.room} already running!`))
     }
   }
+
   terminateOrDistribute(finishedTask, socket, io) {
     // decides whether to hand off the final generation to the final selection function OR distributes the next task on queue to the worker node
 
@@ -321,22 +362,22 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: []
+      stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
+
   doneCallback(finishedTask, socket, io) {
-    // a bit of a security check --  might signal a malicious behavior
-    // if (finishedTask.fitnesses && finishedTask.fitnesses.length < 1) throw Error('your finished task needs to include fitnesses!')
-    // updates the total fitness on the room object, and updates the total chromosomes processed on the room object
-    this.updateRoomStats(finishedTask)
-    // If a task comes back after a server restart, ignore it.
-    // if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
-    // update the bucket
-    this.updateBucket(finishedTask)
-    // checks if termination conditions are met and acts accordingly
-    this.terminateOrDistribute(finishedTask, socket, io)
-    this.updateAdmins()
-    console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
+    if (this.isJobRunning) {
+      this.updateRoomStats(finishedTask)
+      // If a task comes back after a server restart, ignore it.
+      if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
+      // update the bucket
+      this.updateBucket(finishedTask)
+      // checks if termination conditions are met and acts accordingly
+      this.terminateOrDistribute(finishedTask, socket, io)
+      this.updateAdmins()
+      console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
+    }
   }
 }
 

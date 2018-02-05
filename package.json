@@ -17,6 +17,7 @@
     "start-dev": "NODE_ENV='development' npm run build-client-watch & VESNA_IS_AWESOME='true' npm run start-server",
     "start-server": "nodemon server -e html,js,scss --ignore public",
     "test": "NODE_ENV='test' DATABASE_URL='postgres://localhost:5432/partonia' mocha ./server/**/*.spec.js ./server/**/**/*.spec.js ./client/**/*.spec.js --compilers js:babel-register",
+    "test-w": "NODE_ENV='test' DATABASE_URL='postgres://localhost:5432/partonia' mocha ./server/**/*.spec.js ./server/**/**/*.spec.js ./client/**/*.spec.js --compilers js:babel-core/register --require babel-polyfill -w",
     "test-server-watch": "NODE_ENV='test' DATABASE_URL='postgres://localhost:5432/partonia' mocha ./server/**/*.spec.js -w",
     "test-utils-watch": "NODE_ENV='test' DATABASE_URL='postgres://localhost:5432/partonia' mocha ./server/utils/**/*.spec.js -w"
   },
@@ -72,6 +73,7 @@
     "babel-core": "^6.22.1",
     "babel-eslint": "^8.1.2",
     "babel-loader": "^6.2.10",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.22.0",
     "babel-preset-stage-2": "^6.24.1",
@@ -85,7 +87,6 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.4.0",
-    "ignore-styles": "^5.0.1",
     "mocha": "^3.5.3",
     "nodemon": "^1.12.1",
     "react-test-renderer": "^16.0.0",
