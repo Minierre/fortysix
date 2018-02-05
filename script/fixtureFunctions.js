@@ -4,12 +4,68 @@ const findString = ((c, targetString = 'jon') => {
   let i;
   for (i = 0; i < c.length; ++i) {
     if (c[i] === targetString[i])
-      fitness += 1;
-    fitness += (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
+      fitness += 100;
+    fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
   }
-  return fitness;
+  return Math.max(fitness, 0);
 }).toString()
 
+// fitness function for writing an arrow function that returns hello world
+const helloWorld = ((c) => {
+  c = c.join('')
+
+  let stringDif = (str0, str1) => {
+    let numWrong = Math.abs(str1.length - str0.length)
+    for (var i = 0; i < Math.min(str0.length, str1.length); i++) {
+      if (str1[i] !== str0[i]) numWrong++
+    }
+    return numWrong
+  }
+
+  let fitness = .0001
+  try {
+    fitness += 1
+    let value = eval('(' + c + ')')()
+    if (typeof value === 'string') {
+      fitness *= 1000
+      fitness /= stringDif(value, 'hello world')
+      if (value.length === ('hello world').length) {
+        fitness *= 100
+      }
+      if (value.split(' ').join('').toLowerCase() === 'helloworld') {
+        fitness = 100000000
+      }
+      else if (value === 'hello world') {
+        fitness = 1000000000
+      }
+    }
+    else if (typeof value !== 'undefined') {
+      fitness *= 100
+    }
+    return fitness
+  }
+  catch (e) {
+    if (c.includes('=>') && c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')' && c.indexOf('=>') > c.indexOf('(') && c.indexOf('(') > c.indexOf(')')) {
+      fitness += 2
+    }
+    else if (c.includes('=>') && c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')') {
+      fitness += .5
+    }
+    else if (c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')') {
+      fitness += .10
+    }
+    else if (c.includes('=>')) {
+      fitness += .10
+    }
+    let funcPatterns = ["()=>\"helloworld\""]
+    let difs = []
+    for (var l = 0; l < funcPatterns.length; l++) {
+      difs.push(stringDif(c.split(" ").join(""), funcPatterns[l]))
+    }
+    fitness += (c.length - (Math.min.apply(null, difs))) * .01
+    return fitness
+  }
+}).toString()
 
 // fitness function for game of life, disincentivises loops
 const gameOfLifeFitness = ((c, w = 10) => {
@@ -143,10 +199,7 @@ let randomSettingMutation = ((pop, p, pool) => {
 
 // randomly swaps genes in two positions of each chromosome effected, 'p' is chance of any given chromosome being effected
 let swapMutation = ((pop, p) => {
-  // checks to be sure all types in the population are same and output what they are
-  const type = (pop.every((chromosome, _, ar) => {
-    return typeof chromosome === typeof ar[0]
-  })) ? typeof pop[0] : false
+  // swaps two random genes in a chromosome
   function swap(c) {
     let i = Math.floor(Math.random() * c.length)
     let j = Math.floor(Math.random() * c.length)
@@ -155,13 +208,11 @@ let swapMutation = ((pop, p) => {
     c[j] = temp
     return c
   }
-  return (type && type === 'string')
-    ?
-    pop.map(v => v.split('').map(w => (Math.random() < p) ? swap(w) : w).join(''))
-    :
-    pop.map(v => v.map(w => (Math.random() < p) ? swap(w) : w))
+  // mutates each chromosome in the population 'pop' with probability p
+  return pop.map((chromosome) => {
+    return (Math.random() < p) ? swap(chromosome) : chromosome
+  })
 }).toString()
-
 
 // sudo randomly chooses 'n' chromosomes with fitness-weighted probability of choosing any given chromosome
 let rouletteWheel = ((population, arrayOfFitnesses, n = 1) => {
@@ -201,6 +252,7 @@ let fittest = ((population, arrayOfFitnesses, n = 1) => {
 
 module.exports = {
   findString,
+  helloWorld,
   gameOfLifeFitness,
   gameOfLifeFitnessLoopers,
   crossOver,

@@ -1,6 +1,14 @@
 const forEach = require('lodash/forEach')
 const chalk = require('chalk')
+const { spawn, config } = require('threads')
 const sortedIndex = require('lodash/sortedIndex')
+
+// Set-up worker thread
+config.set({
+  basepath: {
+    node: __dirname,
+  }
+})
 
 class RoomStats {
   constructor(generations, populationSize) {
@@ -14,6 +22,7 @@ class RoomStats {
     // the next three properties keep track of data used to short circuit the mean and sd process to make major time and space complexity operations
     this.dataCache = {}
     this.numberOfChromosomesProcessed = 0
+    this.highestProcessedGeneration = 2
 
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessesData[i] = []
@@ -26,6 +35,9 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
+    const thread = spawn('updateGenerationData.js')
+
+    if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
     // we insert the first generation data into the array, in a sorted order
     if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
@@ -34,20 +46,36 @@ class RoomStats {
     })
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
-      this.generationFitnessesData[gen] = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
+      this.generationFitnessesData[gen]
+        = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
     })
 
-    return this.generateGraphData()
+    if (genOneFitnessData) {
+      thread.send({
+        genOneFitnessData,
+        generationOneFitnessesData: this.generationFitnessesData[1],
+      })
+        .promise()
+        .then(({ newGenerationOneFitnessesData }) => {
+          thread.kill()
+          this.generationFitnessesData[1] = newGenerationOneFitnessesData
+          this.generateGraphData()
+        })
+    }
   }
+
   findMean(arr) {
     return arr.reduce((a, b) => a + b) / arr.length
   }
+
   findSD(arr, mean) {
     return Math.sqrt(this.findMean(arr.map(ele => (ele - mean) ** 2)))
   }
+
   findZScore(val, mean, sd) {
     return (val - mean) / sd
   }
+
   generateGraphData() {
     // sets up the zScoreBuckets
     const zScoreBucketHorrible = { name: 'Horrible' }
@@ -104,17 +132,28 @@ class RoomStats {
       })
     }
 
-    this.graphData = [zScoreBucketVeryBad, zScoreBucketHorrible, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
+    this.graphData = [zScoreBucketHorrible, zScoreBucketVeryBad, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
     return this.graphData
   }
 
   binaryInsertion(array, value) {
-    let index = sortedIndex(array, value)
+    const index = sortedIndex(array, value)
     return array.slice(0, index).concat(value, array.slice(index))
   }
 
   getStats() {
-    return this.graphData
+    const topTenGraphData = [{ name: 'Horrible' }, { name: 'Very Bad' }, { name: 'Bad' }, { name: 'Random' }, { name: 'Not Bad' }, { name: 'Good' }, { name: 'Excellent' }]
+    // only return the top 10 highest processed generations
+    const shouldReturnStats = i => i >= this.highestProcessedGeneration - 10 && i >= 2 && !!this.graphData[i]
+
+    for (let i = this.highestProcessedGeneration; shouldReturnStats(i); i -= 1) {
+      topTenGraphData.forEach((confidenceInterval, index) => {
+        topTenGraphData[index][i] = (confidenceInterval[i]) ? confidenceInterval[i].concat(this.graphData[index][i]) : [this.graphData[index][i]]
+      })
+    }
+    console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
+    console.log('---------------')
+    return topTenGraphData
   }
 
   generateMeanAndSD(currentGen) {

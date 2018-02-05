@@ -8,7 +8,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Label
+  Label,
+  Legend
 } from 'recharts'
 
 import times from 'lodash/times'
@@ -39,9 +40,7 @@ class Visualize extends Component {
         {
           this.props.data && this.props.data.length ?
             <div className="graph-wrapper">
-              <div className="graph-title-wrapper">
-                <h4>Normalized Z-Scores</h4>
-              </div>
+              <h4>Normalized Z-Scores</h4>
               <ResponsiveContainer height={600} >
                 <BarChart
                   title="Normalized Z-Scores"
@@ -65,9 +64,16 @@ class Visualize extends Component {
                   </YAxis>
                   <CartesianGrid strokeDasharray="3 3" />
                   <Tooltip />
+                  <Legend
+                    verticalAlign="top"
+                    height={36}
+                    iconType="circle"
+                    align="center"
+                    margin={{ top: 5, right: 30, left: 20, bottom: 50 }}
+                  />
                   {
                     // Get the top 10 oldest generation z-scores
-                    times(10, i => (
+                    times(this.props.generations, i => (
                       <Bar
                         key={i}
                         dataKey={this.props.generations - i}

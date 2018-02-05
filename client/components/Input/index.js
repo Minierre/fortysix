@@ -4,6 +4,7 @@ import {
   ControlLabel,
   FormControl
 } from 'react-bootstrap'
+import './style.css'
 
 const Input = ({
   controlId,

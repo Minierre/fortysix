@@ -34,7 +34,7 @@ class ContributorView extends Component {
 
   componentWillUnmount() {
     const roomHash = this.props.match.params.roomHash
-    this.props.socket.emit("LEAVE_" + roomHash)
+    this.props.socket.emit('leave', roomHash)
   }
 
   runMultiThreaded(task) {
@@ -69,10 +69,6 @@ class ContributorView extends Component {
 
         fittest = Selection(pop, fitpop, 2)
 
-        if (task.elitism && task.elitism <= Math.max(...fitpop)) {
-          fittest.push(pop[fitpop.indexOf(Math.max(...fitpop))])
-        }
-
         const parents = fittest.slice()
         fittest = []
         for (let i = 0; i < task.reproductiveCoefficient; i++) {
@@ -81,6 +77,10 @@ class ContributorView extends Component {
             children = m.function(children, m.chanceOfMutation, task.genePool)
           })
           fittest = fittest.concat(children)
+        }
+
+        if (task.elitism && task.elitism <= Math.max(...fitpop)) {
+          fittest.push(pop[fitpop.indexOf(Math.max(...fitpop))])
         }
 
         const fitnesses = fittest.map(chromo => FF(chromo))

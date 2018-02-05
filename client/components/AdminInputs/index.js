@@ -43,7 +43,7 @@ class AdminInputs extends Component {
           <h3>Parameters</h3>
           <div className="sliders">
             <Form>
-              <Col sm={6}>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="populationSize"
                   label="Population Size"
@@ -62,12 +62,34 @@ class AdminInputs extends Component {
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
+              </Col>
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="chromosomeLength"
                   label="Chromosome Length"
                   type="number"
                   value={values.chromosomeLength}
                   placeholder="Enter chromosome length"
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
+                />
+                <Input
+                  controlId="reproductiveCoefficient"
+                  label="Reproductive Coefficient"
+                  type="number"
+                  value={values.reproductiveCoefficient}
+                  placeholder="Enter reproductive coefficient"
+                  onBlur={this.props.submit}
+                  onChange={this.props.onChange}
+                />
+              </Col>
+              <Col sm={6} md={3} xs={6}>
+                <Input
+                  controlId="fitnessGoal"
+                  label="Fitness Goal"
+                  type="number"
+                  value={values.fitnessGoal}
+                  placeholder="Enter fitness goal"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
@@ -81,31 +103,13 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
               </Col>
-              <Col sm={6}>
-                <Input
-                  controlId="fitnessGoal"
-                  label="Fitness Goal"
-                  type="number"
-                  value={values.fitnessGoal}
-                  placeholder="Enter fitness goal"
-                  onBlur={this.props.submit}
-                  onChange={this.props.onChange}
-                />
+              <Col sm={6} md={3} xs={6}>
                 <Input
                   controlId="elitism"
                   label="Elitism"
                   type="number"
                   value={values.elitism}
                   placeholder="Enter elitism"
-                  onBlur={this.props.submit}
-                  onChange={this.props.onChange}
-                />
-                <Input
-                  controlId="reproductiveCoefficient"
-                  label="Reproductive Coefficient"
-                  type="number"
-                  value={values.reproductiveCoefficient}
-                  placeholder="Enter reproductive coefficient"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />

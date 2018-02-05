@@ -20,7 +20,7 @@ const Parameters = db.define('parameters', {
   },
   fitnessGoal: {
     type: Sequelize.INTEGER,
-    defaultValue: 23
+    defaultValue: 0
   },
   genePool: {
     type: Sequelize.TEXT,
