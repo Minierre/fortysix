@@ -42,12 +42,12 @@ class RoomStats {
     // we insert the first generation data into the array, in a sorted order
     if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
       this.numberOfChromosomesProcessed++
-      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], fitness)
+      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], Math.log(fitness + 1))
     })
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
       this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
+        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
     })
 
     // if (genOneFitnessData) {
