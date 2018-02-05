@@ -1,11 +1,4 @@
 const chalk = require('chalk')
-const {
-  History,
-  Room,
-  Selections,
-  Parameters,
-  Mutations
-} = require('../db/models')
 const { RoomManager } = require('../utils/room')
 
 const rooms = {}

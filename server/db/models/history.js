@@ -19,6 +19,45 @@ const History = db.define('history', {
   },
   result: {
     type: Sequelize.TEXT
+  },
+  maxGen: {
+    type: Sequelize.INTEGER
+  },
+  populationSize: {
+    type: Sequelize.INTEGER
+  },
+  chromosomeLength: {
+    type: Sequelize.INTEGER
+  },
+  fitnessGoal: {
+    type: Sequelize.INTEGER
+  },
+  elitism: {
+    type: Sequelize.INTEGER
+  },
+  reproductiveCoefficient: {
+    type: Sequelize.INTEGER
+  },
+  fitnessFunc: {
+    type: Sequelize.STRING
+  },
+  mutations: {
+    type: Sequelize.JSON
+  },
+  selection: {
+    type: Sequelize.JSON
+  },
+  genePool: {
+    type: Sequelize.ARRAY(Sequelize.TEXT)
+  },
+  admins: {
+    type: Sequelize.ARRAY(Sequelize.TEXT)
+  },
+  totalFitness: {
+    type: Sequelize.INTEGER
+  },
+  roomStats: {
+    type: Sequelize.ARRAY(Sequelize.TEXT)
   }
 })
 
