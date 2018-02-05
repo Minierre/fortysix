@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Panel } from 'react-bootstrap'
+import { Panel, Button, Table } from 'react-bootstrap'
 import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
 
@@ -8,7 +8,13 @@ class ContributorView extends Component {
     super()
     this.state = {
       tasksCompleted: 0,
+      percentOfTotal: 0,
+      timeRunning: 0,
+      taskPerSecond: 0,
+      ready: false
     }
+    this.handleStart = this.handleStart.bind(this)
+    this.handleStop = this.handleStop.bind(this)
   }
 
   componentDidMount() {
@@ -41,7 +47,7 @@ class ContributorView extends Component {
 
   componentWillUnmount() {
     const roomHash = this.props.match.params.roomHash
-    this.props.socket.emit("LEAVE_" + roomHash)
+    this.props.socket.emit('leave' + roomHash)
   }
 
   runMultiThreaded(task) {
@@ -111,7 +117,27 @@ class ContributorView extends Component {
       })
   }
 
+  handleStart(){
+    this.setState({ready:true})
+    let secondsPassed = 0
+    setInterval(() => {
+      secondsPassed++
+      let taskPerSecond = this.state.tasksCompleted / secondsPassed
+      this.setState({taskPerSecond})
+      this.setState({timeRunning:secondsPassed})
+    }, 1000)
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit('join', roomHash)
+  }
+
+  handleStop(){
+    this.setState({ready: false})
+    const roomHash = this.props.match.params.roomHash
+    this.props.socket.emit('leave', roomHash)
+  }
+
   render() {
+    const style = {maxWidth: 400, margin: '0 auto 10px'}
     return (
       <div>
         <Panel>
@@ -122,7 +148,34 @@ class ContributorView extends Component {
           </Panel.Heading>
           <Panel.Body>Thank you for contributing to science.</Panel.Body>
         </Panel>
-        <h2>{this.state.tasksCompleted}</h2>
+        <div style={style}>
+        <Button onClick={this.handleStart} bsStyle="success" bsSize="large" block>
+        Yes, I'm Ready to Receive Tasks
+    </Button>
+    <Button onClick={this.handleStop} bsStyle="danger" bsSize="large" block disabled>
+      Stop Sending Me Tasks
+    </Button>
+    </div>
+    <Table striped hover>
+  <tbody>
+    <tr>
+      <td>Tasks Completed</td>
+      <td>{this.state.tasksCompleted}</td>
+    </tr>
+    <tr>
+      <td>Time Running</td>
+      <td>{this.state.timeRunning} seconds</td>
+    </tr>
+    <tr>
+      <td>Percent of Total</td>
+      <td>{this.state.percentOfTotal} %</td>
+    </tr>
+    <tr>
+      <td>Tasks Per Second</td>
+      <td>{this.state.taskPerSecond}</td>
+    </tr>
+  </tbody>
+</Table>;
       </div>
     )
   }

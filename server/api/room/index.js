@@ -62,11 +62,7 @@ router.put('/:roomHash', (req, res, next) => {
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
-<<<<<<< HEAD:server/api/room.js
     (() => fitFunc([${c}]))()`,
-=======
-    (() => fitFunc())()`,
->>>>>>> master:server/api/room/index.js
     (output) => {
       const isValid = !isNaN(Number(output.result))
       // FIXME: re-add security
