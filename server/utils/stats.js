@@ -19,9 +19,14 @@ class RoomStats {
     this.counter = 0
     // stores object data that looks like {{2: [2345,2315]}, ...]
     this.generationFitnessesData = {}
+    // the next three properties keep track of data used to short circuit the mean and sd process to make major time and space complexity operations
+    this.dataCache = {}
+    this.numberOfChromosomesEmptied = 0
+    this.genOneSDs = []
 
     for (let i = 1; i <= generations; i++) {
       this.generationFitnessesData[i] = []
+      this.dataCache[i] = { mean: null, sd: null }
     }
     this.generations = generations
     this.selectionSize = 2 / populationSize
@@ -88,13 +93,19 @@ class RoomStats {
       let normalizationArr = normalizationFactor === 1 ?
         this.generationFitnessesData[1] :
         this.generationFitnessesData[1].slice(this.generationFitnessesData[1].length * normalizationFactor)
+
       // compute the normalized mean and sd
       const normalizedMean = this.findMean(normalizationArr)
       const normalizedSD = this.findSD(normalizationArr, normalizedMean)
 
+      //keep track of genOneSDs - when the volatility of the genOneSD's drops below a certain level we can make major space complexitiy optimizations
+      this.genOneSDs.push(normalizedSD)
+
+      const { mean, sd } =
+
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
-        const zScore = this.findZScore(fitness, normalizedMean, normalizedSD)
+        const zScore = this.findZScore(fitness, mean, sd)
         switch (true) {
           case (zScore < -2.567):
             zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
@@ -145,6 +156,8 @@ class RoomStats {
   getStats() {
     return this.graphData
   }
+
+  // calculate
 }
 
 module.exports = { RoomStats }

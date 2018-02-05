@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const { RoomStats } = require('./stats')
 
-xdescribe('stats', () => {
+describe('stats', () => {
   let roomStats
 
   beforeEach(() => {
