@@ -227,13 +227,15 @@ class RoomManager {
       elitism: this.elitism,
       reproductiveCoefficient: this.reproductiveCoefficient,
       endTime: new Date(),
-      fitnessFunc: this.fitness.toString(),
-      mutations: this.mutations,
-      selection: this.selection,
-      genePool: this.genePool,
-      admins: map(this.admins, admin => `${admin.id}`),
+      fitnessFunc: this.fitness.function.toString(),
+      mutations: map(this.mutations, mut =>
+        `${mut.name} ${mut.chanceOfMutation}`).join(','),
+      selection: this.selection.name,
+      genePool: this.genePool.join(','),
+      admins: map(this.admins, admin => `${admin.id}`).join(','),
       totalFitness: this.totalFitness,
-      roomStats: this.roomStats.getStats().map(stat => JSON.stringify(stat))
+      // FIXME: room stats is going to be in micro-service later igbnore for now
+      // roomStats: this.roomStats.getStats()
     })
       .then(() => {
         History.findAll({

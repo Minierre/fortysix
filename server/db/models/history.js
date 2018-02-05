@@ -39,19 +39,19 @@ const History = db.define('history', {
     type: Sequelize.INTEGER
   },
   fitnessFunc: {
-    type: Sequelize.STRING
+    type: Sequelize.TEXT
   },
   mutations: {
-    type: Sequelize.JSON
+    type: Sequelize.TEXT
   },
   selection: {
-    type: Sequelize.JSON
+    type: Sequelize.TEXT
   },
   genePool: {
-    type: Sequelize.ARRAY(Sequelize.TEXT)
+    type: Sequelize.TEXT
   },
   admins: {
-    type: Sequelize.ARRAY(Sequelize.TEXT)
+    type: Sequelize.TEXT
   },
   totalFitness: {
     type: Sequelize.INTEGER
