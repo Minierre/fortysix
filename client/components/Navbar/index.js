@@ -28,7 +28,7 @@ logout(evt) {
       <NavigationBar inverse>
       <NavigationBar.Header>
       <NavigationBar.Brand>
-        <Link to="/">FortySix</Link>
+        <Link to="/">41-33</Link>
       </NavigationBar.Brand>
       </NavigationBar.Header>
         <ul className="nav navbar-nav navbar-right">
