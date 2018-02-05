@@ -74,11 +74,11 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
                 <Input
-                  controlId="genePool"
-                  label="Gene Pool"
-                  type="text"
-                  value={values.genePool}
-                  placeholder="Enter comma delimited values"
+                  controlId="reproductiveCoefficient"
+                  label="Reproductive Coefficient"
+                  type="number"
+                  value={values.reproductiveCoefficient}
+                  placeholder="Enter reproductive coefficient"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
@@ -94,22 +94,22 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
                 <Input
-                  controlId="elitism"
-                  label="Elitism"
-                  type="number"
-                  value={values.elitism}
-                  placeholder="Enter elitism"
+                  controlId="genePool"
+                  label="Gene Pool"
+                  type="text"
+                  value={values.genePool}
+                  placeholder="Enter comma delimited values"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
               </Col>
               <Col sm={6} md={3} xs={6}>
                 <Input
-                  controlId="reproductiveCoefficient"
-                  label="Reproductive Coefficient"
+                  controlId="elitism"
+                  label="Elitism"
                   type="number"
-                  value={values.reproductiveCoefficient}
-                  placeholder="Enter reproductive coefficient"
+                  value={values.elitism}
+                  placeholder="Enter elitism"
                   onBlur={this.props.submit}
                   onChange={this.props.onChange}
                 />
