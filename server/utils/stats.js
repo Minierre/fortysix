@@ -42,12 +42,12 @@ class RoomStats {
     // we insert the first generation data into the array, in a sorted order
     if (genOneFitnessData) genOneFitnessData.forEach((fitness) => {
       this.numberOfChromosomesProcessed++
-      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], Math.log(fitness + 1))
+      this.generationFitnessesData[1] = this.binaryInsertion(this.generationFitnessesData[1], (fitness + 1))
     })
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
       this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
+        = this.binaryInsertion(this.generationFitnessesData[gen], (fitness + 1))
     })
 
     // if (genOneFitnessData) {
@@ -150,8 +150,8 @@ class RoomStats {
         topTenGraphData[index][i] = this.graphData[index][i]
       })
     }
-    console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
-    console.log('---------------')
+    // console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
+    // console.log('---------------')
     return topTenGraphData
   }
 
@@ -162,6 +162,8 @@ class RoomStats {
     // create an arr from gen1 fitnesses to normalize more mature generation fitness data
     const normalizationFactor = this.selectionSize ** (currentGen - 1)
     const normalizationArr = this.generationFitnessesData[1].slice(-this.numberOfChromosomesProcessed * normalizationFactor)
+    console.log(chalk.green(normalizationArr.length))
+    console.log('--------------------\n')
     // compute the normalized mean and sd
     const normalizedMean = this.findMean(normalizationArr)
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
@@ -170,10 +172,27 @@ class RoomStats {
     return { stableMean: normalizedMean, stableSD: normalizedSD }
   }
   updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
-    const stable = this.findSD(this.dataCache[currentGen].stDvs) < this.selectionSize * normalizedSD
-
+    const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) === 0
+    console.log(chalk.yellow(JSON.stringify(this.dataCache[1].stDvs.length)))
+    console.log('--------------------\n')
     if (stable) {
-      console.log(chalk.green('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
+      console.log(chalk.magenta('HEURISTIC HAPPENED'))
       this.dataCache[currentGen].stDvs = []
       this.dataCache[currentGen].stableMean = normalizedMean
       this.dataCache[currentGen].stableSD = normalizedSD
