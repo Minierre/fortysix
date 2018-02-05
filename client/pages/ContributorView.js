@@ -60,6 +60,8 @@ class ContributorView extends Component {
     let population = task.population
     let fittest = []
 
+
+
     const FF = eval('(' + task.fitness.function + ')')
 
     const thread = spawn(({ chromosomes, fitnessfunc }, done) => {
@@ -119,14 +121,16 @@ class ContributorView extends Component {
 
   handleStart(){
     this.setState({ready:true})
-    let secondsPassed = 0
-    setInterval(() => {
-      secondsPassed++
-      let taskPerSecond = this.state.tasksCompleted / secondsPassed
-      this.setState({taskPerSecond})
-      this.setState({timeRunning:secondsPassed})
-    }, 1000)
     const roomHash = this.props.match.params.roomHash
+      setInterval(() => {
+        if (this.state.ready) {
+          let timePassed = this.state.timeRunning
+          timePassed++
+          this.setState({timeRunning:timePassed})
+          let taskPerSecond = (this.state.tasksCompleted / this.state.timeRunning).toFixed(2)
+          this.setState({taskPerSecond})
+        }
+      }, 1000)
     this.props.socket.emit('join', roomHash)
   }
 
@@ -150,9 +154,9 @@ class ContributorView extends Component {
         </Panel>
         <div style={style}>
         <Button onClick={this.handleStart} bsStyle="success" bsSize="large" block>
-        Yes, I'm Ready to Receive Tasks
+        I'm Ready to Receive Tasks
     </Button>
-    <Button onClick={this.handleStop} bsStyle="danger" bsSize="large" block disabled>
+    <Button onClick={this.handleStop} bsStyle="danger" bsSize="large" block>
       Stop Sending Me Tasks
     </Button>
     </div>
