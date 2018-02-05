@@ -56,7 +56,7 @@ class RoomStats {
     // every task comes back with fitness data too, which we store
     fitnesses.forEach((fitness) => {
       this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], fitness)
+        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
     })
   }
 
@@ -98,7 +98,7 @@ class RoomStats {
 
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
-        const zScore = this.findZScore(fitness, stableMean, stableSD)
+        const zScore = this.findZScore(Math.log(fitness + 1), stableMean, stableSD)
         switch (true) {
           case (zScore < -2.567):
             zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
