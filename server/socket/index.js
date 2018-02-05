@@ -53,6 +53,7 @@ function registerEvents(socket, io) {
   registerRequestRoom(socket, io)
   registerAbort(socket, io)
   registerJobError(socket, io)
+  registerToggleReady(socket, io)
 }
 
 // when a specific client gets an error
@@ -89,6 +90,12 @@ function registerRequestRoom(socket) {
 
 function registerLeave(socket, io) {
   socket.on('leave', room => rooms[room].leave(socket, io))
+}
+
+function registerToggleReady(socket, io) {
+  socket.on('toggleReady', (room) => {
+    rooms[room].toggleNodeReady(socket, io)
+  })
 }
 
 function registerStart(socket) {

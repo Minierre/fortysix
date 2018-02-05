@@ -7,32 +7,46 @@ class ContributorView extends Component {
   constructor() {
     super()
     this.state = {
-      tasksCompleted: 0,
+      tasksCompletedByNode: 0,
       percentOfTotal: 0,
+      totalTasksCompleted: 0,
       timeRunning: 0,
       taskPerSecond: 0,
-      ready: false
+      ready: true
+
     }
-    this.handleStart = this.handleStart.bind(this)
-    this.handleStop = this.handleStop.bind(this)
+    // this.handleStart = this.handleStart.bind(this)
+    // this.handleStop = this.handleStop.bind(this)
+    this.toggleReady = this.toggleReady.bind(this)
   }
 
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
-    this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompleted }  ) => {
-    this.setState({tasksCompleted})
-      this.props.socket.emit('start', roomHash)
-      try {
-        console.log('running: ', task)
-        this.runMultiThreaded(task)
-      } catch (err) {
-        console.error(err)
-        this.props.socket.emit('JOB_ERROR', {
-          roomHash, error: err.toString()
-        })
+    setInterval(() => {
+      if (this.state.ready) {
+        let timePassed = this.state.timeRunning
+        timePassed++
+        this.setState({timeRunning:timePassed})
+        let taskPerSecond = (this.state.tasksCompletedByNode / this.state.timeRunning).toFixed(2)
+        this.setState({taskPerSecond})
       }
-    })
+    }, 1000)
+    console.log(this.state);
+        this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompletedByNode, totalTasksCompleted }  ) => {
+          let percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
+          this.setState({tasksCompletedByNode, percentOfTotal})
+          this.props.socket.emit('start', roomHash)
+          try {
+            console.log('running: ', task)
+            this.runMultiThreaded(task)
+          } catch (err) {
+            console.error(err)
+            this.props.socket.emit('JOB_ERROR', {
+              roomHash, error: err.toString()
+            })
+          }
+        })
 
     this.props.socket.on('disconnect', () => {
       this.props.socket.on('connect', () => {
@@ -114,30 +128,20 @@ class ContributorView extends Component {
           elitism: task.elitism,
           genOneFitnessData: (task.gen === 1) ? fitpop : null
         }
-
         this.props.socket.emit('done', returnTaskObj)
       })
   }
 
-  handleStart(){
-    this.setState({ready:true})
-    const roomHash = this.props.match.params.roomHash
-      setInterval(() => {
-        if (this.state.ready) {
-          let timePassed = this.state.timeRunning
-          timePassed++
-          this.setState({timeRunning:timePassed})
-          let taskPerSecond = (this.state.tasksCompleted / this.state.timeRunning).toFixed(2)
-          this.setState({taskPerSecond})
-        }
-      }, 1000)
-    this.props.socket.emit('join', roomHash)
-  }
 
-  handleStop(){
-    this.setState({ready: false})
+  toggleReady(){
+    if (this.state.ready) {
+      this.setState({ready: false})
+    } else {
+      this.setState({ready: true})
+    }
     const roomHash = this.props.match.params.roomHash
-    this.props.socket.emit('leave', roomHash)
+    this.props.socket.emit('toggleReady', roomHash)
+    console.log(this.state);
   }
 
   render() {
@@ -153,18 +157,21 @@ class ContributorView extends Component {
           <Panel.Body>Thank you for contributing to science.</Panel.Body>
         </Panel>
         <div style={style}>
-        <Button onClick={this.handleStart} bsStyle="success" bsSize="large" block>
-        I'm Ready to Receive Tasks
-    </Button>
-    <Button onClick={this.handleStop} bsStyle="danger" bsSize="large" block>
-      Stop Sending Me Tasks
-    </Button>
+        {this.state.ready ? (
+          <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block active>
+          Running, Click to Stop
+          </Button>
+        ) : (
+          <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block>
+          Paused, Click to Run
+          </Button>
+        )}
     </div>
     <Table striped hover>
   <tbody>
     <tr>
       <td>Tasks Completed</td>
-      <td>{this.state.tasksCompleted}</td>
+      <td>{this.state.tasksCompletedByNode}</td>
     </tr>
     <tr>
       <td>Time Running</td>
