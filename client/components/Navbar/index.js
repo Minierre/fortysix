@@ -1,17 +1,34 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Navbar as NavigationBar } from 'react-bootstrap'
+import {
+  Navbar,
+  MenuItem,
+  Nav,
+  NavItem,
+  NavDropdown
+} from 'react-bootstrap'
 
 import './style.css'
 
-const Navbar = () => (
-  <NavigationBar inverse>
-    <NavigationBar.Header>
-      <NavigationBar.Brand>
+const NavigationBar = () => (
+  <Navbar inverse collapseOnSelect>
+    <Navbar.Header>
+      <Navbar.Brand>
         <Link to="/">FortySix</Link>
-      </NavigationBar.Brand>
-    </NavigationBar.Header>
-  </NavigationBar>
+      </Navbar.Brand>
+      <Navbar.Toggle />
+    </Navbar.Header>
+    <Navbar.Collapse>
+      <Nav pullRight>
+        <NavItem eventKey={1} href="#">
+          Rooms
+        </NavItem>
+        <NavItem eventKey={2} href="#">
+          Login
+        </NavItem>
+      </Nav>
+    </Navbar.Collapse>
+  </Navbar>
 )
 
-export default Navbar
+export default NavigationBar

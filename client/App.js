@@ -12,7 +12,7 @@ import {
 import {
   ScientistView,
   ContributorView,
-  Home,
+  Rooms,
   LoginSignup
 } from './pages'
 
@@ -46,8 +46,12 @@ class App extends Component {
                 component={() => <LoginSignup socket={this.props.socket} />}
               />
               <Route
+                path="/rooms"
+                component={() => <Rooms socket={this.props.socket} />}
+              />
+              <Route
                 path="/"
-                component={() => <Home socket={this.props.socket} />}
+                component={() => <Rooms socket={this.props.socket} />}
               />
             </Switch>
           </Main>

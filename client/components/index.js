@@ -9,3 +9,5 @@ export { default as AdminInputs } from './AdminInputs'
 export { default as Input } from './Input'
 export { default as Select } from './Select'
 export { default as Timer } from './Timer'
+export { default as CreateRoom } from './CreateRoom'
+
