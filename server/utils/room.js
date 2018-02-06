@@ -1,4 +1,5 @@
 const chalk = require('chalk')
+const map = require('lodash/map')
 const {
   History,
   Room,
@@ -34,7 +35,6 @@ class RoomManager {
     this.totalFitness = 0
     this.roomStats = null
     this.totalTasksCompleted = 0
-    this.isDone = false
   }
 
   getState() {
@@ -70,7 +70,7 @@ class RoomManager {
   join(socket) {
     socket.join(this.room)
 
-    this.nodes[socket.id] = { ready: true, running: false, error: false, tasksCompletedByNode: 0 }
+    this.nodes[socket.id] = { running: false, error: false, tasksCompletedByNode: 0 }
     if (this.jobRunning) {
       this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
@@ -83,7 +83,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-        socket.emit('CALL_' + this.room, { isRunning: this.jobRunning, task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, isDone: this.isDone })
+        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted,})
     this.updateAdmins()
   }
   }
@@ -102,7 +102,7 @@ class RoomManager {
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
-    // this.nodes = this.room.nodes || {}
+    this.nodes = {}
     this.updateAdmins()
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
@@ -233,7 +233,6 @@ class RoomManager {
 
   stopJob(socket) {
     this.jobRunning = false
-    this.nodes[socket.id].ready = true;
     // if the job is finished, each node stops running
     Object.keys(this.nodes).forEach((nodeId) => {
       this.nodes[nodeId].running = false;
@@ -267,7 +266,6 @@ class RoomManager {
   }
 
   emptyTaskQueue() {
-    this.isDone = true;
     this.tasks = []
   }
 
@@ -275,13 +273,13 @@ class RoomManager {
   distributeWork(socket) {
     //check if 256 breaks something
     if (this.nodes[socket.id]) {
-      if (this.nodes[socket.id].ready) {
+      // if (this.nodes[socket.id].ready) {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       this.nodes[socket.id].tasksCompletedByNode++
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, isDone: this.isDone })
+        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted})
       this.updateAdmins()
-    }
+    // }
     }
   }
 
