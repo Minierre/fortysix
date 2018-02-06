@@ -6,12 +6,13 @@ import {
 } from 'react-bootstrap'
 import { Formik } from 'formik'
 import axios from 'axios'
-import JSONTree from 'react-json-tree'
+import ReactJson from 'react-json-view'
 import '../../../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 import Status from './Status'
 import History from './History'
 import Visualize from './Visualize'
 import './style.css'
+
 
 import {
   AdminInputs,
@@ -174,10 +175,11 @@ class ScientistView extends Component {
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
-            <JSONTree data={{
-              nodes: this.state.room.nodes,
-              buckets: this.state.room.bucket
-            }} />
+            <ReactJson src={{
+                nodes: this.state.room.nodes,
+                bucket: this.state.room.bucket
+            }}
+            />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
             <Visualize
