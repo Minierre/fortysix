@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
 import { Button } from 'react-bootstrap'
 import axios from 'axios'
+import debounce from 'lodash/debounce'
 import './style.css'
 import '../../../node_modules/codemirror/lib/codemirror.css'
 
@@ -25,16 +26,17 @@ class CodeEditor extends Component {
                   name: 'fitnessFunc'
                 }
               })
-
+            }}
+            onBlur={(editor, event) =>
               // Hack: debounce this later
               this.props.submit({
                 preventDefault: () => { },
                 target: {
-                  value,
+                  value: event.target.value,
                   name: 'fitnessFunc'
                 }
               })
-            }}
+            }
             options={options}
           />
         </div>
