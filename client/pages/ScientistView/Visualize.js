@@ -38,7 +38,7 @@ class Visualize extends Component {
     return (
       <div>
         {
-          this.props.data && this.props.data.keys.length ?
+          this.props.data && this.props.data.keys && this.props.data.keys.length ?
             <div className="graph-wrapper">
               <h4>Normalized Z-Scores</h4>
               <ResponsiveContainer height={600} >

@@ -33,6 +33,7 @@ class RoomManager {
     this.chromosomesReturned = 0
     this.totalFitness = 0
     this.roomStats = null
+    this.totalTasksCompleted = 0
 
     // FIXME: This can crash the server if an instance of RoomManager gets deleted.
     setInterval(() => {
@@ -86,7 +87,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, })
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode })
     }
     this.updateAdmins()
   }
@@ -190,9 +191,7 @@ class RoomManager {
   }
 
   toggleNodeReady(socket) {
-    console.log('toggle node ready');
     if (this.nodes[socket.id]) {
-      console.log(this.nodes[socket.id]);
       if (this.nodes[socket.id].ready) {
         this.nodes[socket.id].ready = false
       } else {
@@ -283,7 +282,7 @@ class RoomManager {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       this.nodes[socket.id].tasksCompletedByNode++
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted })
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode })
       this.updateAdmins()
     }
     }
@@ -326,7 +325,8 @@ class RoomManager {
     if (!this.isJobRunning()) {
       this.startJob()
       Object.keys(this.nodes).forEach((id, i) => {
-        socket.to(id).emit(callName, { task: this.tasks.shift() })
+        console.log(id, i);
+        socket.to(id).emit(callName, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted })
       })
     }
     else {
