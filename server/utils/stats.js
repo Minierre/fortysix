@@ -33,7 +33,7 @@ class RoomStats {
     this.selectionSize = (2 * reproductiveCoefficient) / populationSize
   }
 
-  updateGenerationData(finishedTask) {
+  updateGenerationData(finishedTask, bucket, allGenOneChroms) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
     const thread = spawn('updateGenerationData.js')
@@ -58,12 +58,12 @@ class RoomStats {
           thread.kill()
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
           // if (this.counter % 50 === 0) {
-            this.generateGraphData()
+            this.generateGraphData(finishedTask, allGenOneChroms)
           // }
         })
     } else {
     // if (this.counter % 50 === 0) {
-      this.generateGraphData()
+      this.generateGraphData(finishedTask, allGenOneChroms)
     // }
     }
   }
@@ -80,7 +80,7 @@ class RoomStats {
     return (val - mean) / sd
   }
 
-  generateGraphData() {
+  generateGraphData(finishedTask, allGenOneChroms) {
     // sets up the zScoreBuckets
     const zScoreBucketHorrible = { name: 'Horrible' }
     const zScoreBucketVeryBad = { name: 'Very Bad' }
@@ -101,7 +101,7 @@ class RoomStats {
       zScoreBucketExcellent[i] = 0
 
       // check data cache to see if a stable sd or mean exists, and if not, calculate the normalized mean and sd
-      const { stableMean, stableSD } = this.generateMeanAndSD(i)
+      const { stableMean, stableSD, normalizationFactor, arrLength } = this.generateMeanAndSD(i)
 
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
@@ -160,13 +160,13 @@ class RoomStats {
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
     this.dataCache[currentGen].stDvs.push(normalizedSD)
     this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen)
-    return { stableMean: normalizedMean, stableSD: normalizedSD }
+    return { stableMean: normalizedMean, stableSD: normalizedSD, normalizationFactor, arrLength: normalizationArr.length }
   }
   updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
     const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < 0.005 && this.dataCache[currentGen].stDvs.length > 100
 
-    console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), 0.01, this.dataCache[currentGen].stDvs.length, 100))
-    console.log(chalk.pink(currentGen))
+    // console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), 0.01, this.dataCache[currentGen].stDvs.length, 100))
+    // console.log(chalk.pink(currentGen))
     console.log('--------------------\n')
     if (stable) {
       console.log(chalk.magenta('HEURISTIC HAPPENED'))

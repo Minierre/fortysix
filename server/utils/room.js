@@ -34,6 +34,7 @@ class RoomManager {
     this.chromosomesReturned = 0
     this.totalFitness = 0
     this.roomStats = null
+    this.ALLGENONECHROMS = []
 
     // FIXME: This can crash the server if an instance of RoomManager gets deleted.
     setInterval(() => {
@@ -75,7 +76,7 @@ class RoomManager {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
     if (this.isJobRunning()) {
-      this.tasks = this.tasks.concat(generateTasks(
+      const newTasks = generateTasks(
         this.populationSize,
         this.room,
         4,
@@ -85,7 +86,9 @@ class RoomManager {
         this.chromosomeLength,
         this.genePool,
         this.elitism
-      ))
+      )
+      newTasks.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
+      this.tasks = this.tasks.concat(newTasks)
       socket.emit('CALL_' + this.room, this.tasks.shift())
     }
     this.updateAdmins()
@@ -136,6 +139,7 @@ class RoomManager {
       this.reproductiveCoefficient,
       this.elitism
     )
+    this.tasks.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
   }
 
   mapPersistedToMemory(room) {
@@ -239,7 +243,7 @@ class RoomManager {
       selection: this.selection.name,
       genePool: this.genePool.join(','),
       admins: map(this.admins, admin => `${admin.id}`).join(','),
-      totalFitness: 0,
+      totalFitness: this.totalFitness,
       // FIXME: room stats is going to be in micro-service later igbnore for now
       // roomStats: this.roomStats.getStats()
     })
@@ -289,6 +293,7 @@ class RoomManager {
         this.genePool,
         this.reproductiveCoefficient
       )
+      newTask.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
       this.tasks =
         this.tasks.concat(newTask)
     }
@@ -304,7 +309,7 @@ class RoomManager {
     const updatedRoom = await this.mapPersistedToMemory(this.room)
     // sets up our roomStats with the appropriate amount of buckets
     this.roomStats = new RoomStats(this.maxGen, this.populationSize, this.reproductiveCoefficient)
-    this.updateAdmins()
+
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
       this.startJob()
@@ -391,11 +396,7 @@ class RoomManager {
       this.updateRoomStats(finishedTask)
       // If a task comes back after a server restart, ignore it.
       if (this.roomStats) {
-        console.log(chalk.yellow('CALLED'))
-        this.roomStats.updateGenerationData(finishedTask)
-      }
-      else {
-        console.log(this.roomStats)
+        this.roomStats.updateGenerationData(finishedTask, this.bucket, this.ALLGENONECHROMS)
       }
       // update the bucket
       this.updateBucket(finishedTask)
