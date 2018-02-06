@@ -15,7 +15,6 @@ class CreateRoom extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props)
     axios.get('/api/room/all')
       .then(res => res.data)
       .then((rooms) => {
@@ -23,7 +22,7 @@ class CreateRoom extends Component {
       })
 
     if (this.props.isLoggedIn) {
-      axios.get(`/api/users/${this.props.user.id}/rooms`)
+      axios.get(`/api/users/${this.props.userId}/rooms`)
       .then(res => res.data)
       .then((ownedRooms) => {
         this.setState({ ownedRooms })
@@ -75,7 +74,7 @@ class CreateRoom extends Component {
 
 const mapState = (state) => {
   return {
-    user: state.user,
+    userId: state.user.id,
     isLoggedIn: !!state.user.email
   }
 }
