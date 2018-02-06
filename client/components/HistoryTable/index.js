@@ -88,7 +88,7 @@ class HistoryTable extends Component {
           <TableHeaderColumn width="150" dataField="nodes"># of Nodes</TableHeaderColumn>
           <TableHeaderColumn width="225" dataField="date">Date Run</TableHeaderColumn>
           <TableHeaderColumn width="150" dataField="execTime">Execution Time (seconds)</TableHeaderColumn>
-          <TableHeaderColumn width="150" dataField="result">Result</TableHeaderColumn>
+          <TableHeaderColumn tdStyle={{ whiteSpace: 'normal' }} thStyle={{ whiteSpace: 'normal' }} width="150" dataField="result">Result</TableHeaderColumn>
           <TableHeaderColumn width="150" dataField="maxGen" export>Max Gen</TableHeaderColumn>
           <TableHeaderColumn width="150" dataField="populationSize" export>Population Size</TableHeaderColumn>
           <TableHeaderColumn width="150" dataField="fitnessGoal" export>Fitness Goal</TableHeaderColumn>

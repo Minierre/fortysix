@@ -34,6 +34,11 @@ class RoomManager {
     this.chromosomesReturned = 0
     this.totalFitness = 0
     this.roomStats = null
+
+    // FIXME: This can crash the server if an instance of RoomManager gets deleted.
+    setInterval(() => {
+      if (this.jobRunning) this.updateAdmins()
+    }, 5000)
   }
 
   getState() {
@@ -298,8 +303,8 @@ class RoomManager {
     // takes the room stored in the database, and maps it to the in memory room
     const updatedRoom = await this.mapPersistedToMemory(this.room)
     // sets up our roomStats with the appropriate amount of buckets
-    this.roomStats = new RoomStats(this.maxGen, this.populationSize)
-    this.updateAdmins()
+    this.roomStats = new RoomStats(this.maxGen, this.populationSize, this.reproductiveCoefficient)
+
     // checks to see if the job is running already and if not, starts the job
     if (!this.isJobRunning()) {
       this.startJob()
@@ -377,7 +382,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: this.roomStats ? this.roomStats.getStats() : []
+      stats: this.roomStats && this.jobRunning ? this.roomStats.getStats() : []
     }))
   }
 
@@ -385,7 +390,9 @@ class RoomManager {
     if (this.isJobRunning) {
       this.updateRoomStats(finishedTask)
       // If a task comes back after a server restart, ignore it.
-      if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
+      if (this.roomStats) {
+        this.roomStats.updateGenerationData(finishedTask)
+      }
       // update the bucket
       this.updateBucket(finishedTask)
       // checks if termination conditions are met and acts accordingly

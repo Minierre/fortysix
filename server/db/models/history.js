@@ -30,10 +30,10 @@ const History = db.define('history', {
     type: Sequelize.INTEGER
   },
   fitnessGoal: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   elitism: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   reproductiveCoefficient: {
     type: Sequelize.INTEGER
@@ -54,7 +54,7 @@ const History = db.define('history', {
     type: Sequelize.TEXT
   },
   totalFitness: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   roomStats: {
     type: Sequelize.ARRAY(Sequelize.TEXT)
