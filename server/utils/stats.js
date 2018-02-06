@@ -33,7 +33,7 @@ class RoomStats {
     this.selectionSize = (2 * reproductiveCoefficient) / populationSize
   }
 
-  updateGenerationData(finishedTask, bucket, allGenOneChroms) {
+  updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
     const thread = spawn('updateGenerationData.js')
@@ -42,10 +42,7 @@ class RoomStats {
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
     // every task comes back with fitness data too, which we store
-    fitnesses.forEach((fitness) => {
-      this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
-    })
+    fitnesses.forEach(fitness => this.generationFitnessesData[gen].push(Math.log(fitness + 1)))
 
     if (genOneFitnessData) {
       this.numberOfChromosomesProcessed += genOneFitnessData.length
@@ -57,14 +54,14 @@ class RoomStats {
         .then(({ newGenerationOneFitnessesData }) => {
           thread.kill()
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
-          // if (this.counter % 50 === 0) {
-            this.generateGraphData(finishedTask, allGenOneChroms)
-          // }
+          if (this.generationFitnessesData[gen].length >= 36) {
+            this.generateGraphData()
+          }
         })
     } else {
-    // if (this.counter % 50 === 0) {
-      this.generateGraphData(finishedTask, allGenOneChroms)
-    // }
+      if (this.generationFitnessesData[gen].length >= 36) {
+        this.generateGraphData()
+      }
     }
   }
 
@@ -80,7 +77,7 @@ class RoomStats {
     return (val - mean) / sd
   }
 
-  generateGraphData(finishedTask, allGenOneChroms) {
+  generateGraphData() {
     // sets up the zScoreBuckets
     const zScoreBucketHorrible = { name: 'Horrible' }
     const zScoreBucketVeryBad = { name: 'Very Bad' }
@@ -91,6 +88,11 @@ class RoomStats {
     const zScoreBucketExcellent = { name: 'Excellent' }
 
     for (let i = this.highestProcessedGeneration; i >= this.highestProcessedGeneration - 10 && i >= 2; i -= 1) {
+      // dumping old cache, and fitness data (only the maturest 10 generations are rendered on the graph)
+      if (this.generationFitnessesData[i - 11] && i > 12) {
+        this.generationFitnessesData[i - 11] = []
+        this.dataCache[i - 11].stDvs = []
+      }
       // incorporates a base zscore percentage of 0 in each of the zscore buckets per generation
       zScoreBucketHorrible[i] = 0
       zScoreBucketVeryBad[i] = 0
@@ -101,7 +103,7 @@ class RoomStats {
       zScoreBucketExcellent[i] = 0
 
       // check data cache to see if a stable sd or mean exists, and if not, calculate the normalized mean and sd
-      const { stableMean, stableSD, normalizationFactor, arrLength } = this.generateMeanAndSD(i)
+      const { stableMean, stableSD } = this.generateMeanAndSD(i)
 
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
@@ -113,7 +115,7 @@ class RoomStats {
           case zScore >= -2.567 && zScore < -1.96:
             zScoreBucketVeryBad[i] += (1 / this.generationFitnessesData[i].length)
             break
-          case zScore >= -1.96 && Number(zScore) < -1.645:
+          case zScore >= -1.96 && zScore < -1.645:
             zScoreBucketBad[i] += (1 / this.generationFitnessesData[i].length)
             break
           case zScore >= -1.645 && zScore < 1.645:
@@ -158,19 +160,16 @@ class RoomStats {
     // compute the normalized mean and sd
     const normalizedMean = this.findMean(normalizationArr)
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
-    this.dataCache[currentGen].stDvs.push(normalizedSD)
+
     this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen)
-    return { stableMean: normalizedMean, stableSD: normalizedSD, normalizationFactor, arrLength: normalizationArr.length }
+    return { stableMean: normalizedMean, stableSD: normalizedSD }
   }
   updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
-    const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < 0.005 && this.dataCache[currentGen].stDvs.length > 100
+    this.dataCache[currentGen].stDvs.push(normalizedSD)
 
-    // console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), 0.01, this.dataCache[currentGen].stDvs.length, 100))
-    // console.log(chalk.pink(currentGen))
-    console.log('--------------------\n')
+    const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < 0.01 && this.dataCache[currentGen].stDvs.length > 36
+
     if (stable) {
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
       this.dataCache[currentGen].stDvs = []
       this.dataCache[currentGen].stableMean = normalizedMean
       this.dataCache[currentGen].stableSD = normalizedSD

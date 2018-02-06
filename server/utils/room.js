@@ -34,7 +34,6 @@ class RoomManager {
     this.chromosomesReturned = 0
     this.totalFitness = 0
     this.roomStats = null
-    this.ALLGENONECHROMS = []
 
     // FIXME: This can crash the server if an instance of RoomManager gets deleted.
     setInterval(() => {
@@ -76,7 +75,7 @@ class RoomManager {
     socket.join(this.room)
     this.nodes[socket.id] = { running: false, error: false }
     if (this.isJobRunning()) {
-      const newTasks = generateTasks(
+      this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
         this.room,
         4,
@@ -86,9 +85,7 @@ class RoomManager {
         this.chromosomeLength,
         this.genePool,
         this.elitism
-      )
-      newTasks.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
-      this.tasks = this.tasks.concat(newTasks)
+      ))
       socket.emit('CALL_' + this.room, this.tasks.shift())
     }
     this.updateAdmins()
@@ -139,7 +136,6 @@ class RoomManager {
       this.reproductiveCoefficient,
       this.elitism
     )
-    this.tasks.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
   }
 
   mapPersistedToMemory(room) {
@@ -293,7 +289,6 @@ class RoomManager {
         this.genePool,
         this.reproductiveCoefficient
       )
-      newTask.forEach(v => v.population.forEach(w => this.ALLGENONECHROMS.push(w.toString())))
       this.tasks =
         this.tasks.concat(newTask)
     }
@@ -396,7 +391,7 @@ class RoomManager {
       this.updateRoomStats(finishedTask)
       // If a task comes back after a server restart, ignore it.
       if (this.roomStats) {
-        this.roomStats.updateGenerationData(finishedTask, this.bucket, this.ALLGENONECHROMS)
+        this.roomStats.updateGenerationData(finishedTask)
       }
       // update the bucket
       this.updateBucket(finishedTask)

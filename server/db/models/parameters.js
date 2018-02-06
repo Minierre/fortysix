@@ -11,7 +11,7 @@ const Parameters = db.define('parameters', {
     defaultValue: 2
   },
   elitism: {
-    type: Sequelize.FLOAT,
+    type: Sequelize.DOUBLE,
     defaultValue: 0
   },
   populationSize: {
@@ -19,7 +19,7 @@ const Parameters = db.define('parameters', {
     defaultValue: 50
   },
   fitnessGoal: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.BIGINT,
     defaultValue: 0
   },
   genePool: {

@@ -30,10 +30,10 @@ const History = db.define('history', {
     type: Sequelize.INTEGER
   },
   fitnessGoal: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   elitism: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   reproductiveCoefficient: {
     type: Sequelize.INTEGER
