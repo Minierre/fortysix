@@ -13,12 +13,7 @@ class ContributorView extends Component {
       timeRunning: 0,
       taskPerSecond: 0,
       ready: true,
-      isDone: false,
-      isRunning: false
-
     }
-    // this.handleStart = this.handleStart.bind(this)
-    // this.handleStop = this.handleStop.bind(this)
     this.toggleReady = this.toggleReady.bind(this)
   }
 
@@ -34,27 +29,20 @@ class ContributorView extends Component {
         this.setState({taskPerSecond})
       }
     }, 1000)
-        this.props.socket.on("CALL_" + roomHash, ( {task, tasksCompletedByNode, totalTasksCompleted, isDone }  ) => {
-          let percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
-          this.setState({tasksCompletedByNode, percentOfTotal, isDone})
-          // if (this.state.isDone) {
-          //   this.setState({ready: true})
-          // }
-          this.props.socket.emit('start', roomHash)
-          try {
-            console.log('running: ', task)
-            this.runMultiThreaded(task)
-          } catch (err) {
-            console.error(err)
-            this.props.socket.emit('JOB_ERROR', {
-              roomHash, error: err.toString()
-            })
-          }
-          // setInterval(() => {
-          //   if (this.state.isRunning) {
-          //   }
-          // }, 1000)
+    this.props.socket.on("CALL_" + roomHash, ( {task, tasksCompletedByNode, totalTasksCompleted }  ) => {
+      const percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
+      this.setState({ tasksCompletedByNode, percentOfTotal })
+      this.props.socket.emit('start', roomHash)
+      try {
+        console.log('running: ', task)
+        this.runMultiThreaded(task)
+      } catch (err) {
+        console.error(err)
+        this.props.socket.emit('JOB_ERROR', {
+          roomHash, error: err.toString()
         })
+      }
+    })
 
 
     this.props.socket.on('disconnect', () => {
@@ -64,7 +52,7 @@ class ContributorView extends Component {
     })
 
     this.props.socket.on('ABORT_' + roomHash, () => {
-      this.setState({ready: false})
+      this.setState({ ready: false })
       window.location.reload(true)
     })
   }
@@ -144,11 +132,11 @@ class ContributorView extends Component {
   }
 
 
-  toggleReady(){
+  toggleReady() {
     if (this.state.ready) {
-      this.setState({ready: false})
+      this.setState({ ready: false })
     } else {
-      this.setState({ready: true})
+      this.setState({ ready: true })
     }
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('toggleReady', roomHash)
@@ -156,7 +144,7 @@ class ContributorView extends Component {
   }
 
   render() {
-    const style = {maxWidth: 400, margin: '0 auto 10px'}
+    const style = { maxWidth: 400, margin: '0 auto 10px' }
     return (
       <div>
         <Panel>
@@ -168,36 +156,36 @@ class ContributorView extends Component {
           <Panel.Body>Thank you for contributing to science.</Panel.Body>
         </Panel>
         <div style={style}>
-        {this.state.ready ? (
-          <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block active>
-          Running, Click to Stop
-          </Button>
-        ) : (
-          <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block>
-          Paused, Click to Run
-          </Button>
-        )}
-    </div>
-    <Table striped hover>
-  <tbody>
-    <tr>
-      <td>Tasks Completed</td>
-      <td>{this.state.tasksCompletedByNode}</td>
-    </tr>
-    <tr>
-      <td>Time Running</td>
-      <td>{this.state.timeRunning} seconds</td>
-    </tr>
-    <tr>
-      <td>Percent of Total</td>
-      <td>{this.state.percentOfTotal} %</td>
-    </tr>
-    <tr>
-      <td>Tasks Per Second</td>
-      <td>{this.state.taskPerSecond}</td>
-    </tr>
-  </tbody>
-</Table>;
+          {this.state.ready ? (
+            <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block active>
+            Accepting Tasks, Click to Stop
+            </Button>
+          ) : (
+            <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block>
+            Click to Resume Accepting Tasks
+            </Button>
+          )}
+        </div>
+        <Table striped hover>
+          <tbody>
+            <tr>
+              <td>Tasks Completed</td>
+              <td>{this.state.tasksCompletedByNode}</td>
+            </tr>
+            <tr>
+              <td>Time Running</td>
+              <td>{this.state.timeRunning} seconds</td>
+            </tr>
+            <tr>
+              <td>Percent of Total</td>
+              <td>{this.state.percentOfTotal} %</td>
+            </tr>
+            <tr>
+              <td>Tasks Per Second</td>
+              <td>{this.state.taskPerSecond}</td>
+            </tr>
+          </tbody>
+        </Table>;
       </div>
     )
   }

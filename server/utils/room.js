@@ -102,7 +102,7 @@ class RoomManager {
     this.jobRunning = false
     this.multiThreaded = false
     this.bucket = {}
-    this.nodes = {}
+    // this.nodes = this.room.nodes || {}
     this.updateAdmins()
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
