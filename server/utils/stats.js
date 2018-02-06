@@ -41,9 +41,15 @@ class RoomStats {
     this.counter++
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
+    // every task comes back with fitness data too, which we store
+    fitnesses.forEach((fitness) => {
+      this.generationFitnessesData[gen]
+        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
+    })
+
     if (genOneFitnessData) {
       this.numberOfChromosomesProcessed += genOneFitnessData.length
-      thread.send({
+      return thread.send({
         genOneFitnessData,
         generationOneFitnessesData: this.generationFitnessesData[1],
       })
@@ -51,17 +57,15 @@ class RoomStats {
         .then(({ newGenerationOneFitnessesData }) => {
           thread.kill()
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
-          if (this.counter % 50 === 0) {
+          // if (this.counter % 50 === 0) {
             this.generateGraphData()
-          }
+          // }
         })
+    } else {
+    // if (this.counter % 50 === 0) {
+      this.generateGraphData()
+    // }
     }
-
-    // every task comes back with fitness data too, which we store
-    fitnesses.forEach((fitness) => {
-      this.generationFitnessesData[gen]
-        = this.binaryInsertion(this.generationFitnessesData[gen], Math.log(fitness + 1))
-    })
   }
 
   findMean(arr) {
@@ -141,14 +145,7 @@ class RoomStats {
   }
 
   getStats() {
-    const topTenGraphData = [{ name: 'Horrible' }, { name: 'Very Bad' }, { name: 'Bad' }, { name: 'Random' }, { name: 'Not Bad' }, { name: 'Good' }, { name: 'Excellent' }]
-    // only return the top 10 highest processed generations (only execute this function when graphData exists)
-    for (let i = this.highestProcessedGeneration; i >= this.highestProcessedGeneration - 10 && i >= 2; i -= 1) {
-      topTenGraphData.forEach((confidenceInterval, index) => {
-        topTenGraphData[index][i] = this.graphData[index][i]
-      })
-    }
-    return topTenGraphData
+    return this.graphData
   }
 
   generateMeanAndSD(currentGen) {
@@ -169,7 +166,7 @@ class RoomStats {
     const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < 0.005 && this.dataCache[currentGen].stDvs.length > 100
 
     console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), 0.01, this.dataCache[currentGen].stDvs.length, 100))
-
+    console.log(chalk.magenta(currentGen))
     console.log('--------------------\n')
     if (stable) {
       console.log(chalk.magenta('HEURISTIC HAPPENED'))

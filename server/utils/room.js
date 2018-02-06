@@ -373,7 +373,13 @@ class RoomManager {
     if (this.isJobRunning) {
       this.updateRoomStats(finishedTask)
       // If a task comes back after a server restart, ignore it.
-      if (this.roomStats) this.roomStats.updateGenerationData(finishedTask)
+      if (this.roomStats) {
+        console.log(chalk.yellow('CALLED'))
+        this.roomStats.updateGenerationData(finishedTask)
+      }
+      else {
+        console.log(this.roomStats)
+      }
       // update the bucket
       this.updateBucket(finishedTask)
       // checks if termination conditions are met and acts accordingly
