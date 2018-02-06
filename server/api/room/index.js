@@ -65,7 +65,11 @@ router.put('/:roomHash', (req, res, next) => {
       // FIXME: re-add security
       if (true) {
         return Room.update(
-          { fitnessFunc, selectionId: selection },
+          {
+            fitnessFunc,
+            // You can pass a whole selection object or an id.
+            selectionId: selection.id ? selection.id : selection
+          },
           {
             where: { roomHash: req.params.roomHash },
             returning: true, // needed for affectedRows to be populated
