@@ -1,43 +1,42 @@
-import React, { Component } from 'react'
+import React from 'react'
+import { LinkContainer } from 'react-router-bootstrap'
 import { Link } from 'react-router-dom'
-import { Navbar as NavigationBar, Button } from 'react-bootstrap'
-import history from '../../history'
-
-
-const axios = require('axios')
+import {
+  Navbar,
+  Nav,
+  NavItem,
+} from 'react-bootstrap'
 
 import './style.css'
 
-class Navbar extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+const NavigationBar = () => (
+  <Navbar inverse collapseOnSelect>
+    <Navbar.Header>
+      <Navbar.Brand>
+        <Link to="/">FortySix</Link>
+      </Navbar.Brand>
+      <Navbar.Toggle />
+    </Navbar.Header>
+    <Navbar.Collapse>
+      <Nav pullRight>
+        <LinkContainer to="/rooms">
+          <NavItem>
+            Rooms
+          </NavItem>
+        </LinkContainer>
+        <LinkContainer to="/asds">
+          <NavItem>
+            Top Contributors
+          </NavItem>
+        </LinkContainer>
+        <LinkContainer to="/login">
+          <NavItem>
+            Login
+          </NavItem>
+        </LinkContainer>
+      </Nav>
+    </Navbar.Collapse>
+  </Navbar>
+)
 
-    }
-    this.logout = this.logout.bind(this)
-  }
-
-logout(evt) {
-  axios.post('api/auth/logout')
-  .then(() => history.push('/login'))
-}
-
-  render() {
-    console.log(this.props);
-    return(
-      <NavigationBar inverse>
-      <NavigationBar.Header>
-      <NavigationBar.Brand>
-        <Link to="/">41-33</Link>
-      </NavigationBar.Brand>
-      </NavigationBar.Header>
-        <ul className="nav navbar-nav navbar-right">
-          <li onClick={this.logout}><a href='/'><span className="glyphicon glyphicon-log-out"></span> Logout</a></li>
-        </ul>
-      </NavigationBar>
-    )
-  }
-}
-
-
-export default Navbar
+export default NavigationBar

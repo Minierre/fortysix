@@ -5,15 +5,15 @@ import history from './history'
 import { me } from './store'
 
 import {
-  Navbar,
-  Main,
+  Main
 } from './components'
 
 import {
   ScientistView,
   ContributorView,
-  Home,
-  LoginSignup
+  Rooms,
+  LoginSignup,
+  Home
 } from './pages'
 
 import './style.css'
@@ -44,6 +44,14 @@ class App extends Component {
               <Route
                 path="/signup"
                 component={() => <LoginSignup socket={this.props.socket} />}
+              />
+              <Route
+                path="/rooms"
+                component={() => <Rooms socket={this.props.socket} />}
+              />
+              <Route
+                path="/top-contributors"
+                component={() => <Rooms socket={this.props.socket} />}
               />
               <Route
                 path="/"
