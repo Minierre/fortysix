@@ -195,19 +195,14 @@ class ScientistView extends Component {
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
-            <ReactJson src={{
-                nodes: this.state.room.nodes,
-                bucket: this.state.room.bucket
-            }}
-            />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
             <Visualize
-              generations={
-                this.state.roomPersisted &&
-                this.state.roomPersisted.parameters &&
-                this.state.roomPersisted.parameters.generations
-              }
+              // generations={
+              //   this.state.roomPersisted &&
+              //   this.state.roomPersisted.parameters &&
+              //   this.state.roomPersisted.parameters.generations
+              // }
               data={this.state.room.stats}
             />
           </Tab>
