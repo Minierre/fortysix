@@ -34,6 +34,7 @@ class RoomManager {
     this.totalFitness = 0
     this.roomStats = null
     this.totalTasksCompleted = 0
+    this.isDone = false
   }
 
   getState() {
@@ -82,7 +83,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted })
+        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, isDone: this.isDone })
     this.updateAdmins()
   }
   }
@@ -200,7 +201,7 @@ class RoomManager {
 
   shouldTerminate(fitnesses) {
     // checks the termination conditions and returns true if the job should stop
-    return ((this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize) || Math.max(...fitnesses) >= this.fitnessGoal) && this.isJobRunning()
+    return ((this.bucket[this.maxGen] && this.bucket[this.maxGen].population.length >= this.populationSize) || Math.max(...fitnesses) >= this.fitnessGoal) && this.jobRunning()
   }
 
   totalTasks() {
@@ -273,7 +274,7 @@ class RoomManager {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       this.nodes[socket.id].tasksCompletedByNode++
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted })
+        socket.emit('CALL_' + this.room, { isRunning: this.nodes[socket.id].jobRunning, task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, isDone: this.isDone })
       this.updateAdmins()
     }
     }
@@ -332,7 +333,6 @@ class RoomManager {
     const allDone = this.shouldTerminate(finishedTask.fitnesses)
     if (allDone) {
       // terminate
-      this.nodes[socket.id].ready = false
       let results = {}
       if (Math.max(...finishedTask.fitnesses) < this.fitnessGoal) {
         results = this.finalSelection()
@@ -375,6 +375,7 @@ class RoomManager {
     this.lastResult = winningChromosome.reduce((result, gene) => {
       return result + gene
     }, '')
+    this.isDone = true
     this.stopJob(socket)
   }
   updateAdmins() {

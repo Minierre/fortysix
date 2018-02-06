@@ -12,7 +12,8 @@ class ContributorView extends Component {
       totalTasksCompleted: 0,
       timeRunning: 0,
       taskPerSecond: 0,
-      ready: true
+      ready: true,
+      isDone: false
 
     }
     // this.handleStart = this.handleStart.bind(this)
@@ -33,9 +34,12 @@ class ContributorView extends Component {
       }
     }, 1000)
     console.log(this.state);
-        this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompletedByNode, totalTasksCompleted }  ) => {
+        this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompletedByNode, totalTasksCompleted, isDone }  ) => {
           let percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
-          this.setState({tasksCompletedByNode, percentOfTotal})
+          this.setState({tasksCompletedByNode, percentOfTotal, isDone})
+          if (isDone) {
+            this.setState({ready: false})
+          }
           this.props.socket.emit('start', roomHash)
           try {
             console.log('running: ', task)
@@ -56,6 +60,7 @@ class ContributorView extends Component {
 
     this.props.socket.on('ABORT_' + roomHash, () => {
       window.location.reload(true)
+      this.setState({ready: false})
     })
   }
 
