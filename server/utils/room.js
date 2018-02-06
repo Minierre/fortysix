@@ -265,7 +265,6 @@ class RoomManager {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       socket.emit('CALL_' + this.room, this.tasks.shift())
-      this.updateAdmins()
     }
   }
 
@@ -339,7 +338,6 @@ class RoomManager {
       if (this.totalTasks() > 0 && this.nodes[socket.id]) this.distributeWork(socket)
       this.createTask(finishedTask)
     }
-    this.updateAdmins()
   }
 
   algorithmDone(winningChromosome, fitness, socket) {
@@ -392,7 +390,6 @@ class RoomManager {
       this.updateBucket(finishedTask)
       // checks if termination conditions are met and acts accordingly
       this.terminateOrDistribute(finishedTask, socket, io)
-      this.updateAdmins()
       console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
     }
   }
