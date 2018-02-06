@@ -11,8 +11,9 @@ const Select = ({
   placeholder,
   type,
   value,
-  onSelect,
-  options
+  onChange,
+  options,
+  onBlur
  }) => (
     <FormGroup
       controlId={controlId}
@@ -21,11 +22,12 @@ const Select = ({
       <FormControl
         componentClass="select"
         placeholder={placeholder}
-        onSelect={onSelect}
-        value
+        onBlur={onBlur}
+        onChange={onChange}
+        value={value}
       >
         {options.map((option, idx) =>
-          <option key={option.id} value={idx}>{option.name}</option>
+          <option key={option.id} value={option.id}>{option.name}</option>
         )}
       </FormControl>
       <FormControl.Feedback />

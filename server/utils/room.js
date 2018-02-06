@@ -8,6 +8,7 @@ const {
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
+const map = require('lodash/map')
 const { RoomStats } = require('./stats')
 
 class RoomManager {
@@ -105,6 +106,7 @@ class RoomManager {
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
+    this.updateAdmins()
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
 
@@ -219,13 +221,27 @@ class RoomManager {
     this.jobRunning = false
     // if the job is finished, each node stops running
     Object.keys(this.nodes).forEach((nodeId) => this.nodes[nodeId].running = false)
-
     History.create({
       nodes: Object.keys(this.nodes).length,
+      maxGen: this.maxGen,
       room: this.room,
       result: this.lastResult,
       startTime: this.start,
+      populationSize: this.populationSize,
+      fitnessGoal: this.fitnessGoal,
+      chromosomeLength: this.chromosomeLength,
+      elitism: this.elitism,
+      reproductiveCoefficient: this.reproductiveCoefficient,
       endTime: new Date(),
+      fitnessFunc: this.fitness.function.toString(),
+      mutations: map(this.mutations, mut =>
+        `${mut.name} ${mut.chanceOfMutation}`).join(','),
+      selection: this.selection.name,
+      genePool: this.genePool.join(','),
+      admins: map(this.admins, admin => `${admin.id}`).join(','),
+      totalFitness: this.totalFitness,
+      // FIXME: room stats is going to be in micro-service later igbnore for now
+      // roomStats: this.roomStats.getStats()
     })
       .then(() => {
         History.findAll({
@@ -233,18 +249,12 @@ class RoomManager {
             room: this.room
           }
         }).then((history) => {
-          socket.broadcast.to(this.room).emit('UPDATE_HISTORY_' + this.room, history)
+          this.updateAdminHistory(history)
         })
         this.start = null
+        this.maxGen = null
         this.lastResult = null
       })
-
-    this.start = null
-    this.maxGen = null
-    this.lastResult = {
-      maxGeneration: 0,
-      maxFitness: 0
-    }
   }
 
   emptyTaskQueue() {
@@ -357,9 +367,16 @@ class RoomManager {
     }, '')
     this.stopJob(socket)
   }
+
+  updateAdminHistory(history) {
+    forEach(this.admins, admin =>
+      admin.emit('UPDATE_HISTORY_' + this.room, history))
+  }
+
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
       nodes: this.nodes,
+      start: this.start,
       bucket: this.bucket,
       jobRunning: this.jobRunning,
       fitness: this.fitness,

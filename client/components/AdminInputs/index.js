@@ -114,14 +114,14 @@ class AdminInputs extends Component {
                   onChange={this.props.onChange}
                 />
                 <Select
-                  controlId="selectionFunc"
+                  controlId="selection"
                   label="Selection Algorithm"
                   type="number"
                   value={values.selection && values.selection.id}
                   options={this.state.selectionFuncs}
                   placeholder="Enter selection Function"
                   onBlur={this.props.submit}
-                  onSelect={this.props.onChange}
+                  onChange={this.props.onChange}
                 />
               </Col>
               <div className="mutation-func-table-wrapper">

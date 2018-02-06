@@ -65,7 +65,11 @@ router.put('/:roomHash', (req, res, next) => {
       // FIXME: re-add security
       if (true) {
         return Room.update(
-          { fitnessFunc },
+          {
+            fitnessFunc,
+            // You can pass a whole selection object or an id.
+            selectionId: selection.id ? selection.id : selection
+          },
           {
             where: { roomHash: req.params.roomHash },
             returning: true, // needed for affectedRows to be populated
@@ -90,13 +94,6 @@ router.put('/:roomHash', (req, res, next) => {
                   })
               })
             }
-
-            if (selection) {
-              await Selections.update(selection, {
-                where: { id: selection.id }
-              })
-            }
-
           }).then(() => {
             return Room.getRoomWithAssociations(
               req.params.roomHash,
