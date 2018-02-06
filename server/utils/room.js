@@ -239,7 +239,7 @@ class RoomManager {
       selection: this.selection.name,
       genePool: this.genePool.join(','),
       admins: map(this.admins, admin => `${admin.id}`).join(','),
-      totalFitness: this.totalFitness,
+      totalFitness: 0,
       // FIXME: room stats is going to be in micro-service later igbnore for now
       // roomStats: this.roomStats.getStats()
     })

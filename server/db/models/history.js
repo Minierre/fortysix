@@ -54,7 +54,7 @@ const History = db.define('history', {
     type: Sequelize.TEXT
   },
   totalFitness: {
-    type: Sequelize.INTEGER
+    type: Sequelize.BIGINT
   },
   roomStats: {
     type: Sequelize.ARRAY(Sequelize.TEXT)

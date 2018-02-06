@@ -166,7 +166,7 @@ class RoomStats {
     const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < 0.005 && this.dataCache[currentGen].stDvs.length > 100
 
     console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), 0.01, this.dataCache[currentGen].stDvs.length, 100))
-    console.log(chalk.magenta(currentGen))
+    console.log(chalk.pink(currentGen))
     console.log('--------------------\n')
     if (stable) {
       console.log(chalk.magenta('HEURISTIC HAPPENED'))
