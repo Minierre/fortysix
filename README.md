@@ -2,7 +2,7 @@
 
 **What it does:**
 
-FortySix is a platform for low-barrier-to-entry machine learning. Advanced users can write criteria which the platform will optimize a solution for using simulated evolution.
+FortySix is a platform for low-barrier-to-entry machine learning. Advanced users can write criteria which the platform will optimize a solution for using simulated evolution. All users can contribute computing power to any existing experiments 
 
 **How to use it:**
 
