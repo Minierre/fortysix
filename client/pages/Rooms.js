@@ -1,12 +1,12 @@
 import React from 'react'
 import {
+  CreateRoom,
+} from '../components'
 
-}
-const Home = () => (
+const Rooms = () => (
   <div>
     <CreateRoom />
-    <LoginSignupBtn />
   </div>
 )
 
-export default Home
+export default Rooms

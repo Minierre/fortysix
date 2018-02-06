@@ -1,11 +1,10 @@
 import React from 'react'
+import { LinkContainer } from 'react-router-bootstrap'
 import { Link } from 'react-router-dom'
 import {
   Navbar,
-  MenuItem,
   Nav,
   NavItem,
-  NavDropdown
 } from 'react-bootstrap'
 
 import './style.css'
@@ -20,12 +19,21 @@ const NavigationBar = () => (
     </Navbar.Header>
     <Navbar.Collapse>
       <Nav pullRight>
-        <NavItem eventKey={1} href="#">
-          Rooms
-        </NavItem>
-        <NavItem eventKey={2} href="#">
-          Login
-        </NavItem>
+        <LinkContainer to="/rooms">
+          <NavItem>
+            Rooms
+          </NavItem>
+        </LinkContainer>
+        <LinkContainer to="/asds">
+          <NavItem>
+            Top Contributors
+          </NavItem>
+        </LinkContainer>
+        <LinkContainer to="/login">
+          <NavItem>
+            Login
+          </NavItem>
+        </LinkContainer>
       </Nav>
     </Navbar.Collapse>
   </Navbar>

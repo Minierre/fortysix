@@ -1,0 +1,41 @@
+#heading {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  padding-top: 100px;
+}
+
+#heading h1 {
+  font-size: 100px;
+  z-index: 2;
+}
+
+#heading small {
+  font-size: 30px;
+  padding-bottom: 20px;
+  font-weight: lighter;
+}
+
+#algorithm-rooms {
+  margin-top: 80px;
+  margin-bottom: 20px;
+}
+
+#algorithm-rooms h2 {
+  margin-bottom: 30px;
+  font-weight: lighter;
+}
+
+.particle-background {
+  z-index: -100;
+  position: fixed;
+  padding-top: 50px;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
