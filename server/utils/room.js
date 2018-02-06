@@ -95,6 +95,7 @@ class RoomManager {
   }
 
   abort(socket) {
+    console.log(this.nodes);
     console.log(chalk.red('JOB ABORTED: '), this.room)
 
     this.start = null
@@ -103,8 +104,8 @@ class RoomManager {
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
-    this.updateAdmins()
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
+    this.updateAdmins()
   }
 
   jobError(socket, error) {
@@ -279,7 +280,8 @@ class RoomManager {
       this.nodes[socket.id].tasksCompletedByNode++
         socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted})
       this.updateAdmins()
-    // }
+
+      // socket.emit('CALL_' + this.room, this.tasks.shift())
     }
   }
 
@@ -355,7 +357,6 @@ class RoomManager {
       if (this.totalTasks() > 0 && this.nodes[socket.id]) this.distributeWork(socket)
       this.createTask(finishedTask)
     }
-    this.updateAdmins()
   }
 
   algorithmDone(winningChromosome, fitness, socket) {
@@ -405,7 +406,6 @@ class RoomManager {
       this.updateBucket(finishedTask)
       // checks if termination conditions are met and acts accordingly
       this.terminateOrDistribute(finishedTask, socket, io)
-      this.updateAdmins()
       console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
     }
   }
