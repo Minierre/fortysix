@@ -50,6 +50,10 @@ class App extends Component {
                 component={() => <Rooms socket={this.props.socket} />}
               />
               <Route
+                path="/top-contributors"
+                component={() => <Rooms socket={this.props.socket} />}
+              />
+              <Route
                 path="/"
                 component={() => <Home socket={this.props.socket} />}
               />

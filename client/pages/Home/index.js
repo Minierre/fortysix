@@ -46,8 +46,7 @@ class Home extends Component {
         <div id="heading">
           <h1>FortySix</h1>
           <small>
-            Run Genetic Algorithms with your friends on
-            each of your computers.
+            Contribute to science by donating your excess computing power.
           </small>
           <p>
             <LinkContainer to="/signup">
