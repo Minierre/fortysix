@@ -16,6 +16,7 @@ FortySix's machine learning algorithm is a highly parameterizable genetic algori
  - number of generations
  - selection method
  - mutation methods
+
 In addendum to these parameters the admin of a given room, or experiment, can define their own fitness function in javascript
 
 **How it works:**
