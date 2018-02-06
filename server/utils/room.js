@@ -103,6 +103,7 @@ class RoomManager {
     this.multiThreaded = false
     this.bucket = {}
     this.nodes = {}
+    this.updateAdmins()
     socket.broadcast.to(this.room).emit('ABORT_' + this.room)
   }
 
@@ -385,6 +386,7 @@ class RoomManager {
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
       nodes: this.nodes,
+      start: this.start,
       bucket: this.bucket,
       jobRunning: this.jobRunning,
       fitness: this.fitness,

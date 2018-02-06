@@ -63,6 +63,7 @@
     "redux-freeze": "^0.1.5",
     "redux-logger": "^2.8.1",
     "redux-thunk": "^2.2.0",
+    "remove": "^0.1.5",
     "sandbox": "^0.8.6",
     "sequelize": "^4.3.1",
     "socket.io": "^2.0.3",
