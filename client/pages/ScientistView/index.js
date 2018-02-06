@@ -166,6 +166,7 @@ class ScientistView extends Component {
           <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Run">
             <Status
               nodes={this.state.room.nodes}
+              start={this.state.room.start}
               chromosomesReturned={this.state.room.chromosomesReturned}
               totalFitness={this.state.room.totalFitness}
               jobRunning={this.state.room.jobRunning}
