@@ -11,7 +11,7 @@ config.set({
 })
 
 class RoomStats {
-  constructor(generations, populationSize) {
+  constructor(generations, populationSize, reproductiveCoefficient) {
     // this.averageGenerationStats = []
     this.statisticalFeedback = []
     this.graphData = []
@@ -29,7 +29,7 @@ class RoomStats {
       this.dataCache[i] = { stableMean: null, stableSD: null, stDvs: [] }
     }
     this.generations = generations
-    this.selectionSize = 2 / populationSize
+    this.selectionSize = (2 * reproductiveCoefficient) / populationSize
   }
 
   updateGenerationData(finishedTask) {
@@ -38,9 +38,9 @@ class RoomStats {
     const thread = spawn('updateGenerationData.js')
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
-    this.numberOfChromosomesProcessed += genOneFitnessData.length
 
     if (genOneFitnessData) {
+      this.numberOfChromosomesProcessed += genOneFitnessData.length
       thread.send({
         genOneFitnessData,
         generationOneFitnessesData: this.generationFitnessesData[1],
@@ -98,7 +98,7 @@ class RoomStats {
 
       // go through each of the generations
       this.generationFitnessesData[i].forEach((fitness) => {
-        const zScore = this.findZScore(Math.log(fitness + 1), stableMean, stableSD)
+        const zScore = this.findZScore(fitness, stableMean, stableSD)
         switch (true) {
           case (zScore < -2.567):
             zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
@@ -145,8 +145,6 @@ class RoomStats {
         topTenGraphData[index][i] = this.graphData[index][i]
       })
     }
-    // console.log(chalk.yellow(JSON.stringify(topTenGraphData)))
-    // console.log('---------------')
     return topTenGraphData
   }
 
@@ -162,32 +160,15 @@ class RoomStats {
     // compute the normalized mean and sd
     const normalizedMean = this.findMean(normalizationArr)
     const normalizedSD = this.findSD(normalizationArr, normalizedMean)
-    // console.log(chalk.magenta(normalizedMean, normalizedSD))
-    // console.log('--------------------\n')
     this.dataCache[currentGen].stDvs.push(normalizedSD)
-    this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen, normalizationFactor)
+    this.updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen)
     return { stableMean: normalizedMean, stableSD: normalizedSD }
   }
-  updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen, normalizationFactor) {
+  updateCache(normalizedMean, normalizedSD, normalizationArr, currentGen) {
     const stable = this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)) < this.selectionSize * normalizedSD && this.dataCache[1].stDvs.length > this.populationSize * 5
-    console.log(chalk.yellow(JSON.stringify(this.dataCache[1].stDvs.length)))
+    console.log(chalk.yellow(this.findSD(this.dataCache[currentGen].stDvs, this.findMean(this.dataCache[currentGen].stDvs)), this.selectionSize * normalizedSD))
     console.log('--------------------\n')
     if (stable) {
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
-      console.log(chalk.magenta('HEURISTIC HAPPENED'))
       console.log(chalk.magenta('HEURISTIC HAPPENED'))
       console.log(chalk.magenta('HEURISTIC HAPPENED'))
       this.dataCache[currentGen].stDvs = []
