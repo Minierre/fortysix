@@ -25,7 +25,7 @@ class ContributorView extends Component {
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
-    setInterval(function(){
+    setInterval(() => {
       if (this.state.ready) {
         let timePassed = this.state.timeRunning
         timePassed++
@@ -64,8 +64,8 @@ class ContributorView extends Component {
     })
 
     this.props.socket.on('ABORT_' + roomHash, () => {
+      this.setState({ready: false})
       window.location.reload(true)
-      // this.setState({ready: false})
     })
   }
 
