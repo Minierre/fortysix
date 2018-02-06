@@ -13,7 +13,8 @@ class ContributorView extends Component {
       timeRunning: 0,
       taskPerSecond: 0,
       ready: true,
-      isDone: false
+      isDone: false,
+      isRunning: false
 
     }
     // this.handleStart = this.handleStart.bind(this)
@@ -24,7 +25,7 @@ class ContributorView extends Component {
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('join', roomHash)
-    setInterval(() => {
+    setInterval(function(){
       if (this.state.ready) {
         let timePassed = this.state.timeRunning
         timePassed++
@@ -33,13 +34,12 @@ class ContributorView extends Component {
         this.setState({taskPerSecond})
       }
     }, 1000)
-    console.log(this.state);
-        this.props.socket.on("CALL_" + roomHash, ( { task, tasksCompletedByNode, totalTasksCompleted, isDone }  ) => {
+        this.props.socket.on("CALL_" + roomHash, ( {task, tasksCompletedByNode, totalTasksCompleted, isDone }  ) => {
           let percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
           this.setState({tasksCompletedByNode, percentOfTotal, isDone})
-          if (isDone) {
-            this.setState({ready: false})
-          }
+          // if (this.state.isDone) {
+          //   this.setState({ready: true})
+          // }
           this.props.socket.emit('start', roomHash)
           try {
             console.log('running: ', task)
@@ -50,7 +50,12 @@ class ContributorView extends Component {
               roomHash, error: err.toString()
             })
           }
+          // setInterval(() => {
+          //   if (this.state.isRunning) {
+          //   }
+          // }, 1000)
         })
+
 
     this.props.socket.on('disconnect', () => {
       this.props.socket.on('connect', () => {
@@ -60,7 +65,7 @@ class ContributorView extends Component {
 
     this.props.socket.on('ABORT_' + roomHash, () => {
       window.location.reload(true)
-      this.setState({ready: false})
+      // this.setState({ready: false})
     })
   }
 
@@ -134,6 +139,7 @@ class ContributorView extends Component {
           genOneFitnessData: (task.gen === 1) ? fitpop : null
         }
         this.props.socket.emit('done', returnTaskObj)
+        // this.setState({ready: true})
       })
   }
 
