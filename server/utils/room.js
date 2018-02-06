@@ -83,9 +83,9 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted,})
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted, })
+    }
     this.updateAdmins()
-  }
   }
 
   leave(socket) {
@@ -188,11 +188,11 @@ class RoomManager {
     }
   }
 
-  toggleNodeReady(socket){
+  toggleNodeReady(socket) {
     console.log('toggle node ready');
-    if(this.nodes[socket.id]){
+    if (this.nodes[socket.id]) {
       console.log(this.nodes[socket.id]);
-      if (this.nodes[socket.id].ready){
+      if (this.nodes[socket.id].ready) {
         this.nodes[socket.id].ready = false
       } else {
         this.nodes[socket.id].ready = true;
@@ -278,7 +278,7 @@ class RoomManager {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       this.nodes[socket.id].tasksCompletedByNode++
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted})
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, totalTasksCompleted: this.totalTasksCompleted })
       this.updateAdmins()
 
       // socket.emit('CALL_' + this.room, this.tasks.shift())
@@ -319,15 +319,15 @@ class RoomManager {
     this.roomStats = new RoomStats(this.maxGen, this.populationSize)
     this.updateAdmins()
     // checks to see if the job is running already and if not, starts the job
-      if (!this.isJobRunning()) {
-        this.startJob()
-        Object.keys(this.nodes).forEach((id, i) => {
-          socket.to(id).emit(callName, { task: this.tasks.shift() })
-        })
-      }
-      else {
-        console.log(chalk.red(`${this.room} already running!`))
-      }
+    if (!this.isJobRunning()) {
+      this.startJob()
+      Object.keys(this.nodes).forEach((id, i) => {
+        socket.to(id).emit(callName, { task: this.tasks.shift() })
+      })
+    }
+    else {
+      console.log(chalk.red(`${this.room} already running!`))
+    }
   }
 
   terminateOrDistribute(finishedTask, socket, io) {
