@@ -38,7 +38,7 @@ class Visualize extends Component {
     return (
       <div>
         {
-          this.props.data && this.props.data.length ?
+          this.props.data && this.props.data.keys.length ?
             <div className="graph-wrapper">
               <h4>Normalized Z-Scores</h4>
               <ResponsiveContainer height={600} >
@@ -46,7 +46,7 @@ class Visualize extends Component {
                   title="Normalized Z-Scores"
                   width={600}
                   height={300}
-                  data={this.props.data}
+                  data={this.props.data.values}
                   margin={{ top: 5, right: 30, left: 20, bottom: 20 }}>
                   <XAxis dataKey="name">
                     <Label
@@ -73,11 +73,11 @@ class Visualize extends Component {
                   />
                   {
                     // Get the top 10 oldest generation z-scores
-                    times(this.props.generations, i => (
+                    times(this.props.data && this.props.data.keys.length, i => (
                       <Bar
                         key={i}
-                        dataKey={this.props.generations - i}
-                        fill={this.randomColors(i)}
+                        dataKey={this.props.data.keys[i]}
+                        fill={this.randomColors(Math.max(this.props.data.keys.length - i, 0))}
                         stackId="a"
                       />
                     ))

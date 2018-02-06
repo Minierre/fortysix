@@ -244,16 +244,17 @@ class RoomManager {
       // roomStats: this.roomStats.getStats()
     })
       .then(() => {
-        History.findAll({
+        return History.findAll({
           where: {
             room: this.room
           }
         }).then((history) => {
           this.updateAdminHistory(history)
+          this.start = null
+          this.maxGen = null
+          this.lastResult = null
+          this.updateAdmins()
         })
-        this.start = null
-        this.maxGen = null
-        this.lastResult = null
       })
   }
 

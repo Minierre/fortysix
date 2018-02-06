@@ -14,7 +14,7 @@ class RoomStats {
   constructor(generations, populationSize, reproductiveCoefficient) {
     // this.averageGenerationStats = []
     this.statisticalFeedback = []
-    this.graphData = []
+    this.graphData = {}
     // so we don't recalculate the mean and the stdv at every incoming task, we store it
     this.counter = 0
     // stores object data that looks like {{2: [2345,2315]}, ...]
@@ -86,8 +86,13 @@ class RoomStats {
     const zScoreBucketNotBad = { name: 'Not Bad' }
     const zScoreBucketGood = { name: 'Good' }
     const zScoreBucketExcellent = { name: 'Excellent' }
+    const keys = []
+
 
     for (let i = this.highestProcessedGeneration; i >= this.highestProcessedGeneration - 10 && i >= 2; i -= 1) {
+
+      keys.push(i)
+
       // dumping old cache, and fitness data (only the maturest 10 generations are rendered on the graph)
       if (this.generationFitnessesData[i - 11] && i > 12) {
         this.generationFitnessesData[i - 11] = []
@@ -131,13 +136,14 @@ class RoomStats {
             zScoreBucketExcellent[i] += (1 / this.generationFitnessesData[i].length)
             break
           default:
-
             break
         }
       })
     }
 
-    this.graphData = [zScoreBucketHorrible, zScoreBucketVeryBad, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
+
+    this.graphData.keys = keys
+    this.graphData.values = [zScoreBucketHorrible, zScoreBucketVeryBad, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
     return this.graphData
   }
 
