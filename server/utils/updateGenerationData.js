@@ -8,12 +8,17 @@ function binaryInsertion(array, value) {
 function updateGenerationData({
   genOneFitnessData,
   generationOneFitnessesData,
+  fitnesses,
+  generationFitnessesData
 }, done) {
   let newGenerationOneFitnessesData = generationOneFitnessesData
   genOneFitnessData.forEach((fitness) => {
     newGenerationOneFitnessesData = binaryInsertion(newGenerationOneFitnessesData, Math.log(fitness + 1))
   })
-  done({ newGenerationOneFitnessesData })
+
+  const newGenerationFitnessesData = generationFitnessesData
+  fitnesses.forEach(fitness => newGenerationFitnessesData.push(Math.log(fitness + 1)))
+  done({ newGenerationOneFitnessesData, newGenerationFitnessesData })
 }
 
 module.exports = updateGenerationData
