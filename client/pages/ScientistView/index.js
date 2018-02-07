@@ -32,8 +32,6 @@ class ScientistView extends Component {
         jobRunning: false
       },
       roomPersisted: {
-        roomName: '',
-        fitnessFunc: null
       },
       history: []
     }
@@ -127,6 +125,7 @@ class ScientistView extends Component {
                   reproductiveCoefficient,
                   elitism
                 } = values
+
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,
@@ -154,14 +153,15 @@ class ScientistView extends Component {
                 handleChange,
                 handleBlur
               }) => (
-                <AdminInputs
-                  values={values}
-                  setParameters={this.updateParameters}
-                  submit={handleSubmit}
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                />
-              )}
+                  Object.keys(this.state.roomPersisted).length ? <AdminInputs
+                    values={values}
+                    setParameters={this.updateParameters
+                    }
+                    submit={handleSubmit}
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                  /> : ''
+                )}
             />
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={2} title="Run">
@@ -179,11 +179,6 @@ class ScientistView extends Component {
           </Tab>
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
             <Visualize
-              // generations={
-              //   this.state.roomPersisted &&
-              //   this.state.roomPersisted.parameters &&
-              //   this.state.roomPersisted.parameters.generations
-              // }
               data={this.state.room.stats}
             />
           </Tab>

@@ -85,14 +85,14 @@ router.put('/:roomHash', (req, res, next) => {
             }
 
             if (mutations) {
-              await mutations.map(async (mutation) => {
+              await Promise.all(mutations.map(async (mutation) => {
                 await RoomMutations
                   .upsert({
                     chanceOfMutation: Number(mutation.chanceOfMutation),
                     roomId: room.id,
                     mutationId: mutation.id
                   })
-              })
+              }))
             }
           }).then(() => {
             return Room.getRoomWithAssociations(
