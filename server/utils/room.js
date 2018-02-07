@@ -8,6 +8,7 @@ const {
 } = require('../db/models')
 const { generateTasks } = require('./tasks')
 const forEach = require('lodash/forEach')
+const map = require('lodash/map')
 const { RoomStats } = require('./stats')
 
 class RoomManager {
@@ -242,10 +243,23 @@ class RoomManager {
 
     History.create({
       nodes: Object.keys(this.nodes).length,
+      maxGen: this.maxGen,
       room: this.room,
       result: this.lastResult,
       startTime: this.start,
+      populationSize: this.populationSize,
+      fitnessGoal: this.fitnessGoal,
+      chromosomeLength: this.chromosomeLength,
+      elitism: this.elitism,
+      reproductiveCoefficient: this.reproductiveCoefficient,
       endTime: new Date(),
+      fitnessFunc: this.fitness.function.toString(),
+      mutations: map(this.mutations, mut =>
+        `${mut.name} ${mut.chanceOfMutation}`).join(','),
+      selection: this.selection.name,
+      genePool: this.genePool.join(','),
+      admins: map(this.admins, admin => `${admin.id}`).join(','),
+      totalFitness: this.totalFitness
     })
       .then(() => {
         return History.findAll({
@@ -260,13 +274,6 @@ class RoomManager {
           this.updateAdmins()
         })
       })
-
-    this.start = null
-    this.maxGen = null
-    this.lastResult = {
-      maxGeneration: 0,
-      maxFitness: 0
-    }
   }
 
   emptyTaskQueue() {
@@ -282,7 +289,7 @@ class RoomManager {
         this.nodes[socket.id].running = true
         this.nodes[socket.id].error = false
         this.nodes[socket.id].tasksCompletedByNode++
-        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running:this.jobRunning })
+        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running: this.jobRunning })
       }
     }
   }
