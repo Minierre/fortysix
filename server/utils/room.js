@@ -410,7 +410,6 @@ class RoomManager {
       this.updateBucket(finishedTask)
       // checks if termination conditions are met and acts accordingly
       this.terminateOrDistribute(finishedTask, socket, io)
-      this.updateAdmins()
       console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
     }
   }
