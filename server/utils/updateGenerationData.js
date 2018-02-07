@@ -12,7 +12,6 @@ function updateGenerationData({
   generationOneFitnessesData,
 }, done) {
   let newGenerationOneFitnessesData = generationOneFitnessesData
-  console.log(genOneFitnessData.length)
   genOneFitnessData.forEach((fitness) => {
     newGenerationOneFitnessesData = binaryInsertion(newGenerationOneFitnessesData, Math.log(fitness + 1))
   })

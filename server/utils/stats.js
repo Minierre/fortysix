@@ -36,6 +36,9 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
+
+    if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
+
     // every task comes back with fitness data too, which we store
     fitnesses.forEach(fitness => this.generationFitnessesData[gen].push(Math.log(fitness + 1)))
 
@@ -56,14 +59,13 @@ class RoomStats {
         })
     } else {
       if (this.generationFitnessesData[gen].length >= 36) {
-        if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
         this.generateGraphData()
       }
     }
   }
 
   findMean(arr) {
-    return arr.reduce((a, b) => a + b, 0) / arr.length
+    return arr.reduce((a, b) => a + b) / arr.length
   }
 
   findSD(arr, mean) {
