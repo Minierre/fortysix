@@ -14,6 +14,8 @@ Selections.hasOne(Room)
 Room.belongsTo(Selections)
 Contributor.hasOne(Room)
 Room.belongsTo(Contributor)
+Room.belongsTo(User)
+User.hasMany(Room)
 
 module.exports = {
   User,

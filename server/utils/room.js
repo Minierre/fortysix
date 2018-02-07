@@ -395,7 +395,7 @@ class RoomManager {
       fitness: this.fitness,
       chromosomesReturned: this.chromosomesReturned,
       totalFitness: this.totalFitness,
-      stats: this.roomStats && this.jobRunning ? this.roomStats.getStats() : []
+      stats: this.roomStats ? this.roomStats.getStats() : []
     }))
   }
 

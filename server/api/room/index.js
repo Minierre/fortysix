@@ -40,7 +40,8 @@ router.post('/', (req, res, next) => {
     err.status = 403
     next(err)
   } else {
-    Room.create(req.body)
+    const newRoom = Object.assign({}, req.body, { userId: req.user.id })
+    Room.create(newRoom)
       .tap(async (room) => {
         await room.createParameter()
         await room.addMutation(1)
