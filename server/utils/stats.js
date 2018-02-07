@@ -39,29 +39,23 @@ class RoomStats {
 
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
-    // every task comes back with fitness data too, which we store
-    fitnesses.forEach(fitness => this.generationFitnessesData[gen].push(Math.log(fitness + 1)))
-
-    if (genOneFitnessData) {
-      const thread = spawn('updateGenerationData.js')
-      this.numberOfChromosomesProcessed += genOneFitnessData.length
-      return thread.send({
-        genOneFitnessData,
-        generationOneFitnessesData: this.generationFitnessesData[1],
+    const thread = spawn('updateGenerationData.js')
+    this.numberOfChromosomesProcessed += genOneFitnessData.length
+    return thread.send({
+      genOneFitnessData,
+      generationOneFitnessesData: this.generationFitnessesData[1],
+      fitnesses,
+      generationFitnessesData: this.generationFitnessesData[gen]
+    })
+      .promise()
+      .then(({ newGenerationOneFitnessesData, newGenerationFitnessesData }) => {
+        thread.kill()
+        this.generationFitnessesData[1] = newGenerationOneFitnessesData
+        this.generationFitnessesData[gen] = newGenerationFitnessesData
+        if (this.generationFitnessesData[gen].length >= 36) {
+          this.generateGraphData()
+        }
       })
-        .promise()
-        .then(({ newGenerationOneFitnessesData }) => {
-          thread.kill()
-          this.generationFitnessesData[1] = newGenerationOneFitnessesData
-          if (this.generationFitnessesData[gen].length >= 36) {
-            this.generateGraphData()
-          }
-        })
-    } else {
-      if (this.generationFitnessesData[gen].length >= 36) {
-        this.generateGraphData()
-      }
-    }
   }
 
   findMean(arr) {

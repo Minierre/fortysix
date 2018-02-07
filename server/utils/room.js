@@ -415,6 +415,10 @@ class RoomManager {
       console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
     }
   }
+  updateAdminHistory(history) {
+    forEach(this.admins, admin =>
+      admin.emit('UPDATE_HISTORY_' + this.room, history))
+  }
 }
 
 module.exports = { RoomManager }
