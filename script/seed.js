@@ -74,23 +74,23 @@ async function seed() {
   const parameters = await Promise.all([
     Parameters.create({
       chromosomeLength: 100,
-      generations: 3,
+      generations: 7,
       elitism: 0,
       populationSize: 100,
       fitnessGoal: 1000000000,
-      reproductiveCoefficient: 2
+      reproductiveCoefficient: 10
     }),
     Parameters.create({
       chromosomeLength: 100,
-      generations: 3,
+      generations: 7,
       elitism: 0,
       populationSize: 100,
       fitnessGoal: 1000000000,
-      reproductiveCoefficient: 2
+      reproductiveCoefficient: 10
     }),
     Parameters.create({
-      chromosomeLength: 10,
-      generations: 100,
+      chromosomeLength: 11,
+      generations: 200,
       elitism: 0,
       populationSize: 200,
       fitnessGoal: 1000000000,
@@ -98,12 +98,12 @@ async function seed() {
       genePool: 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, ,.'
     }),
     Parameters.create({
-      chromosomeLength: 8,
-      generations: 50,
-      elitism: 10000,
-      populationSize: 200,
+      chromosomeLength: 10,
+      generations: 200,
+      elitism: 10,
+      populationSize: 2000,
       fitnessGoal: 100000000,
-      reproductiveCoefficient: 100,
+      reproductiveCoefficient: 1000,
       genePool: '=,>, ,",(,),hello,world,{,},;,.'
     })
   ])
@@ -131,12 +131,22 @@ async function seed() {
     RoomMutations.create({
       mutationId: 1,
       roomId: rooms[0].id,
-      chanceOfMutation: 0
+      chanceOfMutation: .05
     }),
     RoomMutations.create({
       mutationId: 2,
       roomId: rooms[0].id,
-      chanceOfMutation: 0
+      chanceOfMutation: .05
+    }),
+    RoomMutations.create({
+      mutationId: 1,
+      roomId: rooms[1].id,
+      chanceOfMutation: .05
+    }),
+    RoomMutations.create({
+      mutationId: 2,
+      roomId: rooms[1].id,
+      chanceOfMutation: .05
     }),
     RoomMutations.create({
       mutationId: 3,
@@ -151,12 +161,17 @@ async function seed() {
     RoomMutations.create({
       mutationId: 1,
       roomId: rooms[3].id,
-      chanceOfMutation: 0.07
+      chanceOfMutation: 0.005
     }),
     RoomMutations.create({
       mutationId: 2,
       roomId: rooms[3].id,
-      chanceOfMutation: 0.27
+      chanceOfMutation: 0.15
+    }),
+    RoomMutations.create({
+      mutationId: 3,
+      roomId: rooms[3].id,
+      chanceOfMutation: 0.002
     })
   ])
 

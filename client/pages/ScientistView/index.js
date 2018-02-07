@@ -175,8 +175,8 @@ class ScientistView extends Component {
               startJob={this.startJob}
             />
           </Tab>
-          <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
-          </Tab>
+          {/* <Tab style={{ marginTop: '0.5em' }} eventKey={3} title="Data">
+          </Tab> */}
           <Tab style={{ marginTop: '0.5em' }} eventKey={4} title="Visualize">
             <Visualize
               data={this.state.room.stats}

@@ -1,11 +1,13 @@
 // fitness function for matching an input string, default string = alphabet
-const findString = ((c, targetString = 'abel is me') => {
+const findString = ((c, targetString = 'abel daniel') => {
   let fitness = 0;
   let i;
   for (i = 0; i < c.length; ++i) {
-    if (c[i] === targetString[i]) fitness += 200;
     if (targetString.includes(c[i])) fitness += 100;
     fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / (targetString.length ** 2);
+  }
+  for (i = 0; i < c.length; ++i) {
+    if (c[i] === targetString[i]) fitness *= 3;
   }
   return Math.max(fitness, 0);
 }).toString()
@@ -22,9 +24,9 @@ const helloWorld = ((c) => {
     return numWrong
   }
 
-  let fitness = .0001
+  let fitness = .001
   try {
-    fitness += 1
+    fitness += 10
     let value = eval('(' + c + ')')()
     if (typeof value === 'string') {
       fitness *= 1000
@@ -39,8 +41,8 @@ const helloWorld = ((c) => {
         fitness = 1000000000
       }
     }
-    else if (typeof value !== 'undefined') {
-      fitness *= 100
+    if (typeof value !== 'undefined') {
+      fitness *= 1000
     }
     return fitness
   }
@@ -52,17 +54,17 @@ const helloWorld = ((c) => {
       fitness += .5
     }
     else if (c.trimLeft()[0] === '(' && c.trimLeft()[1] === ')') {
-      fitness += .10
+      fitness += .1
     }
     else if (c.includes('=>')) {
-      fitness += .10
+      fitness += .5
     }
     let funcPatterns = ["()=>\"helloworld\""]
     let difs = []
     for (var l = 0; l < funcPatterns.length; l++) {
       difs.push(stringDif(c.split(" ").join(""), funcPatterns[l]))
     }
-    fitness += (c.length - (Math.min.apply(null, difs))) * .01
+    fitness += (c.length - (Math.min.apply(null, difs))) * .05
     return fitness
   }
 }).toString()
