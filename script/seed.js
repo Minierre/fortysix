@@ -28,9 +28,9 @@ async function seed() {
   // executed until that promise resolves!
 
   const users = await Promise.all([
-    User.create({ email: 'cody@email.com', password: '123' }),
-    User.create({ email: 'murphy@email.com', password: '123' }),
-    User.create({ email: 'jon@jon.com', password: '123' })
+    User.create({ email: 'cody@email.com', password: '123', isAdmin: false }),
+    User.create({ email: 'murphy@email.com', password: '123', isAdmin: false }),
+    User.create({ email: 'admin@admin.com', password: '123', isAdmin: true })
   ])
 
   const mutations = await Promise.all([

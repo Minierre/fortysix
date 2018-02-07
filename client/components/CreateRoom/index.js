@@ -22,12 +22,12 @@ class CreateRoom extends Component {
       })
   }
 
-  componentWillUpdate(nextProps) {
+  componentWillUpdate(nextProps, nextState) {
     if (this.state.ownedRooms.length === 0 && nextProps.isLoggedIn) {
       axios.get(`/api/users/${nextProps.userId}/rooms`)
       .then(res => res.data)
       .then((ownedRooms) => {
-        this.setState({ ownedRooms })
+        if (ownedRooms.length > 0) this.setState({ ownedRooms })
       })
     }
   }
@@ -44,22 +44,26 @@ class CreateRoom extends Component {
 
   render() {
     const { rooms, ownedRooms } = this.state
+    const adminRooms = this.props.isAdmin ? rooms : ownedRooms
     return (
       <div>
         { this.props.isLoggedIn &&
-            <Form>
-              <div className="form-group">
-                <label htmlFor="createRoom">Enter Room Name</label>
-                <input type="text" onChange={this.handleChange} className="form-control" id="roomName" placeholder="Room Name" />
-              </div>
-              <div>
-                <Button type="submit" className="btn btn-primary" onClick={this.createRoom}>Create Room</Button>
-              </div>
-            </Form> }
+          <Form>
+            <div className="form-group">
+              <label htmlFor="createRoom">Enter Room Name</label>
+              <input type="text" onChange={this.handleChange} className="form-control" id="roomName" placeholder="Room Name" />
+            </div>
+            <div>
+              <Button type="submit" className="btn btn-primary" onClick={this.createRoom}>Create Room</Button>
+            </div>
+          </Form> }
         <div>
           <h4>Your Rooms</h4>
           <ul className="list-group">
-            {ownedRooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/admin/${room.roomHash}`}>{room.roomName}</Link></li>)}
+            {adminRooms.length > 0 ?
+              adminRooms.map(room => <li className="list-group-item" key={room.roomName}><Link to={`/admin/${room.roomHash}`}>{room.roomName}</Link></li>)
+              :
+              <h5>Create your first room!</h5>}
           </ul>
         </div>
 
@@ -77,7 +81,8 @@ class CreateRoom extends Component {
 const mapState = (state) => {
   return {
     userId: state.user.id,
-    isLoggedIn: !!state.user.email
+    isLoggedIn: !!state.user.email,
+    isAdmin: state.user.isAdmin
   }
 }
 
