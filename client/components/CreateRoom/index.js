@@ -20,9 +20,11 @@ class CreateRoom extends Component {
       .then((rooms) => {
         this.setState({ rooms })
       })
+  }
 
-    if (this.props.isLoggedIn) {
-      axios.get(`/api/users/${this.props.userId}/rooms`)
+  componentWillUpdate(nextProps) {
+    if (this.state.ownedRooms.length === 0 && nextProps.isLoggedIn) {
+      axios.get(`/api/users/${nextProps.userId}/rooms`)
       .then(res => res.data)
       .then((ownedRooms) => {
         this.setState({ ownedRooms })
