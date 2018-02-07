@@ -5,8 +5,6 @@ function binaryInsertion(array, value) {
   return array.slice(0, index).concat(value, array.slice(index))
 }
 
-let counter = 0
-
 function updateGenerationData({
   genOneFitnessData,
   generationOneFitnessesData,
