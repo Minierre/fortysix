@@ -36,12 +36,11 @@ class RoomStats {
   updateGenerationData(finishedTask) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
-    const thread = spawn('updateGenerationData.js')
-
     // every task comes back with fitness data too, which we store
     fitnesses.forEach(fitness => this.generationFitnessesData[gen].push(Math.log(fitness + 1)))
 
     if (genOneFitnessData) {
+      const thread = spawn('updateGenerationData.js')
       this.numberOfChromosomesProcessed += genOneFitnessData.length
       return thread.send({
         genOneFitnessData,
