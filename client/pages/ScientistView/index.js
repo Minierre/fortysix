@@ -92,6 +92,7 @@ class ScientistView extends Component {
   }
 
   render() {
+    const testPool = genPop(chromosomeLength, populationSize, genePool)
     const {
       parameters,
       mutations,
@@ -116,19 +117,6 @@ class ScientistView extends Component {
                 { setSubmitting, setErrors }
               ) => {
                 const roomHash = this.props.match.params.roomHash
-                // const {
-                //   chromosomeLength,
-                //   generations,
-                //   populationSize,
-                //   fitnessGoal,
-                //   fitnessFunc,
-                //   mutations,
-                //   genePool,
-                //   reproductiveCoefficient,
-                //   testPool: genPop(chromosomeLength, populationSize, genePool),
-                //   selection,
-                //   elitism
-                // } = values
                 const {
                     chromosomeLength,
                     generations,
@@ -138,8 +126,6 @@ class ScientistView extends Component {
                     fitnessFunc,
                     mutations,
                     selection,
-                    //wtf
-                    // testPool: genPop(chromosomeLength, populationSize, genePool),
                     genePool,
                     reproductiveCoefficient,
                   } = values

@@ -55,11 +55,10 @@ router.put('/:roomHash', (req, res, next) => {
     parameters,
     mutations,
     selection,
-    fitnessFunc,
-    testPool
+    fitnessFunc
   } = req.body
 
-  const c = testPool[0] || '1010'
+  // const c = testPool[0] || '1010'
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
