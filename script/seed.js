@@ -84,19 +84,19 @@ async function seed() {
       reproductiveCoefficient: 2
     }),
     Parameters.create({
-      chromosomeLength: 3,
+      chromosomeLength: 10,
       generations: 100,
       elitism: 0,
       populationSize: 200,
       fitnessGoal: 1000000000,
-      reproductiveCoefficient: 200,
+      reproductiveCoefficient: 100,
       genePool: 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, ,.'
     }),
     Parameters.create({
       chromosomeLength: 8,
-      generations: 5,
+      generations: 50,
       elitism: 10000,
-      populationSize: 2000,
+      populationSize: 200,
       fitnessGoal: 100000000,
       reproductiveCoefficient: 100,
       genePool: '=,>, ,",(,),hello,world,{,},;,.'
