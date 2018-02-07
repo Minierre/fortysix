@@ -13,7 +13,8 @@ import {
   ContributorView,
   Rooms,
   LoginSignup,
-  Home
+  Home,
+  Stats
 } from './pages'
 
 import './style.css'
@@ -48,6 +49,10 @@ class App extends Component {
               <Route
                 path="/rooms"
                 component={() => <Rooms socket={this.props.socket} />}
+              />
+              <Route
+                path="/stats"
+                component={() => <Stats socket={this.props.socket} />}
               />
               <Route
                 path="/top-contributors"

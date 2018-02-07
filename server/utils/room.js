@@ -392,7 +392,7 @@ class RoomManager {
       this.updateRoomStats(finishedTask)
       // If a task comes back after a server restart, ignore it.
       if (this.roomStats) {
-        this.roomStats.updateGenerationData(finishedTask)
+        this.roomStats.updateGenerationData(finishedTask, io)
       }
       // update the bucket
       this.updateBucket(finishedTask)

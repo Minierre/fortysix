@@ -33,10 +33,10 @@ class RoomStats {
     this.selectionSize = (2 * reproductiveCoefficient) / populationSize
   }
 
-  updateGenerationData(finishedTask) {
+  updateGenerationData(finishedTask, io, roomHash) {
     // reformat the data into an optimized format for storage
     const { gen, fitnesses, genOneFitnessData } = finishedTask
-    const thread = spawn('updateGenerationData.js')
+    // const thread = spawn('updateGenerationData.js')
 
     this.counter++
     if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
@@ -46,18 +46,24 @@ class RoomStats {
 
     if (genOneFitnessData) {
       this.numberOfChromosomesProcessed += genOneFitnessData.length
-      return thread.send({
-        genOneFitnessData,
-        generationOneFitnessesData: this.generationFitnessesData[1],
-      })
-        .promise()
-        .then(({ newGenerationOneFitnessesData }) => {
-          thread.kill()
-          this.generationFitnessesData[1] = newGenerationOneFitnessesData
-          if (this.generationFitnessesData[gen].length >= 36) {
-            this.generateGraphData()
-          }
-        })
+
+      io.emit('CALL_STATS' + roomHash, ({
+
+      }))
+
+      io.on('')
+      // return thread.send({
+      //   genOneFitnessData,
+      //   generationOneFitnessesData: this.generationFitnessesData[1],
+      // })
+      //   .promise()
+      //   .then(({ newGenerationOneFitnessesData }) => {
+      //     thread.kill()
+      //     this.generationFitnessesData[1] = newGenerationOneFitnessesData
+      //     if (this.generationFitnessesData[gen].length >= 36) {
+      //       this.generateGraphData()
+      //     }
+      //   })
     } else {
       if (this.generationFitnessesData[gen].length >= 36) {
         this.generateGraphData()

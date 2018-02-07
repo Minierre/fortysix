@@ -45,6 +45,7 @@ function registerEvents(socket, io) {
   registerRequestRoom(socket, io)
   registerAbort(socket, io)
   registerJobError(socket, io)
+  registerCallStats(socket, io)
 }
 
 // when a specific client gets an error
