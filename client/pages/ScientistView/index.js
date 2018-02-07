@@ -17,6 +17,7 @@ import './style.css'
 import {
   AdminInputs,
 } from '../../components'
+import { genPop } from "../../../server/utils/tasks";
 
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
@@ -115,18 +116,33 @@ class ScientistView extends Component {
                 { setSubmitting, setErrors }
               ) => {
                 const roomHash = this.props.match.params.roomHash
+                // const {
+                //   chromosomeLength,
+                //   generations,
+                //   populationSize,
+                //   fitnessGoal,
+                //   fitnessFunc,
+                //   mutations,
+                //   genePool,
+                //   reproductiveCoefficient,
+                //   testPool: genPop(chromosomeLength, populationSize, genePool),
+                //   selection,
+                //   elitism
+                // } = values
                 const {
-                  chromosomeLength,
-                  generations,
-                  populationSize,
-                  fitnessGoal,
-                  fitnessFunc,
-                  mutations,
-                  selection,
-                  genePool,
-                  reproductiveCoefficient,
-                  elitism
-                } = values
+                    chromosomeLength,
+                    generations,
+                    elitism,
+                    populationSize,
+                    fitnessGoal,
+                    fitnessFunc,
+                    mutations,
+                    selection,
+                    //wtf
+                    // testPool: genPop(chromosomeLength, populationSize, genePool),
+                    genePool,
+                    reproductiveCoefficient,
+                  } = values
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,

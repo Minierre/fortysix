@@ -1,6 +1,9 @@
 const router = require('express').Router()
 const User = require('../db/models/user')
+const sockets = require('../socket')
+
 module.exports = router
+
 
 router.post('/login', (req, res, next) => {
   User.findOne({ where: { email: req.body.email } })
@@ -31,8 +34,11 @@ router.post('/signup', (req, res, next) => {
 })
 
 router.post('/logout', (req, res) => {
+  console.log('passport session: ' + req.session.passport)
   req.logout()
-  res.redirect('/')
+  req.session.destroy()
+  res.send(req.session)
+  // res.redirect('/')
 })
 
 router.get('/me', (req, res) => {

@@ -7,6 +7,8 @@ const session = require('express-session')
 const passport = require('passport')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const socketio = require('socket.io')
+const passportSocketIo = require('passport.socketio')
+const cookieParser = require('cookie-parser');
 const db = require('./db')
 
 const sessionStore = new SequelizeStore({ db })
@@ -46,6 +48,10 @@ const createApp = () => {
   // session middleware with passport
   app.use(session({
     secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+    cookie: {
+      secure: false,
+      maxAge: 2419200000
+    },
     store: sessionStore,
     resave: false,
     saveUninitialized: false
@@ -92,6 +98,15 @@ const startListening = () => {
   // set up our socket control center
   const io = socketio(server)
   require('./socket')(io)
+  //commented out because it prevents users from
+  //contributing anonymously
+  // io.use(passportSocketIo.authorize({
+  //   cookieParser,
+  //   key: 'connect.sid',
+  //   secret: process.env.SESSION_SECRET || 'my best friend is Cody',
+  //   store: sessionStore,
+  //   passport,
+  // }))
 }
 
 const syncDb = () => db.sync()
