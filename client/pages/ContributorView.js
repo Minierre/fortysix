@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Panel, Button, Table } from 'react-bootstrap'
 import { spawn } from 'threads'
 import { withRouter } from 'react-router-dom'
+import axios from 'axios'
 
 class ContributorView extends Component {
   constructor() {
@@ -13,25 +14,33 @@ class ContributorView extends Component {
       timeRunning: 0,
       taskPerSecond: 0,
       ready: true,
+      roomName: ''
     }
     this.toggleReady = this.toggleReady.bind(this)
   }
 
   componentDidMount() {
     const roomHash = this.props.match.params.roomHash
+
+    axios.get(`/api/room/${roomHash}`)
+      .then(room => this.setState({ roomName: room.data.roomName }))
+
     this.props.socket.emit('join', roomHash)
     setInterval(() => {
-      if (this.state.ready) {
+      if (this.state.running && this.state.ready) {
         let timePassed = this.state.timeRunning
         timePassed++
-        this.setState({timeRunning:timePassed})
-        let taskPerSecond = (this.state.tasksCompletedByNode / this.state.timeRunning).toFixed(2)
-        this.setState({taskPerSecond})
+        this.setState({ timeRunning: timePassed })
+        const taskPerSecond = (this.state.tasksCompletedByNode / this.state.timeRunning).toFixed(2)
+        this.setState({ taskPerSecond })
       }
     }, 1000)
-    this.props.socket.on("CALL_" + roomHash, ({ task, tasksCompletedByNode, totalTasksCompleted }) => {
-      const percentOfTotal = ((tasksCompletedByNode / totalTasksCompleted) * 100).toFixed(2)
-      this.setState({ tasksCompletedByNode, percentOfTotal })
+    this.props.socket.on("CALL_" + roomHash, ({ task, tasksCompletedByNode, totalTasksCompleted, running }) => {
+      let percentOfTotal;
+      if (totalTasksCompleted > 0) {
+        percentOfTotal = Math.floor((tasksCompletedByNode / totalTasksCompleted) * 100)
+      }
+      this.setState({ tasksCompletedByNode, percentOfTotal, running })
       this.props.socket.emit('start', roomHash)
       try {
         console.log('running: ', task)
@@ -52,7 +61,6 @@ class ContributorView extends Component {
     })
 
     this.props.socket.on('ABORT_' + roomHash, () => {
-      // this.setState({ ready: false })
       window.location.reload(true)
     })
   }
@@ -140,13 +148,13 @@ class ContributorView extends Component {
     }
     const roomHash = this.props.match.params.roomHash
     this.props.socket.emit('toggleReady', roomHash)
-    console.log(this.state);
   }
 
   render() {
     const style = { maxWidth: 400, margin: '0 auto 10px' }
     return (
       <div>
+        <h1>{this.state.roomName}</h1>
         <Panel>
           <Panel.Heading>
             <Panel.Title componentClass="h3">
@@ -157,12 +165,12 @@ class ContributorView extends Component {
         </Panel>
         <div style={style}>
           {this.state.ready ? (
-            <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block active>
-            Accepting Tasks, Click to Stop
+            <Button onClick={this.toggleReady} bsStyle="danger" bsSize="large" block active>
+            Stop Accepting Tasks
             </Button>
           ) : (
-            <Button onClick={this.toggleReady} bsStyle="primary" bsSize="large" block>
-            Click to Resume Accepting Tasks
+            <Button onClick={this.toggleReady} bsStyle="success" bsSize="large" block>
+            Resume Accepting Tasks
             </Button>
           )}
         </div>

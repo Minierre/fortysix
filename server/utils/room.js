@@ -87,7 +87,7 @@ class RoomManager {
         this.genePool,
         this.elitism
       ))
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode })
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running: this.jobRunning })
     }
     this.updateAdmins()
   }
@@ -282,7 +282,7 @@ class RoomManager {
       this.nodes[socket.id].running = true
       this.nodes[socket.id].error = false
       this.nodes[socket.id].tasksCompletedByNode++
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode })
+      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running:this.jobRunning })
       this.updateAdmins()
     }
     }
@@ -325,7 +325,6 @@ class RoomManager {
     if (!this.isJobRunning()) {
       this.startJob()
       Object.keys(this.nodes).forEach((id, i) => {
-        console.log(id, i);
         socket.to(id).emit(callName, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted })
       })
     }
@@ -390,6 +389,7 @@ class RoomManager {
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
       nodes: this.nodes,
+      start: this.start,
       bucket: this.bucket,
       jobRunning: this.jobRunning,
       fitness: this.fitness,
@@ -403,7 +403,6 @@ class RoomManager {
     if (this.isJobRunning) {
       this.updateRoomStats(finishedTask)
       this.totalTasksCompleted++
-      console.log(this.totalTasksCompleted);
       // If a task comes back after a server restart, ignore it.
       if (this.roomStats) {
         this.roomStats.updateGenerationData(finishedTask)

@@ -18,6 +18,15 @@
   height: 30px;
 }
 
+.status-bulb-not-ready {
+  margin: 0 0 0.125em 0.125em;
+  width: 30px;
+  height: 30px;
+  background: rgb(244, 127, 44);
+  border-radius: 50px;
+  border: 1px solid black;
+}
+
 .status-bulb-error {
   margin: 0 0 0.125em 0.125em;
   width: 30px;
@@ -26,5 +35,3 @@
   border-radius: 50px;
   border: 1px solid black;
 }
-
-

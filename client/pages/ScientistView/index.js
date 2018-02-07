@@ -88,10 +88,7 @@ class ScientistView extends Component {
 
   abortJob(evt) {
     const roomHash = this.props.match.params.roomHash
-    console.log(this.state.room);
     this.props.socket.emit('ABORT', roomHash)
-    console.log(this.state.room);
-    // this.props.socket.emit()
   }
 
   render() {

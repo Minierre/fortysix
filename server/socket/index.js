@@ -61,8 +61,8 @@ function registerAbort(socket) {
 socket.on('ABORT', (room) => {
     // if there are no nodes in the room, create a new roomManager instance
     socket.on('ABORT', room => rooms[room].abort(socket))
-    // if (Object.keys(rooms[room].nodes).length < 1) rooms[room] = new RoomManager()
-    // else rooms[room].abort(socket)
+    if (Object.keys(rooms[room].nodes).length < 1) rooms[room] = new RoomManager()
+    else rooms[room].abort(socket)
   })
 }
 
