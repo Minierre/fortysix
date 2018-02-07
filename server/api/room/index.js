@@ -7,6 +7,7 @@ const {
   Selections,
   RoomMutations
 } = require('../../db/models')
+const { genPop } = require('../../utils/tasks')
 
 module.exports = router
 
@@ -56,16 +57,17 @@ router.put('/:roomHash', (req, res, next) => {
     mutations,
     selection,
     fitnessFunc,
-    testPool
   } = req.body
 
-  const c = testPool[0] || '1010'
+  const { chromosomeLength, populationSize, genePool } = parameters
+  const c = genPop(chromosomeLength, populationSize, genePool)[0]
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
-    (() => fitFunc([${c}]))()`,
+    (() => fitFunc([${c})])()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
+      console.log(output.result, isValid)
       // FIXME: re-add security
       if (true) {
         return Room.update(

@@ -113,6 +113,7 @@ class ScientistView extends Component {
                 { setSubmitting, setErrors }
               ) => {
                 const roomHash = this.props.match.params.roomHash
+                const {
                   chromosomeLength,
                   generations,
                   populationSize,
@@ -124,7 +125,7 @@ class ScientistView extends Component {
                   reproductiveCoefficient,
                   elitism
                 } = values
-                  
+
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,
