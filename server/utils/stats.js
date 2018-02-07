@@ -79,10 +79,8 @@ class RoomStats {
   generateGraphData() {
     // sets up the zScoreBuckets
     const zScoreBucketHorrible = { name: 'Horrible' }
-    const zScoreBucketVeryBad = { name: 'Very Bad' }
     const zScoreBucketBad = { name: 'Bad' }
     const zScoreBucketRandom = { name: 'Random' }
-    const zScoreBucketNotBad = { name: 'Not Bad' }
     const zScoreBucketGood = { name: 'Good' }
     const zScoreBucketExcellent = { name: 'Excellent' }
     const keys = []
@@ -99,10 +97,8 @@ class RoomStats {
       }
       // incorporates a base zscore percentage of 0 in each of the zscore buckets per generation
       zScoreBucketHorrible[i] = 0
-      zScoreBucketVeryBad[i] = 0
       zScoreBucketBad[i] = 0
       zScoreBucketRandom[i] = 0
-      zScoreBucketNotBad[i] = 0
       zScoreBucketGood[i] = 0
       zScoreBucketExcellent[i] = 0
 
@@ -116,19 +112,13 @@ class RoomStats {
           case (zScore < -2.567):
             zScoreBucketHorrible[i] += (1 / this.generationFitnessesData[i].length)
             break
-          case zScore >= -2.567 && zScore < -1.96:
-            zScoreBucketVeryBad[i] += (1 / this.generationFitnessesData[i].length)
-            break
-          case zScore >= -1.96 && zScore < -1.645:
+          case zScore >= -2.567 && zScore < -1.645:
             zScoreBucketBad[i] += (1 / this.generationFitnessesData[i].length)
             break
           case zScore >= -1.645 && zScore < 1.645:
             zScoreBucketRandom[i] += (1 / this.generationFitnessesData[i].length)
             break
-          case zScore >= 1.645 && zScore < 1.96:
-            zScoreBucketNotBad[i] += (1 / this.generationFitnessesData[i].length)
-            break
-          case zScore >= 1.96 && zScore < 2.567:
+          case zScore >= 1.645 && zScore < 2.567:
             zScoreBucketGood[i] += (1 / this.generationFitnessesData[i].length)
             break
           case zScore > 2.567:
@@ -142,7 +132,7 @@ class RoomStats {
 
 
     this.graphData.keys = keys
-    this.graphData.values = [zScoreBucketHorrible, zScoreBucketVeryBad, zScoreBucketBad, zScoreBucketRandom, zScoreBucketNotBad, zScoreBucketGood, zScoreBucketExcellent]
+    this.graphData.values = [zScoreBucketHorrible, zScoreBucketBad, zScoreBucketRandom, zScoreBucketGood, zScoreBucketExcellent]
     return this.graphData
   }
 
