@@ -13,10 +13,10 @@ import History from './History'
 import Visualize from './Visualize'
 import './style.css'
 
-
 import {
   AdminInputs,
 } from '../../components'
+import { genPop } from "../../../server/utils/tasks";
 
 const ADMIN_JOIN = 'ADMIN_JOIN'
 const REQUEST_ROOM = 'REQUEST_ROOM'
@@ -113,7 +113,6 @@ class ScientistView extends Component {
                 { setSubmitting, setErrors }
               ) => {
                 const roomHash = this.props.match.params.roomHash
-                const {
                   chromosomeLength,
                   generations,
                   populationSize,
@@ -125,7 +124,7 @@ class ScientistView extends Component {
                   reproductiveCoefficient,
                   elitism
                 } = values
-
+                  
                 axios.put('/api/room/' + roomHash, {
                   parameters: {
                     id: this.state.roomPersisted.parameters.id,

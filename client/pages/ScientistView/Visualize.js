@@ -38,7 +38,7 @@ class Visualize extends Component {
     return (
       <div>
         {
-          this.props.data && this.props.data.keys.length ?
+          this.props.data ? this.props.data.keys ?
             <div className="graph-wrapper">
               <h4>Normalized Z-Scores</h4>
               <ResponsiveContainer height={600} >
@@ -85,6 +85,8 @@ class Visualize extends Component {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            :
+            <div className="well">Data not available.</div>
             :
             <div className="well">Data not available.</div>
         }

@@ -9,9 +9,10 @@ const getRoom = (object = {}) => {
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
+    // console.log(socket.request.user);
     console.log(`A socket connection to the server has been made: ${socket.id}`)
-    registerJoinAdmin(socket, io)
     registerEvents(socket, io)
+    registerJoinAdmin(socket, io)
   })
 }
 
@@ -45,18 +46,24 @@ function registerEvents(socket, io) {
   registerRequestRoom(socket, io)
   registerAbort(socket, io)
   registerJobError(socket, io)
+  registerToggleReady(socket, io)
 }
 
 // when a specific client gets an error
-function registerJobError(socket, io) {
+function registerJobError(socket) {
   socket.on('JOB_ERROR', ({ roomHash, error }) => {
-    rooms[roomHash].jobError(socket, io, error)
+    rooms[roomHash].jobError(socket, error)
   })
 }
 
 // abort event gets triggered when when the client side reset button is hit
 function registerAbort(socket) {
-  socket.on('ABORT', room => rooms[room].abort(socket))
+socket.on('ABORT', (room) => {
+    // if there are no nodes in the room, create a new roomManager instance
+    socket.on('ABORT', room => rooms[room].abort(socket))
+    if (Object.keys(rooms[room].nodes).length < 1) rooms[room] = new RoomManager()
+    else rooms[room].abort(socket)
+  })
 }
 
 // when a contributor enters a room, a new in memory room is created (or an existing in memory room is updated with a new node)
@@ -77,6 +84,12 @@ function registerRequestRoom(socket) {
 
 function registerLeave(socket, io) {
   socket.on('leave', room => rooms[room].leave(socket, io))
+}
+
+function registerToggleReady(socket, io) {
+  socket.on('toggleReady', (room) => {
+    rooms[room].toggleNodeReady(socket, io)
+  })
 }
 
 function registerStart(socket) {

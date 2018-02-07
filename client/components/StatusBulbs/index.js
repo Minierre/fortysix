@@ -10,6 +10,7 @@ const StatusBulbs = ({ nodes }) => {
       {
         nodes && map(nodes, (node, id) => {
           if (node.error) return <div key={id} className="status-bulb-error" />
+          if (!node.ready) return <div key={id} className="status-bulb-not-ready"/>
           if (node.running) return (
             <div key={id} className="status-bulb-running">
               <ReactLoading

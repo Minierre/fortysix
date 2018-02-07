@@ -40,7 +40,8 @@ router.post('/', (req, res, next) => {
     err.status = 403
     next(err)
   } else {
-    Room.create(req.body)
+    const newRoom = Object.assign({}, req.body, { userId: req.user.id })
+    Room.create(newRoom)
       .tap(async (room) => {
         await room.createParameter()
         await room.addMutation(1)
@@ -55,11 +56,14 @@ router.put('/:roomHash', (req, res, next) => {
     mutations,
     selection,
     fitnessFunc,
+    testPool
   } = req.body
+
+  const c = testPool[0] || '1010'
 
   sandbox.run(
     `let fitFunc = eval(${fitnessFunc});
-    (() => fitFunc())()`,
+    (() => fitFunc([${c}]))()`,
     (output) => {
       const isValid = !isNaN(Number(output.result))
       // FIXME: re-add security
