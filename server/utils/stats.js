@@ -31,6 +31,7 @@ class RoomStats {
     this.generations = generations
     this.populationSize = populationSize
     this.selectionSize = (2 * reproductiveCoefficient) / populationSize
+    // this.notWaiting = true
   }
 
   updateGenerationData(finishedTask) {
@@ -39,13 +40,13 @@ class RoomStats {
     const thread = spawn('updateGenerationData.js')
 
     this.counter++
-    if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
 
     // every task comes back with fitness data too, which we store
     fitnesses.forEach(fitness => this.generationFitnessesData[gen].push(Math.log(fitness + 1)))
 
     if (genOneFitnessData) {
       this.numberOfChromosomesProcessed += genOneFitnessData.length
+      // this.notWaiting = false
       return thread.send({
         genOneFitnessData,
         generationOneFitnessesData: this.generationFitnessesData[1],
@@ -56,17 +57,19 @@ class RoomStats {
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
           if (this.generationFitnessesData[gen].length >= 36) {
             this.generateGraphData()
+            // notWaiting = true
           }
         })
     } else {
       if (this.generationFitnessesData[gen].length >= 36) {
+        if (gen > this.highestProcessedGeneration) this.highestProcessedGeneration = gen
         this.generateGraphData()
       }
     }
   }
 
   findMean(arr) {
-    return arr.reduce((a, b) => a + b) / arr.length
+    return arr.reduce((a, b) => a + b, 0) / arr.length
   }
 
   findSD(arr, mean) {
@@ -157,6 +160,7 @@ class RoomStats {
   }
 
   generateMeanAndSD(currentGen) {
+    console.log(currentGen)
     if (this.dataCache[currentGen].stableMean) {
       return this.dataCache[currentGen]
     }

@@ -1,11 +1,11 @@
 // fitness function for matching an input string, default string = alphabet
-const findString = ((c, targetString = 'jon') => {
+const findString = ((c, targetString = 'abel is me') => {
   let fitness = 0;
   let i;
   for (i = 0; i < c.length; ++i) {
-    if (c[i] === targetString[i])
-      fitness += 100;
-    fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / 50;
+    if (c[i] === targetString[i]) fitness += 200;
+    if (targetString.includes(c[i])) fitness += 100;
+    fitness -= (127 - Math.abs(c[i].charCodeAt(0) - targetString.charCodeAt(i))) / (targetString.length ** 2);
   }
   return Math.max(fitness, 0);
 }).toString()
