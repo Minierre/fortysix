@@ -32,7 +32,7 @@ export default {
       }
     },
     "size": {
-      "value": 3.14159265,
+      "value": 5,
       "random": false,
       "anim": {
         "enable": true,

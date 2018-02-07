@@ -193,7 +193,7 @@ class ContributorView extends Component {
               <td>{this.state.taskPerSecond}</td>
             </tr>
           </tbody>
-        </Table>;
+        </Table>
       </div>
     )
   }

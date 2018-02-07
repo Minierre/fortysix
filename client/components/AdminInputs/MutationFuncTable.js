@@ -16,13 +16,18 @@ export default class MutationFuncTable extends React.Component {
   }
 
   onAfterSaveCell(row, cellName, cellValue) {
+
+    const value = this.props.functions.map(fn => {
+      if (fn.mutationId !== row.mutationId) return fn
+      const newFn = { ...fn, chanceOfMutation: row.chanceOfMutation }
+      return fn
+    })
+
     this.props.submit({
       preventDefault: () => { },
       target: {
-        value: {
-          mutationId: row.mutationId,
-          chanceOfMutation: row.chanceOfMutation
-        }
+        name: 'mutations',
+        value
       }
     })
   }

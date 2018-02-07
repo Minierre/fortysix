@@ -279,12 +279,11 @@ class RoomManager {
     //check if 256 breaks something
     if (this.nodes[socket.id]) {
       if (this.nodes[socket.id].ready) {
-      this.nodes[socket.id].running = true
-      this.nodes[socket.id].error = false
-      this.nodes[socket.id].tasksCompletedByNode++
-      socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running:this.jobRunning })
-      this.updateAdmins()
-    }
+        this.nodes[socket.id].running = true
+        this.nodes[socket.id].error = false
+        this.nodes[socket.id].tasksCompletedByNode++
+        socket.emit('CALL_' + this.room, { task: this.tasks.shift(), totalTasksCompleted: this.totalTasksCompleted, tasksCompletedByNode: this.nodes[socket.id].tasksCompletedByNode, running:this.jobRunning })
+      }
     }
   }
 
@@ -360,7 +359,6 @@ class RoomManager {
       if (this.totalTasks() > 0 && this.nodes[socket.id]) this.distributeWork(socket)
       this.createTask(finishedTask)
     }
-    this.updateAdmins()
   }
 
   algorithmDone(winningChromosome, fitness, socket) {
@@ -386,6 +384,7 @@ class RoomManager {
     this.isDone = true
     this.stopJob(socket)
   }
+
   updateAdmins() {
     forEach(this.admins, admin => admin.emit('UPDATE_' + this.room, {
       nodes: this.nodes,
@@ -415,6 +414,7 @@ class RoomManager {
       console.log(chalk.green('DONE: '), socket.id, finishedTask.room)
     }
   }
+
   updateAdminHistory(history) {
     forEach(this.admins, admin =>
       admin.emit('UPDATE_HISTORY_' + this.room, history))

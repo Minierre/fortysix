@@ -111,51 +111,51 @@ async function seed() {
   const roomParameters = await Promise.all([
     RoomParameters.create({
       roomId: 1,
-      parameterId: 1
+      parameterId: parameters[0].id
     }),
     RoomParameters.create({
       roomId: 2,
-      parameterId: 2
+      parameterId: parameters[1].id
     }),
     RoomParameters.create({
       roomId: 3,
-      parameterId: 3
+      parameterId: parameters[2].id
     }),
     RoomParameters.create({
       roomId: 4,
-      parameterId: 4
+      parameterId: parameters[3].id
     })
   ])
 
   const roomMutations = await Promise.all([
     RoomMutations.create({
       mutationId: 1,
-      roomId: 1,
+      roomId: rooms[0].id,
       chanceOfMutation: 0
     }),
     RoomMutations.create({
       mutationId: 2,
-      roomId: 1,
+      roomId: rooms[0].id,
       chanceOfMutation: 0
     }),
     RoomMutations.create({
       mutationId: 3,
-      roomId: 3,
+      roomId: rooms[2].id,
       chanceOfMutation: 0.2
     }),
     RoomMutations.create({
       mutationId: 2,
-      roomId: 3,
+      roomId: rooms[2].id,
       chanceOfMutation: 0.2
     }),
     RoomMutations.create({
       mutationId: 1,
-      roomId: 4,
+      roomId: rooms[3].id,
       chanceOfMutation: 0.07
     }),
     RoomMutations.create({
       mutationId: 2,
-      roomId: 4,
+      roomId: rooms[3].id,
       chanceOfMutation: 0.27
     })
   ])
