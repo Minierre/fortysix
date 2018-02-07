@@ -10,6 +10,9 @@ class Timer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // console.log(nextProps);
+    console.log(this.timerInterval);
+    console.log(this.props.start);
     if (nextProps.start !== null && !this.timerInterval) {
       this.timerInterval = setInterval(() => {
         this.setState({
@@ -22,6 +25,7 @@ class Timer extends Component {
   }
 
   parseTime(milliseconds) {
+    // console.log(milliseconds);
     if (milliseconds > 0) {
       const seconds = milliseconds / 1000
       const hours = Math.floor(seconds / 3600)
@@ -46,6 +50,7 @@ class Timer extends Component {
   }
 
   resetTimer() {
+    // console.log(this.state);
     clearInterval(this.timerInterval)
     this.timerInterval = null
   }

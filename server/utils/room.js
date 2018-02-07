@@ -74,7 +74,7 @@ class RoomManager {
   join(socket) {
     socket.join(this.room)
 
-    this.nodes[socket.id] = { ready: true, running: false, error: false, tasksCompletedByNode: 0 }
+    this.nodes[socket.id] = { running: false, error: false, tasksCompletedByNode: 0, ready: true }
     if (this.jobRunning) {
       this.tasks = this.tasks.concat(generateTasks(
         this.populationSize,
