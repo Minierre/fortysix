@@ -11,6 +11,8 @@ Room.belongsToMany(Mutations, { through: 'room_mutations' })
 Room.belongsToMany(Parameters, { through: 'room_parameters' })
 Selections.hasOne(Room)
 Room.belongsTo(Selections)
+Room.belongsTo(User)
+User.hasMany(Room)
 
 module.exports = {
   User,

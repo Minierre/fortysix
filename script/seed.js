@@ -28,8 +28,9 @@ async function seed() {
   // executed until that promise resolves!
 
   const users = await Promise.all([
-    User.create({ email: 'cody@email.com', password: '123' }),
-    User.create({ email: 'murphy@email.com', password: '123' })
+    User.create({ email: 'cody@email.com', password: '123', isAdmin: false }),
+    User.create({ email: 'murphy@email.com', password: '123', isAdmin: false }),
+    User.create({ email: 'admin@admin.com', password: '123', isAdmin: true })
   ])
 
   const mutations = await Promise.all([
@@ -47,22 +48,26 @@ async function seed() {
     Room.create({
       roomName: 'Game of Life',
       fitnessFunc: gameOfLifeFitness,
-      selectionId: 1
+      selectionId: 1,
+      userId: null
     }),
     Room.create({
       roomName: 'Game of Life Loopers',
       fitnessFunc: gameOfLifeFitnessLoopers,
-      selectionId: 1
+      selectionId: 1,
+      userId: 3
     }),
     Room.create({
       roomName: 'String Matcher',
       fitnessFunc: findString,
-      selectionId: 2
+      selectionId: 2,
+      userId: null
     }),
     Room.create({
       roomName: 'Hello World',
       fitnessFunc: helloWorld,
-      selectionId: 1
+      selectionId: 1,
+      userId: null
     })
   ])
 
