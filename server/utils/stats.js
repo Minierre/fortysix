@@ -31,7 +31,6 @@ class RoomStats {
     this.generations = generations
     this.populationSize = populationSize
     this.selectionSize = (2 * reproductiveCoefficient) / populationSize
-    // this.notWaiting = true
   }
 
   updateGenerationData(finishedTask) {
@@ -46,7 +45,6 @@ class RoomStats {
 
     if (genOneFitnessData) {
       this.numberOfChromosomesProcessed += genOneFitnessData.length
-      // this.notWaiting = false
       return thread.send({
         genOneFitnessData,
         generationOneFitnessesData: this.generationFitnessesData[1],
@@ -57,7 +55,6 @@ class RoomStats {
           this.generationFitnessesData[1] = newGenerationOneFitnessesData
           if (this.generationFitnessesData[gen].length >= 36) {
             this.generateGraphData()
-            // notWaiting = true
           }
         })
     } else {
@@ -160,7 +157,6 @@ class RoomStats {
   }
 
   generateMeanAndSD(currentGen) {
-    console.log(currentGen)
     if (this.dataCache[currentGen].stableMean) {
       return this.dataCache[currentGen]
     }
