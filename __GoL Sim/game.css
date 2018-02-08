@@ -1,5 +1,10 @@
 body {
   padding: 10px;
+  background-color: rgb(19, 66, 5);
+}
+
+#turn {
+  color: white;
 }
 
 h1, h2 {
@@ -16,11 +21,11 @@ h1, h2 {
 }
 
 td.alive {
-  background-color: #8CC8DD;
+  background-color: rgb(209, 84, 12);
 }
 
 td.dead {
-  background-color: #fff;
+  background-color: rgb(19, 66, 5);
 }
 
 #control_panel {
