@@ -1,1 +1,7 @@
+.history-table .react-bs-table table td,
+.history-table .react-bs-table table th {
+  overflow: hidden;
+  white-space: normal;
+  word-wrap: break-word;
+}
 
