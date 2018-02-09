@@ -1,3 +1,8 @@
+#last-execution-info-wrapper {
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
 .runtime-label-wrapper {
   margin: 2em 0;
 }
