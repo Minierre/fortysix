@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import ReactGA from 'react-ga'
 import { Route, Switch, Router } from 'react-router-dom'
 import history from './history'
 import { me } from './store'
@@ -17,6 +18,13 @@ import {
 } from './pages'
 
 import './style.css'
+
+ReactGA.initialize('UA-113880792-1')
+
+history.listen((location, action) => {
+  ReactGA.set({ page: location.pathname })
+  ReactGA.pageview(location.pathname)
+})
 
 class App extends Component {
   componentDidMount() {
