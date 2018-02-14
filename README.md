@@ -12,7 +12,7 @@ For a video demonstration on this platform, visit: https://www.youtube.com/watch
 
 ##### 2. Once an admin of a room, you can customize the following environmental parameters:
 
-   | Parameter | Value | Description |
+   | Parameter | Type | Description |
    |:------------- |:-------------|:-----|
    | population size | integer | the number of chromosomes that makes up a "full" generation (and the amount of chromosomes given to each client to run the fitness function on) |
    | chromosome length | integer | the length of each chromosome in a the population, made up of the genes in the gene pool |
@@ -30,7 +30,7 @@ For a video demonstration on this platform, visit: https://www.youtube.com/watch
 
    | Admin URL path | Contributor URL path |
    |:----------|:-------------|
-   | '/admin/roomHash' | '/contributor/roomHash/' |
+   | '/admin/roomHash' | '/contributor/roomHash' |
 
 ##### 4. Navigate to the "run" tab
 
