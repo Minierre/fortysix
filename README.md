@@ -4,11 +4,13 @@
 
 FortySix is a platform that allows users to customize and run genetic algorithms. The computational load of each genetic algorithm running on the platform is distributed across many different web-browser clients, meaning any user can sign up and contribute their computing power.
 
+For a video demonstration on this platform, visit: https://www.youtube.com/watch?v=SiYpjTP8c7s&index=22&list=PLx0iOsdUOUmndNwdSO_UI3KGiNlIMsPkQ
+
 **How to use it:**
 
 ##### 1. Sign up or log in and create your own room by navigating to the rooms tab on the navigation bar and creating a room
 
-   Once an admin of a room, you can customize the following environmental parameters:
+##### 2. Once an admin of a room, you can customize the following environmental parameters:
 
    | Parameter | Value | Description |
    |:------------- |:-------------|:-----|
@@ -22,7 +24,7 @@ FortySix is a platform that allows users to customize and run genetic algorithms
    | selection method | determines how the chromosomes from the current population are selected for inclusion in the next generation | dropdown menu |
    | mutation methods | methods of adaptation | table |
 
-##### 2. Invite a few friends to help contribute their computing power to your cause by manually converting your URL into a contributor URL.
+##### 3. Invite a few friends to help contribute their computing power to your cause by manually converting your URL into a contributor URL.
 
    URL Conversion:
 
@@ -30,13 +32,13 @@ FortySix is a platform that allows users to customize and run genetic algorithms
    |:----------|:-------------|
    | '/admin/roomHash' | '/contributor/roomHash/' |
 
-##### 3. Navigate to the "run" tab
+##### 4. Navigate to the "run" tab
 
    Once your contributors are connected, you should see a few green nodes in the run tab and the ability to "run the job"
    
    When you're ready, click "run job"
    
-##### 4. Algorithm performance
+##### 5. Algorithm performance
 
    In the data view, you'll see a graph which tells you how your algorithm is performing in real time. The graph shows the ten most recent    generations which have been adequately processed by the nodes in their network (contributors) against a proportionally sized and          curated selection of random chromosomes. The view updates every 5 seconds.
    
