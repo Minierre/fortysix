@@ -2,30 +2,51 @@
 
 **What it does:**
 
-FortySix is a platform for low-barrier-to-entry machine learning. Advanced users can write criteria which the platform will optimize a solution for using simulated evolution. All users can contribute computing power to any existing experiments 
+FortySix is a platform that allows users to customize and run genetic algorithms. The computational load of each genetic algorithm running on the platform is distributed across many different web-browser clients, meaning any user can sign up and contribute their computing power.
 
 **How to use it:**
 
-FortySix's machine learning algorithm is a highly parameterizable genetic algorithm. Users have control over the following environmental parameters:
- - population size
- - chromosome length
- - gene pool
- - fitness goal
- - elitism
- - reproductive coefficient
- - number of generations
- - selection method
- - mutation methods
+##### 1. Sign up or log in and create your own room by navigating to the rooms tab on the navigation bar and creating a room
 
-In addendum to these parameters the admin of a given room, or experiment, can define their own fitness function in javascript
+   Once an admin of a room, you can customize the following environmental parameters:
+
+   | Parameter | Value | Description |
+   |:------------- |:-------------|:-----|
+   | population size | integer | the number of chromosomes that makes up a "full" generation (and the amount of chromosomes given to each client to run the fitness function on) |
+   | chromosome length | integer | the length of each chromosome in a the population, made up of the genes in the gene pool |
+   | gene pool | comma delimited values | the building blocks of each chromosome |
+   | fitness goal | integer | a chromosome with this level of fitness will terminate the algorithm and immediately be returned as the result |
+   | elitism | integer | if a population contains a chromosome with a fitness level greater than or equal to the elitism score, then we automatically include the strongest chromosome of that population in the next generation, before proceeding to the selection method |
+   | reproductive coefficient | the number of children each selected chromosome creates for the next generation | integer |
+   | number of generations | an algorithm termination condition |  integer |
+   | selection method | determines how the chromosomes from the current population are selected for inclusion in the next generation | dropdown menu |
+   | mutation methods | methods of adaptation | table |
+
+##### 2. Invite a few friends to help contribute their computing power to your cause by manually converting your URL into a contributor URL.
+
+   URL Conversion:
+
+   | Admin URL path | Contributor URL path |
+   |:----------|:-------------|
+   | '/admin/roomHash' | '/contributor/roomHash/' |
+
+##### 3. Navigate to the "run" tab
+
+   Once your contributors are connected, you should see a few green nodes in the run tab and the ability to "run the job"
+   
+   When you're ready, click "run job"
+   
+##### 4. Algorithm performance
+
+   In the data view, you'll see a graph which tells you how your algorithm is performing in real time. The graph shows the ten most recent    generations which have been adequately processed by the nodes in their network (contributors) against a proportionally sized and          curated selection of random chromosomes. The view updates every 5 seconds.
+   
+   The x axis is divided into 5 categories - each category represents a z-score bucket that tells the practitioner if their algorithm is      performing *better* than random. For example, a genetic algorithm with no parameters should report a graph with a very high density in    the "random" category because it should theoretically not be performing better than random. The z-scores reported are calculated          through a log-transformation of fitness data and measured against random guess-and-check.
 
 **How it works:**
 
-Genetic algorithms simulated evolution as a method of seaking global optimization points in very large solution spaces. They hinge on fitness function, which can be computationally taxing to iterate large numbers of times. It is therefore uncommon for genetic algorithms to be used in situation where practitioners have limited computing power. Our platform enables a wider audience to experiment with these optimization techniques by offloading the computation of their algorithm to multiple computers via their web browsers. Contributors can donate their computing power and track their contributions to various experiments simply by navigating a website and choosing which experiments they wish to contribute to. This distribution method of the computation is not only efficient but easy for both practitioners and contributors to use.
+Genetic algorithms simulate evolution as a method of seaking global optimization points in very large solution spaces. They hinge on a specific fitness function, which is run on hundreds of thousands of different chromosomes to evaluate their suitability as potential solutions in the entire space. However, genetic algorithms are computationally expensive, which creates a barrier to entry for people with limited computing power. Our platform enables a wider audience to experiment with genetic algorithms by offloading the computation of their fitness function to multiple computers via their web browsers. On top of that, each client uses web-workers to enable multithreading, which segments task processing down even further and gives a performance boost. 
 
-As a practitioner some key pieces of data are available through the interface. The core of the data visualization from the practitioner’s perspective is a statistical analysis of their genetics algorithm’s success, which is updated in real time. The graph shows the ten most recent generations which have been adequately processed by the nodes in their network (contributors) against a proportionally sized and curated selection of random chromosomes. This enables a practitioner to gauge in real time how their parameterized evolutionary process compared to random guess and check, in a normalized way. This statistical analysis is done using the z-scores of log-transformed fitnesses as measurements. Further optimization is done by discontinuing the calculation and storage of measurements when the standard deviation of the accumulated standard deviations stabilizes.
-
-As a contributor, a user can track their contributions to an experiment with a real time updates of the number of tasks which they have completed for a given experiment, the amount of time which they have been contributing to that task, the percentage of all tasks for the experiment which they are responsible for completing, and their average completed tasks per second. Which reifies the user’s, otherwise abstract, contribution to an experiment.
+Contributors can donate their computing power and track their contributions to various experiments simply by navigating to our website and choosing which experiments they wish to contribute to. This distribution method of the computation is not only efficient but easy for both practitioners and contributors to use.
 
 **Glossary:**
 
