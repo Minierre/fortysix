@@ -19,10 +19,10 @@ For a video demonstration on this platform, visit: https://www.youtube.com/watch
    | gene pool | comma delimited values | the building blocks of each chromosome |
    | fitness goal | integer | a chromosome with this level of fitness will terminate the algorithm and immediately be returned as the result |
    | elitism | integer | if a population contains a chromosome with a fitness level greater than or equal to the elitism score, then we automatically include the strongest chromosome of that population in the next generation, before proceeding to the selection method |
-   | reproductive coefficient | the number of children each selected chromosome creates for the next generation | integer |
-   | number of generations | an algorithm termination condition |  integer |
-   | selection method | determines how the chromosomes from the current population are selected for inclusion in the next generation | dropdown menu |
-   | mutation methods | methods of adaptation | table |
+   | reproductive coefficient | integer | the number of children each selected chromosome creates for the next generation |
+   | number of generations |  integer | an algorithm termination condition |
+   | selection method |  dropdown menu | determines how the chromosomes from the current population are selected for inclusion in the next generation |
+   | mutation methods |  table | methods of adaptation |
 
 ##### 3. Invite a few friends to help contribute their computing power to your cause by manually converting your URL into a contributor URL.
 
